@@ -1,0 +1,38 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  boundaries:
+    if: github.event_name == 'pull_request'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Iron Rule 2 — role/directory boundaries
+        run: bash flow/check_boundaries.sh origin/${{ github.base_ref }}
+
+  gates:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: YosysHQ/setup-oss-cad-suite@v3
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Install python deps
+        run: pip install -r requirements.txt
+      - name: Gate — lint
+        run: make lint
+      - name: Gate — unit simulation
+        run: make sim
+      - name: Gate — formal
+        run: make formal
+
+  # M0 TODO: nightly job running `make gds MOD=blink` (LibreLane container)
+  # M2 TODO: compliance job (RISCOF + Spike)
+  # M3 TODO: soc-sim job (firmware boot + CoreMark)

@@ -1,0 +1,37 @@
+# simulation artifacts
+obj_dir/
+sim_build/
+*.vcd
+*.fst
+*.fst.hier
+*.vvp
+results.xml
+coverage.dat
+annotate/
+
+# formal artifacts
+hw/formal/**/*_bmc/
+hw/formal/**/*_prove/
+hw/formal/**/*_cover/
+
+# physical design runs (signoff summaries ARE committed, runs are not)
+hw/pd/**/runs/
+
+# firmware build
+sw/**/*.o
+sw/**/*.elf
+sw/**/*.bin
+sw/**/*.map
+
+# python
+__pycache__/
+*.pyc
+.venv/
+
+# editors / os
+.DS_Store
+.vscode/
+.idea/
+
+# codegraph cache
+.codegraph/
