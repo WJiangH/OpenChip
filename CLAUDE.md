@@ -62,6 +62,18 @@ make clean
 - The RISC-V core is additionally verified by riscv-arch-test/RISCOF against
   Spike — architectural compliance is not negotiable.
 
+## Commit signature convention
+
+Every agent commits its own deliverables with its role signature as the git
+author, format `<role>-agent-<Model><Version>-<effort>`:
+
+```
+git commit --author="dv-agent-Sonnet5-high <dv-engineer@agents.openchip>" ...
+```
+
+The model/effort in the signature is what the session actually ran on — no
+honorary upgrades. One role's deliverables per commit; don't mix roles.
+
 ## When you finish a task
 
 1. Run the relevant `make` gates locally and include the summary lines in your report.

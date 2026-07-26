@@ -4,6 +4,9 @@
 include flow/versions.mk
 include flow/gates.mk
 
+# Toolchain: project venv (cocotb) + OSS CAD Suite (pinned in versions.mk)
+export PATH := $(CURDIR)/.venv/bin:$(HOME)/tools/oss-cad-suite/bin:$(PATH)
+
 MODULES  := $(sort $(notdir $(patsubst %/,%,$(dir $(wildcard hw/rtl/*/*.sv)))))
 SIM_MODS := $(notdir $(patsubst %/Makefile,%,$(wildcard hw/dv/*/Makefile)))
 SBY_MODS := $(notdir $(patsubst %.sby,%,$(wildcard hw/formal/*/*.sby)))

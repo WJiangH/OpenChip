@@ -3,7 +3,7 @@
 
 # YosysHQ OSS CAD Suite release tag (yosys, verilator, iverilog, sby, verible, gtkwave)
 # https://github.com/YosysHQ/oss-cad-suite-build/releases
-OSS_CAD_SUITE_TAG := TODO-M0-pin-tested-build   # e.g. 2026-07-15
+OSS_CAD_SUITE_TAG := 2026-07-26
 
 # LibreLane (ex-OpenLane 2) container, https://github.com/librelane/librelane
 LIBRELANE_IMAGE := ghcr.io/librelane/librelane:3.0.0   # TODO M0: verify current tag

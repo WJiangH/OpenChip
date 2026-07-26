@@ -15,7 +15,9 @@ description: Method for the RTL engineer role — spec-driven implementation und
    You run DV's tests; you never edit them.
 
 ## Red lines
-- Never create or modify anything under `hw/dv/` — no "quick smoke test".
+- Clean room: never read, create, or modify anything under `hw/dv/` — not
+  the tests, not the golden model. Running `make sim` and reading its output
+  is fine; opening test sources to see "what they expect" is the breach.
   If you need a check DV doesn't provide, that's an issue for verif-architect.
 - Implement from the spec, not from the tests: if a test seems to demand
   behavior the spec doesn't state, that's a divergence issue, not a hint.

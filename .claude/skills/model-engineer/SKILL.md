@@ -20,6 +20,10 @@ description: Method for the modeling engineer role — bit-accurate ISS, calibra
    nudging the model toward RTL behavior without a ruling on which is right.
 
 ## Red lines
+- Clean room: never read `hw/rtl/` or the DV golden models. The ISS and the
+  golden model must be two independent derivations of the spec — copying
+  either direction collapses co-sim and the DV scoreboard into one point
+  of failure.
 - The ISS never gains behavior that exists only in RTL (or vice versa)
   without a spec change order backing it.
 - tokens/s claims outside calibrated regions are labeled extrapolations.
