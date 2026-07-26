@@ -29,5 +29,5 @@ Property list traceable to spec §s, all proven or bounded-with-stated-depth,
 covers reachable, CEXs filed as bugs, assumptions each justified.
 
 ## References index
-`references/` is empty by design — entries are distilled from retros, gated
-by the integrator. Load only what the task needs.
+Distilled from retros, integrator-gated. Load only what the task needs:
+- `references/yosys-formal-pitfalls.md` — silent-fake-proof traps (read_slang, bind), anti-vacuity drill, sby details

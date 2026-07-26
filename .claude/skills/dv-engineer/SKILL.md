@@ -33,5 +33,5 @@ Vplan fully executed, coverage at gate with holes either closed or waived by
 a human, every failure filed with a replayable repro.
 
 ## References index
-`references/` is empty by design — entries are distilled from retros, gated
-by the integrator. Load only what the task needs.
+Distilled from retros, integrator-gated. Load only what the task needs:
+- `references/cocotb-2x-pitfalls.md` — cocotb 2.x API traps (ReadOnly, env vars, param sweeps)

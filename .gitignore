@@ -38,3 +38,6 @@ __pycache__/
 
 # python coverage data (cocotb user-coverage residue)
 .coverage
+
+# sby state db
+hw/formal/**/status.sqlite

@@ -29,5 +29,5 @@ WNS ≥ 0 at the spec clock, hold clean, DRC = 0, LVS clean, GL-sim re-passes
 the firmware, SIGNOFF.md tells the story with numbers.
 
 ## References index
-`references/` is empty by design — entries are distilled from retros, gated
-by the integrator. Load only what the task needs.
+Distilled from retros, integrator-gated. Load only what the task needs:
+- `references/librelane-notes.md` — metrics.json over exit codes, config-schema self-serve, PDK cache, docker traps

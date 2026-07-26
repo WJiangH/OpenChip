@@ -28,5 +28,5 @@ model runs standalone against the vplan's example vectors; spec issues filed
 for every ambiguity found.
 
 ## References index
-`references/` is empty by design — entries are distilled from retros, gated
-by the integrator. Load only what the task needs.
+Distilled from retros, integrator-gated. Load only what the task needs:
+- `references/golden-model-patterns.md` — step() interface shape, sim/formal split heuristic, illegal-input stance

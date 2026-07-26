@@ -74,9 +74,17 @@ git commit --author="dv-agent-Sonnet5-high <dv-engineer@agents.openchip>" ...
 The model/effort in the signature is what the session actually ran on — no
 honorary upgrades. One role's deliverables per commit; don't mix roles.
 
+## Working notes
+
+- Everything you need is inside this repo — never scan the filesystem outside it.
+- Flow-level defects you discover (Makefile, flow/, CI) are reported, not fixed:
+  work around inside your own directories and flag it; the orchestrator owns flow/.
+
 ## When you finish a task
 
 1. Run the relevant `make` gates locally and include the summary lines in your report.
 2. Open a PR; CI re-runs the gates. The reviewer role checks spec conformance.
 3. Report honestly: failing gates, skipped checks, and open questions go in the
    PR description — surfacing a failure is rewarded, hiding one is a protocol breach.
+4. End every report with a tooling-friction list (surprises, workarounds,
+   deprecations) — it feeds the skill library via retro distillation.

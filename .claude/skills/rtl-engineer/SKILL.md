@@ -32,5 +32,5 @@ Lint zero warnings, synth latch-free, DV suite green with no failures traced
 to RTL — "looks right" is not a state.
 
 ## References index
-`references/` is empty by design — entries are distilled from retros, gated
-by the integrator. Load only what the task needs.
+Distilled from retros, integrator-gated. Load only what the task needs:
+- `references/verilator-lint-pitfalls.md` — width-cast and $clog2 traps

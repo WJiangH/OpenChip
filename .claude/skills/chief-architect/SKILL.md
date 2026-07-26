@@ -35,5 +35,5 @@ golden model from your spec alone; open-questions section is empty before
 status: frozen.
 
 ## References index
-`references/` is empty by design — entries are distilled from retros, gated
-by the integrator. Load only what the task needs.
+Distilled from retros, integrator-gated. Load only what the task needs:
+- `references/spec-authoring-patterns.md` — shall-ID traceability, illegal-vs-unspecified rulings, parameter clauses
