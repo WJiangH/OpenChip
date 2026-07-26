@@ -1,0 +1,63 @@
+# blink.sby — SymbiYosys proof job for hw/rtl/blink/blink.sv
+# Spec: docs/spec/blink.md (BLINK-01..08). Properties: hw/formal/blink/blink_fv.sv
+#
+# Small-N proof instance: HALF_PERIOD is set per task to 3 (main run), and to
+# the two edge values called out in spec §6 (1 and 2). BLINK-07 states that for
+# any HALF_PERIOD >= 1 the behavior BLINK-01..06 is "identical in structure,
+# differing only in the numeric cycle count at which toggles occur", so a small
+# N keeps the BMC/cover depth able to span several full periods.
+# Run from the repo root: make formal MOD=blink
+
+# Task names end in _bmc/_prove/_cover so the generated workdirs
+# (blink_n3_bmc/ ...) match the repo .gitignore patterns.
+[tasks]
+n3_bmc   bmc   n3
+n3_prove prove n3
+n3_cover cover n3
+n1_bmc   bmc   n1
+n1_prove prove n1
+n1_cover cover n1
+n2_bmc   bmc   n2
+n2_prove prove n2
+n2_cover cover n2
+
+[options]
+bmc:   mode bmc
+bmc:   depth 32
+prove: mode prove
+prove: depth 24
+cover: mode cover
+cover: depth 32
+
+[engines]
+smtbmc yices
+
+[script]
+# Frontend note: the slang frontend is used instead of `read_verilog -sv` on
+# purpose. `read_verilog` does NOT resolve the hierarchical reference
+# `u_dut.cnt`; it silently creates an undriven implicit wire of that name
+# (only a warning), which makes every counter property vacuous/bogus. slang
+# elaborates the reference correctly. slang.so ships with the pinned OSS CAD
+# Suite (flow/versions.mk), so CI has it too.
+n1: read_slang --top blink_fv -G HALF_PERIOD=1 blink.sv blink_fv.sv
+n2: read_slang --top blink_fv -G HALF_PERIOD=2 blink.sv blink_fv.sv
+n3: read_slang --top blink_fv -G HALF_PERIOD=3 blink.sv blink_fv.sv
+prep -top blink_fv
+
+# BLINK-08 (no asynchronous reset logic): structural, not temporal — a
+# cycle-accurate formal engine cannot observe a sensitivity list, but an
+# asynchronous reset/set or a latch necessarily elaborates into one of these
+# cell types. Asserting the selection is empty proves the design contains only
+# synchronously-reset flops. Yosys aborts the task if any such cell exists.
+select -assert-none t:$adff t:$adffe t:$aldff t:$aldffe t:$adlatch t:$dlatch t:$dlatchsr t:$sr t:$dffsr t:$dffsre
+
+# BLINK-06 (glitch-free registered output): also structural — a cycle-based
+# engine has no notion of intra-cycle glitches. Assert that o_led is driven by
+# exactly one flip-flop through its Q port, i.e. it is never derived
+# combinationally from cnt or anything else. Verified to fail on a mutant whose
+# o_led is `led_r ^ (cnt == HALF_PERIOD-1)`.
+select -assert-count 1 w:o_led %ci*:+[Q] t:$dff %i
+
+[files]
+hw/rtl/blink/blink.sv
+hw/formal/blink/blink_fv.sv
