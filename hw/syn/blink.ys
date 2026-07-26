@@ -1,0 +1,127 @@
+# blink.ys — Yosys synthesis script for `blink` (docs/spec/blink.md).
+#
+# NOTE ON FORMAT: this file has a `.ys` extension but its content is **Tcl**,
+# because the flow Makefile invokes it as `yosys -c hw/syn/$(MOD).ys` and
+# `-c` selects the Tcl frontend.  Every Yosys command is written with the
+# explicit `yosys <cmd>` prefix so that names that collide with Tcl builtins
+# (cd, exec, tee, ...) can never be mis-dispatched.
+#
+# Gate (M0): clean elaboration + no inferred latches + cell-count `stat`.
+# OpenSTA is not installed standalone on the reference host, so timing numbers
+# come from the LibreLane STA steps (see hw/pd/blink/SIGNOFF.md).
+#
+# Constraints are spec (flow/gates.mk: CLOCK_PERIOD_NS = 20 -> 50 MHz);
+# they live in hw/syn/blink.sdc and are never loosened to make a run pass.
+
+set top       blink
+set rtl       hw/rtl/blink/blink.sv
+set outdir    hw/syn/out
+set scl       sky130_fd_sc_hd
+
+file mkdir $outdir
+
+# --- liberty discovery ------------------------------------------------------
+# Mapped synthesis needs the sky130 SCL liberty.  It is not shipped with
+# oss-cad-suite; it arrives with the sky130A PDK that `make gds` fetches into
+# the ciel cache.  Order: $LIBERTY -> $PDK_ROOT -> ciel/volare caches.
+proc find_liberty {scl} {
+    global env
+    set cands {}
+    if {[info exists env(LIBERTY)]} { lappend cands $env(LIBERTY) }
+    set roots {}
+    if {[info exists env(PDK_ROOT)]} { lappend roots $env(PDK_ROOT) }
+    lappend roots [file join $env(HOME) .ciel] [file join $env(HOME) .volare]
+    foreach r $roots {
+        # flat layout : $PDK_ROOT/sky130A/...
+        # ciel layout : <cache>/[ciel/]sky130/versions/<hash>/sky130A/...
+        foreach pat [list \
+            [file join $r sky130A libs.ref $scl lib ${scl}__tt_025C_1v80.lib] \
+            [file join $r sky130 versions * sky130A libs.ref $scl lib ${scl}__tt_025C_1v80.lib] \
+            [file join $r ciel sky130 versions * sky130A libs.ref $scl lib ${scl}__tt_025C_1v80.lib]] {
+            foreach hit [lsort [glob -nocomplain $pat]] { lappend cands $hit }
+        }
+    }
+    foreach c $cands { if {[file readable $c]} { return $c } }
+    return ""
+}
+
+set liberty [find_liberty $scl]
+
+# --- PDK cell exclusions ----------------------------------------------------
+# The sky130A PDK ships the same "do not use" lists LibreLane applies
+# (no_synth.cells: weak/complex/scan/latch cells; drc_exclude.cells: cells with
+# known DRC issues).  Honouring them here keeps `make synth` cell counts
+# comparable with the LibreLane run instead of quietly using cells the physical
+# flow would never pick.
+proc read_cell_list {path} {
+    set out {}
+    if {![file readable $path]} { return $out }
+    set f [open $path r]
+    foreach line [split [read $f] "\n"] {
+        set line [string trim $line]
+        if {$line ne "" && ![string match "#*" $line]} { lappend out $line }
+    }
+    close $f
+    return $out
+}
+
+set dont_use {}
+if {$liberty ne ""} {
+    # <pdk>/libs.ref/<scl>/lib/<lib>.lib -> <pdk>/libs.tech/openlane/<scl>/
+    set pdk_root [file dirname [file dirname [file dirname [file dirname $liberty]]]]
+    set excl_dir [file join $pdk_root libs.tech openlane $scl]
+    foreach f {no_synth.cells drc_exclude.cells} {
+        foreach cell [read_cell_list [file join $excl_dir $f]] {
+            if {[lsearch -exact $dont_use $cell] < 0} { lappend dont_use $cell }
+        }
+    }
+}
+set dont_use_args {}
+foreach cell $dont_use { lappend dont_use_args -dont_use $cell }
+
+# --- elaborate --------------------------------------------------------------
+yosys read_verilog -sv $rtl
+yosys hierarchy -check -top $top
+
+# --- generic synthesis ------------------------------------------------------
+yosys synth -top $top
+yosys opt -purge
+
+# --- latch check (Iron Rule: no inferred latches) ---------------------------
+# `select -assert-none` aborts yosys with a non-zero exit if anything matches,
+# which is exactly the gate behaviour we want.
+yosys log "== blink.ys: checking for inferred latches"
+yosys select -assert-none {t:$dlatch t:$dlatchsr t:$sr}
+yosys select -assert-none {t:$_DLATCH_* t:$_DLATCHSR_* t:$_SR_*}
+yosys log "== blink.ys: latch check PASS (no dlatch/sr cells)"
+
+yosys log "== blink.ys: generic (technology-independent) cell counts"
+yosys stat
+yosys write_verilog -noattr [file join $outdir ${top}_generic.v]
+yosys write_json [file join $outdir ${top}_generic.json]
+
+# --- technology mapping -----------------------------------------------------
+if {$liberty eq ""} {
+    yosys log "== blink.ys: WARNING no $scl liberty found -> generic synth only."
+    yosys log "==           run `make gds MOD=blink` once (fetches sky130A into"
+    yosys log "==           the ciel cache) or set LIBERTY=<path.lib> to enable"
+    yosys log "==           mapped synthesis.  Area/gate counts below are generic."
+} else {
+    yosys log "== blink.ys: liberty  = $liberty"
+    # -lib: pull in the cells as blackboxes so port directions are known —
+    # without this `check` reports every mapped cell output as undriven.
+    yosys read_liberty -lib $liberty
+    yosys log "== blink.ys: dont_use = [llength $dont_use] cells from the PDK exclusion lists"
+    yosys dfflibmap -liberty $liberty {*}$dont_use_args
+    # -D 20000 ps = the 20 ns spec period (flow/gates.mk) as abc's delay target.
+    yosys abc -liberty $liberty -D 20000 {*}$dont_use_args
+    yosys setundef -zero
+    yosys opt_clean -purge
+    yosys log "== blink.ys: mapped ($scl) cell counts"
+    yosys stat -liberty $liberty
+    yosys write_verilog -noattr [file join $outdir ${top}_mapped.v]
+    # nothing but library cells may remain
+    yosys check -assert
+}
+
+yosys log "== blink.ys: synthesis complete (top=$top)"

@@ -1,0 +1,99 @@
+# LibreLane RTL->GDSII configuration for `blink` (docs/spec/blink.md).
+#
+# Run:  make gds MOD=blink          (see hw/pd/blink/SIGNOFF.md for the exact
+#                                    docker invocation actually used + numbers)
+# Outputs land in hw/pd/blink/runs/<tag>/ and are gitignored; only SIGNOFF.md
+# is committed.
+#
+# Iron Rule 5: CLOCK_PERIOD mirrors flow/gates.mk (CLOCK_PERIOD_NS := 20,
+# 50 MHz).  It is never relaxed to close timing.
+
+DESIGN_NAME: blink
+
+# RTL is read-only input to physical design (hw/rtl/ is rtl-engineer territory).
+VERILOG_FILES:
+  - dir::../../rtl/blink/blink.sv
+
+# --- PDK / library ----------------------------------------------------------
+# Mirrors flow/versions.mk (PDK := sky130A, SCL := sky130_fd_sc_hd).
+PDK: sky130A
+STD_CELL_LIBRARY: sky130_fd_sc_hd
+
+# --- clock ------------------------------------------------------------------
+CLOCK_PORT: clk
+CLOCK_PERIOD: 20        # ns -> 50 MHz, from flow/gates.mk
+CLOCK_NET: clk
+
+# --- floorplan --------------------------------------------------------------
+# blink is a ~100-cell tracer bullet.  A relative-sized die would come out far
+# smaller than the sky130 PDN strap pitch, so the die is fixed absolutely at
+# 150 x 150 um: big enough for at least one met4/met5 strap pair per direction
+# and for the core ring, small enough to stay a seconds-scale run.
+FP_SIZING: absolute
+DIE_AREA: [0, 0, 150, 150]
+# Core margin is expressed as a multiple of the site dimensions (sky130_fd_sc_hd
+# site: 0.46 x 2.72 um), so these give ~5.5 um horizontal / ~11 um vertical.
+BOTTOM_MARGIN_MULT: 4
+TOP_MARGIN_MULT: 4
+LEFT_MARGIN_MULT: 12
+RIGHT_MARGIN_MULT: 12
+
+# Power distribution: default sky130 pitches (153 um) exceed this die, so the
+# straps are pitched to fit inside the core.  This is a geometry fit, not a
+# relaxed check — PDN connectivity is still verified by the flow's checks.
+PDN_VPITCH: 60
+PDN_HPITCH: 60
+PDN_VOFFSET: 10
+PDN_HOFFSET: 10
+
+# --- placement / routing ----------------------------------------------------
+FP_CORE_UTIL: 20        # advisory only under absolute sizing
+PL_TARGET_DENSITY_PCT: 35
+RT_MAX_LAYER: met4      # met5 is reserved for the PDN on a die this small
+
+# --- slew closure -----------------------------------------------------------
+# The first run (tag ...-a, stock settings) closed setup/hold/DRC/LVS but left
+# 11 max-slew violations in all three *_ss_100C_1v60 corners: 0.921 ns against
+# the 0.75 ns MAX_TRANSITION_CONSTRAINT, every one of them on `net3` — the
+# buffered rst_n distribution net — and its 10 load pins.
+#
+# Cause: blink is ~145 logic instances (plus 245 tap cells) on a die sized by
+# the PDN strap pitch, not by the logic, so utilisation is ~11% and nets sprawl.  net3 came out as a single
+# 162 um unbuffered wire (route__wirelength__max = 162.58).  OpenROAD's design
+# repair runs with no wire-length cap by default, so nothing ever broke that
+# wire up, and the RC of 162 um of met1/met2 plus 10 load pins blows the
+# transition limit as soon as the slow libs are used.
+# Action: cap the wire length the repair steps tolerate at 60 um so they insert
+# repeaters, and give them a corner-spread margin on top.  Both settings make
+# the optimisation target stricter; the 0.75 ns limit and the 20 ns clock are
+# untouched (Iron Rule 5).  Result: 0 slew violations in all 9 corners.
+DESIGN_REPAIR_MAX_SLEW_PCT: 45      # default 20
+GRT_DESIGN_REPAIR_MAX_SLEW_PCT: 45  # default 10
+DESIGN_REPAIR_MAX_WIRE_LENGTH: 60       # um; default 0 = uncapped
+GRT_DESIGN_REPAIR_MAX_WIRE_LENGTH: 60   # um; default 0 = uncapped
+#
+# Dead ends on the way here, kept so nobody re-treads them (tags are run dirs):
+#   ...-b  EXTRA_EXCLUDED_CELLS: clkdlybuf4s*   11 viol, and *worse* (1.064 ns).
+#          The resizer just picked buf_1 instead — the cell choice was a
+#          symptom, not the cause.
+#   ...-c  MAX_FANOUT_CONSTRAINT 6 + margins    slew 0, but a fanout limit of 6
+#          then flags the CTS root buffer clkbuf_0_clk/X (8 sinks), which CTS
+#          sizes by its own slew/cap targets.  Trading one violation for
+#          another is not closure.
+#   ...-d  margins only, fanout 10              11 viol: margins alone do
+#          nothing, because repair never revisits the long wire.
+#   ...-e  MAX_FANOUT_CONSTRAINT 8              9 viol: still too wide.
+#   ...-f  fanout 6 + CTS_SINK_CLUSTERING_SIZE 6   root fanout stayed at 8;
+#          the clustering knob does not change what CTS builds here.
+#   ...-g  die shrunk to 80x80 um, stock knobs  21 viol — denser placement did
+#          not help; wire *buffering*, not wire *length*, was the lever.
+#   ...-h  80x80 + fanout 6 + clustering        slew 0, fanout still flagged.
+#   ...-i  DEFAULT_CORNER: nom_ss_100C_1v60     11 viol, byte-identical to -a:
+#          repair does not revisit this net whatever corner it is driven from.
+#   ...-j  this config                          all checkers 0 (see SIGNOFF.md).
+
+# --- signoff ----------------------------------------------------------------
+RUN_LINTER: false       # lint gate is `make lint` (verilator), not this flow
+MAGIC_DRC_USE_GDS: true
+RUN_KLAYOUT_XOR: true
+PRIMARY_GDSII_STREAMOUT_TOOL: magic
