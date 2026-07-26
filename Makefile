@@ -4,8 +4,11 @@
 include flow/versions.mk
 include flow/gates.mk
 
-# Toolchain: project venv (cocotb) + OSS CAD Suite (pinned in versions.mk)
-export PATH := $(CURDIR)/.venv/bin:$(HOME)/tools/oss-cad-suite/bin:$(PATH)
+# Toolchain: project venv (cocotb) + OSS CAD Suite (pinned in versions.mk).
+# Apple's GNU Make 3.81 ignores exported PATH when direct-exec'ing recipes
+# (P0 finding), so recipes also prefix PATH explicitly via $(TOOLPATH).
+TOOLPATH := $(CURDIR)/.venv/bin:$(HOME)/tools/oss-cad-suite/bin
+export PATH := $(TOOLPATH):$(PATH)
 
 MODULES  := $(sort $(notdir $(patsubst %/,%,$(dir $(wildcard hw/rtl/*/*.sv)))))
 SIM_MODS := $(notdir $(patsubst %/Makefile,%,$(wildcard hw/dv/*/Makefile)))
@@ -34,7 +37,7 @@ ifeq ($(strip $(MODULES)),)
 else
 	@for m in $(LINT_MODS); do \
 		echo "== lint $$m"; \
-		verilator --lint-only -Wall --timing -Ihw/rtl -Ihw/rtl/$$m hw/rtl/$$m/*.sv || exit 1; \
+		PATH="$(TOOLPATH):$$PATH" verilator --lint-only -Wall --timing -Ihw/rtl -Ihw/rtl/$$m hw/rtl/$$m/*.sv || exit 1; \
 	done
 	@echo "lint: PASS ($(LINT_MODS))"
 endif
@@ -47,7 +50,7 @@ ifeq ($(strip $(SIM_MODS)),)
 else
 	@for m in $(RUN_SIM_MODS); do \
 		echo "== sim $$m"; \
-		$(MAKE) -C hw/dv/$$m || exit 1; \
+		PATH="$(TOOLPATH):$$PATH" $(MAKE) -C hw/dv/$$m || exit 1; \
 	done
 endif
 
@@ -59,7 +62,7 @@ ifeq ($(strip $(SBY_MODS)),)
 else
 	@for m in $(RUN_SBY_MODS); do \
 		echo "== formal $$m"; \
-		sby -f hw/formal/$$m/$$m.sby || exit 1; \
+		PATH="$(TOOLPATH):$$PATH" sby -f hw/formal/$$m/$$m.sby || exit 1; \
 	done
 endif
 
@@ -67,7 +70,7 @@ endif
 synth:
 	@test -n "$(MOD)" || { echo "usage: make synth MOD=<module>"; exit 1; }
 	@test -f hw/syn/$(MOD).ys || { echo "synth: hw/syn/$(MOD).ys not found (P0 task)"; exit 1; }
-	yosys -c hw/syn/$(MOD).ys
+	PATH="$(TOOLPATH):$$PATH" yosys -c hw/syn/$(MOD).ys
 
 # --- Gate 5: ISA compliance (M2) --------------------------------------------
 compliance:
@@ -81,8 +84,9 @@ soc-sim:
 gds:
 	@test -n "$(MOD)" || { echo "usage: make gds MOD=<top>"; exit 1; }
 	@test -f hw/pd/$(MOD)/config.yaml || { echo "gds: hw/pd/$(MOD)/config.yaml not found (P0 task)"; exit 1; }
-	docker run --rm -v $(PWD):/work -w /work $(LIBRELANE_IMAGE) \
-		librelane hw/pd/$(MOD)/config.yaml
+	docker run --rm -v $(PWD):/work -w /work \
+		-v $(HOME)/.ciel:/root/.ciel $(LIBRELANE_IMAGE) \
+		librelane --pdk-root /root/.ciel hw/pd/$(MOD)/config.yaml
 
 # --- Gate 9: gate-level sim (M4) --------------------------------------------
 glsim:

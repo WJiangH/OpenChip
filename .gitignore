@@ -35,3 +35,6 @@ __pycache__/
 
 # codegraph cache
 .codegraph/
+
+# python coverage data (cocotb user-coverage residue)
+.coverage

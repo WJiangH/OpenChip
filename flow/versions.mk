@@ -6,7 +6,8 @@
 OSS_CAD_SUITE_TAG := 2026-07-26
 
 # LibreLane (ex-OpenLane 2) container, https://github.com/librelane/librelane
-LIBRELANE_IMAGE := ghcr.io/librelane/librelane:3.0.0   # TODO M0: verify current tag
+# 3.0.5 verified P0 (no `latest` tag exists on ghcr; pinned by digest — tags are mutable)
+LIBRELANE_IMAGE := ghcr.io/librelane/librelane:3.0.5@sha256:ecabd075d0ddf6a2bd1cd4a32109c7dbb861ec007f7e4e423a9a081f8d23b8e2
 
 # xPack riscv-none-elf-gcc
 RISCV_GCC_VERSION := 14.2.0-3   # TODO M2: confirm against Spike/RISCOF pins
