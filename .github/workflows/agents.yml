@@ -1,0 +1,83 @@
+# Agent routing — the issue-driven collaboration protocol (docs/AGENTS.md).
+#
+# Mode 1 (mention): comment "@claude ..." on any issue/PR → interactive agent
+#   responds in-thread. No toolchain installed (Q&A / light edits).
+# Mode 2 (role dispatch): apply a `role:<name>` label to an issue → that role's
+#   agent starts with its SKILL.md, works on a branch, opens a PR. EDA toolchain
+#   is installed so make gates run for real.
+#
+# Human gate by design: labels applied by GITHUB_TOKEN (i.e. by agents inside
+# Actions) do NOT trigger this workflow — GitHub's anti-recursion rule. An
+# agent can file and label a ticket, but a human must touch the label to
+# release the next agent. That is the loop-prevention gate, not a limitation.
+#
+# Auth: repo secret CLAUDE_CODE_OAUTH_TOKEN (Claude subscription; generate
+# locally with `claude setup-token`). Swap to ANTHROPIC_API_KEY for API billing.
+
+name: Agents
+
+on:
+  issues:
+    types: [labeled]
+  issue_comment:
+    types: [created]
+
+permissions:
+  contents: write
+  issues: write
+  pull-requests: write
+  id-token: read
+  actions: read
+
+concurrency:
+  group: agents-${{ github.event.issue.number }}
+  cancel-in-progress: false
+
+jobs:
+  mention:
+    if: github.event_name == 'issue_comment' && contains(github.event.comment.body, '@claude')
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: anthropics/claude-code-action@v1
+        with:
+          claude_code_oauth_token: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
+
+  role-dispatch:
+    if: github.event_name == 'issues' && startsWith(github.event.label.name, 'role:')
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Extract role from label
+        id: role
+        env:
+          LABEL: ${{ github.event.label.name }}
+        run: echo "name=${LABEL#role:}" >> "$GITHUB_OUTPUT"
+      - uses: YosysHQ/setup-oss-cad-suite@v3
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - run: pip install -r requirements.txt
+      - uses: anthropics/claude-code-action@v1
+        with:
+          claude_code_oauth_token: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
+          prompt: |
+            You are the ${{ steps.role.outputs.name }} of the OpenChip project.
+            First read .claude/skills/${{ steps.role.outputs.name }}/SKILL.md and
+            follow it, including its clean-room read restrictions. Also read
+            /CLAUDE.md (iron rules, conventions, commit signature).
+
+            Handle issue #${{ github.event.issue.number }}:
+            1. Read the full thread: gh issue view ${{ github.event.issue.number }} --comments
+            2. Comment once to claim it.
+            3. Do the work on a branch named per CLAUDE.md (e.g. rtl/<mod>, dv/<mod>).
+            4. Run the relevant make gates and paste their summary lines.
+            5. Commit with your role signature author string, push the branch,
+               open a PR referencing the issue.
+            6. If blocked, or the issue belongs to another role, say so in a
+               comment — do not guess and do not cross role boundaries.
+            End your final comment with a tooling-friction list.
