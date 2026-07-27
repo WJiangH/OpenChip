@@ -21,6 +21,8 @@ on:
     types: [labeled]
   issue_comment:
     types: [created]
+  pull_request:
+    types: [opened, reopened, ready_for_review]
 
 permissions:
   contents: write
@@ -30,7 +32,7 @@ permissions:
   actions: read
 
 concurrency:
-  group: agents-${{ github.event.issue.number }}
+  group: agents-${{ github.event.issue.number || github.event.pull_request.number }}
   cancel-in-progress: false
 
 jobs:
@@ -85,3 +87,47 @@ jobs:
             6. If blocked, or the issue belongs to another role, say so in a
                comment — do not guess and do not cross role boundaries.
             End your final comment with a tooling-friction list.
+
+  pr-review:
+    if: github.event_name == 'pull_request'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: YosysHQ/setup-oss-cad-suite@v3
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - run: pip install -r requirements.txt
+      - uses: anthropics/claude-code-action@v1
+        with:
+          claude_code_oauth_token: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
+          show_full_output: true
+          claude_args: >-
+            --allowedTools "Bash(gh:*),Bash(git:*),Bash(make:*),Bash(python3:*),Bash(bash:*),Read,Glob,Grep"
+          prompt: |
+            You are the integrator of the OpenChip project.
+            First read .claude/skills/integrator/SKILL.md and follow it.
+            Also read /CLAUDE.md (iron rules, boundaries, signatures).
+
+            Review PR #${{ github.event.pull_request.number }} per your checklist:
+            1. gh pr view ${{ github.event.pull_request.number }} --comments
+               and gh pr diff ${{ github.event.pull_request.number }}
+            2. Boundary: infer the author role from the commit author signature,
+               verify every touched path is inside that role's directories.
+            3. Gate integrity: no threshold, waiver, constraint, or test
+               weakened (flow/gates.mk, .sdc, skipped tests).
+            4. Spec/ADR conformance: spot-check cited sections actually say
+               what the PR claims.
+            5. Evidence: if RTL/DV/formal files changed, re-run the cheap
+               gates (make lint MOD=..., make sim MOD=...) and compare with
+               the PR's claims.
+
+            Deliver the verdict as a formal GitHub review:
+            - clean: gh pr review <N> --approve --body "<one line + your
+              spot-check evidence>"
+            - otherwise: gh pr review <N> --request-changes --body
+              "<numbered findings, each file:line + the rule or spec § violated>"
+            Do NOT merge — merging stays with the human maintainer.
+            Praise is not a finding.
