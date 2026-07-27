@@ -41,7 +41,7 @@ the upstream `picorv32_wb` variant.
 Both are permissively licensed. Ibex is Apache-2.0
 ([lowRISC/ibex](https://github.com/lowRISC/ibex)). PicoRV32 is ISC
 ([YosysHQ/picorv32](https://github.com/YosysHQ/picorv32)) — functionally a BSD-2-Clause/MIT
-equivalent, but ISC is not one of the three licenses CLAUDE.md names explicitly
+equivalent, but ISC is not one of the three licenses issue #1 names explicitly
 (Apache-2.0/BSD/MIT). Flagged as **Q1** below rather than silently treated as equivalent.
 **Wash, pending Q1.**
 
@@ -193,7 +193,7 @@ ibex's larger feature set (PMP, bitmanip, ECC caches, cheriot variants) to begin
   materially lighter than ibex's UVM/riscv-dv environment. This project's own DV role
   writes independent tests regardless (Iron Rule 2), which caps how much this really costs
   us, but it means less upstream bug-finding to lean on going in.
-- (−) ISC license is functionally permissive but not literally on CLAUDE.md's named list
+- (−) ISC license is functionally permissive but not literally on issue #1's named list
   (Apache-2.0/BSD/MIT); needs an explicit one-line human sign-off rather than being
   silently treated as equivalent (Q1).
 
@@ -202,7 +202,7 @@ ibex's larger feature set (PMP, bitmanip, ECC caches, cheriot variants) to begin
 ## Open questions the integration spec MUST settle
 
 **Q1 — ISC license sign-off.** Confirm ISC is acceptable under the project's IP policy
-(it is textually near-identical to BSD-2-Clause/MIT, but CLAUDE.md names three specific
+(it is textually near-identical to BSD-2-Clause/MIT, but issue #1 names three specific
 licenses and ISC isn't one of them). Low risk, but a human call, not an agent one.
 
 **Q2 — RISCOF/Spike DUT plugin for PicoRV32.** No upstream template exists. The
