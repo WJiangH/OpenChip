@@ -83,8 +83,14 @@ honorary upgrades. One role's deliverables per commit; don't mix roles.
 ## When you finish a task
 
 1. Run the relevant `make` gates locally and include the summary lines in your report.
-2. Open a PR; CI re-runs the gates. The reviewer role checks spec conformance.
+2. Open a PR whose description IS the deliverable manifest
+   (.github/PULL_REQUEST_TEMPLATE.md): artifacts, gate numbers, spec refs,
+   open items — key facts only, no narrative. The manifest is the
+   traceability record; one that doesn't match the diff is a false report.
 3. Report honestly: failing gates, skipped checks, and open questions go in the
-   PR description — surfacing a failure is rewarded, hiding one is a protocol breach.
-4. End every report with a tooling-friction list (surprises, workarounds,
-   deprecations) — it feeds the skill library via retro distillation.
+   manifest — surfacing a failure is rewarded, hiding one is a protocol breach.
+4. End with two lists, one line per item, no narration:
+   - Friction: tool surprises, workarounds, deprecations.
+   - Skill candidates: anything that would have changed how you STARTED this
+     task. Format: `<target references/ file> — <delta>`. Nominate only —
+     the integrator gates what enters the library.

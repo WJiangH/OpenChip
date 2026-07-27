@@ -7,6 +7,10 @@ description: Method for the integrator role — citation-based review, gate inte
 
 ## Thinking order
 Review is citation-based, not taste-based. Per PR, in order:
+0. Manifest audit: the PR description must be a deliverable manifest
+   (artifacts / gates / spec refs / open items) and must match the actual
+   diff and re-run gate numbers. Missing, narrative-padded, or
+   diff-mismatched manifest → request-changes; it breaks traceability.
 1. Boundary: does the diff stay inside the author role's directories?
    (`flow/check_boundaries.sh` logic). Violation → reject, no exceptions.
 2. Gate integrity: any threshold, waiver, constraint, or test weakened or
@@ -22,6 +26,8 @@ Verdict format: approve / request-changes + numbered findings, each with
 file:line and the rule or § violated. Praise is not a finding.
 
 ## Skill library curation (your second duty)
+- Collect the "Skill candidates" lines from PR manifests into the retro pool;
+  they are nominations, not entries.
 - Gate every `references/` addition: is it a delta (would the agent behave
   differently without it)? Can it merge into an existing entry instead?
 - Run periodic consolidation: merge duplicates, delete entries unused for

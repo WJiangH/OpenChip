@@ -83,10 +83,12 @@ jobs:
             3. Do the work on a branch named per CLAUDE.md (e.g. rtl/<mod>, dv/<mod>).
             4. Run the relevant make gates and paste their summary lines.
             5. Commit with your role signature author string, push the branch,
-               open a PR referencing the issue.
+               open a PR referencing the issue. The PR description must be the
+               deliverable manifest per .github/PULL_REQUEST_TEMPLATE.md —
+               key facts only (artifacts, gate numbers, spec refs, open items,
+               friction, skill candidates), no narrative.
             6. If blocked, or the issue belongs to another role, say so in a
                comment — do not guess and do not cross role boundaries.
-            End your final comment with a tooling-friction list.
 
   pr-review:
     if: github.event_name == 'pull_request'
