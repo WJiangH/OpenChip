@@ -363,9 +363,10 @@ optional; three options, decided with numbers:
 
 - **Rejected: on-chip buffer for all 32,000 logits.** Needs 32 KB of new
   SRAM — 16× the existing 2 kB macro. At ADR-0002's own OpenRAM density
-  (≈142,000 µm²/KB, `explore/npu-dse/results.md` §1) that is **≈2.27 mm²**,
-  against a 3.24 mm² total core budget already spending 0.449 mm² on this
-  module (`results.md` §7.2) — this alone would blow the die budget for a
+  (≈142,000 µm²/KB, `explore/npu-dse/results.md` §1) that is **≈4.55 mm²**
+  (16 × 284,538 µm² per §1's 2 kB macro figure), against a 3.24 mm² total
+  core budget already spending 0.449 mm² on this module (`results.md` §7.2)
+  — this alone would blow the die budget more than twice over, for a
   buffer needed only transiently, once per token. Rejected on area grounds,
   the same reasoning `soc_1.md` §1 uses to reject on-chip weight storage.
 - **Rejected: stream all 32,000 requantised bytes to the CPU over Wishbone.**
