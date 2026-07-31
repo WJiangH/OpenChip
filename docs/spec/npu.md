@@ -366,7 +366,7 @@ optional; three options, decided with numbers:
   (≈142,000 µm²/KB, `explore/npu-dse/results.md` §1) that is **≈4.55 mm²**
   (16 × 284,538 µm² per §1's 2 kB macro figure), against a 3.24 mm² total
   core budget already spending 0.449 mm² on this module (`results.md` §7.2)
-  — this alone would blow the die budget more than twice over, for a
+  — this alone is ≈1.4× the 3.24 mm² core budget, for a
   buffer needed only transiently, once per token. Rejected on area grounds,
   the same reasoning `soc_1.md` §1 uses to reject on-chip weight storage.
 - **Rejected: stream all 32,000 requantised bytes to the CPU over Wishbone.**
