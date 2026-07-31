@@ -28,6 +28,9 @@ __pycache__/
 *.pyc
 .venv/
 
+# local toolchain cache (fetched RISC-V GCC, not a repo artifact)
+.toolcache/
+
 # editors / os
 .DS_Store
 .vscode/
