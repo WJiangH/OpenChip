@@ -1,6 +1,7 @@
 # NPU Specification
 
 Status: draft
+Version: v1.1 (change order CO-NPU-01, §8 — adds the activation-load path; supersedes v1.0's silent gap, `hw/dv/npu/BUGS.md` A5/A6)
 Owner: spec-architect · Implements: milestone M3 (integration), per `docs/spec/soc_1.md` §3.1/§3.2
 
 ## §1 Overview
@@ -21,7 +22,11 @@ window (`soc_1.md` SOC1-05, §4.2). It has no other bus mastership and issues no
 requests of its own — the CPU (sole Wishbone master, `soc_1.md` SOC1-04)
 programs a descriptor and writes `CTRL.GO`; the flash/PSRAM controller (a
 separate, future `flash_ctrl.md` module) autonomously drives weight bytes into
-this module's ingress port once armed (`soc_1.md` SOC1-18).
+this module's ingress port once armed (`soc_1.md` SOC1-18). A second,
+independent point-to-point port (§2.3a) lets that same controller load the
+activation SRAM directly, byte-for-byte, from flash — the module's *only*
+CPU-independent way for an activation vector to acquire a nonzero value from
+cold reset (§4.5 closes `hw/dv/npu/BUGS.md` A5).
 
 This spec closes ADR-0002's **Q1** (quantisation arithmetic), **Q2**
 (accumulator width), **Q4** (bus/streaming interface, jointly with
@@ -105,6 +110,69 @@ contract below closes the rest of Q4).
    changes with port width, never the byte order. The future `flash_ctrl.md`
    and offline export tooling must produce/consume this exact order; this is
    this module's half of that shared contract.
+
+### §2.3a Activation-load ingress port (new, CO-NPU-01)
+
+A second, independent point-to-point channel — separate from the weight-stream
+port (§2.3) and its FIFO/MAC pipeline — that writes bytes directly into the
+activation SRAM, sequentially from offset 0. This is the module's only
+CPU-independent source of activation content and closes `hw/dv/npu/BUGS.md`
+A5 (§4.5 gives the rationale and the numbers behind choosing this mechanism
+over a CSR-mapped Wishbone write path).
+
+| Signal | Dir | Width | Description |
+|---|---|---|---|
+| `i_actld_valid` | in | 1 | Flash/PSRAM controller has an activation-load word to offer. |
+| `i_actld_data` | in | `WS_WIDTH` | Activation bytes, low-byte-first (NPU-25), same width class as the weight-stream port. |
+| `o_actld_ready` | out | 1 | This module can accept a word this cycle (NPU-26). |
+
+**NPU-24:** A transfer occurs only on a rising `clk` edge where
+`i_actld_valid && o_actld_ready` are both high. The flash/PSRAM controller
+shall hold both stable from the cycle it asserts `i_actld_valid` until the
+transfer completes, exactly mirroring NPU-06's contract on the weight-stream
+port (stall, don't drop, `soc_1.md` SOC1-11).
+
+**NPU-25 (byte ordering and addressing):** Bytes are unpacked low-byte-first
+from each `i_actld_data` word (word bit range `[8i+7:8i]` is byte `i`,
+ascending `i`, mirroring NPU-14) and written to the activation SRAM at
+sequentially increasing byte addresses starting from **0** — the first byte
+of the first accepted word goes to address 0, the second to address 1, and
+so on. There is no CSR-programmed base offset for this port (contrast
+`ACT_BASE`, §3.4, which is a *read* address for GEMV dispatch, not a
+destination for this port): an activation-load transfer always starts at
+offset 0. This is sufficient for the port's only use case — the workload
+(`profile.md`) needs exactly one activation-load per token (the token
+embedding row) and every subsequent activation update is a GEMV writeback
+(NPU-13) already addressed by the dispatching descriptor's own `OUT_BASE`.
+The internal byte-address counter is `ASW = $clog2(ACT_SRAM_BYTES) = 11`
+bits wide and wraps modulo `ACT_SRAM_BYTES` (2048); firmware programming a
+flash-controller descriptor whose length exceeds 2048 bytes for this
+destination is a documented software precondition violation (defined
+wraparound, not corruption or an undefined access) — the same
+software-precondition convention §3.4 already uses for `ACT_BASE`/`OUT_BASE`
+overlap and `soc_1.md` SOC1-24 uses for CPU access alignment.
+
+**NPU-26 (backpressure):** `o_actld_ready` shall be high whenever
+`STATUS.BUSY == 0` and low whenever `STATUS.BUSY == 1` — this port and the
+sequencer's own normal-mode SRAM writeback (NPU-13) both use the activation
+SRAM's single writable port, so they are made mutually exclusive by
+construction (an activation-load only ever proceeds while the sequencer is
+`IDLE`) rather than arbitrated. Unlike the weight-stream port's 2-deep FIFO
+(NPU-07), no buffering is needed here: a ready cycle accepts a full
+`WS_WIDTH`-bit word directly into the SRAM write port at the port's full
+rate, every cycle, with no internal stall beyond the `BUSY`-gate above.
+
+**NPU-27 (no dispatch, no IRQ of its own):** An activation-load transfer is
+not a `CTRL.GO` dispatch — it does not touch `STATUS.BUSY`/`DONE`/`ERR`,
+`ERR_CODE`, or this module's IRQ outputs (§2.5), and it is invisible to
+`K_LEN`/`N_LEN`/the sequencer FSM (§4.3) entirely. Completion is observed
+only via the flash/PSRAM controller's own "stream done" status/interrupt
+(`soc_1.md` SOC1-13, `irq[4]`) — the same signal SOC1-08's firmware-SRAM
+boot load already uses, and firmware distinguishes an activation-load's
+`irq[4]` from a weight-load's `irq[4]` only by which descriptor it dispatched
+(both share one interrupt line; disambiguation is a firmware bookkeeping
+concern, not a hardware one, matching how `soc_1.md` SOC1-12's destination
+field is entirely the flash controller's own descriptor state).
 
 ### §2.4 Parameters
 
@@ -394,6 +462,84 @@ recovering the full logit vector for temperature/top-k sampling. Extending to
 stochastic sampling (`profile.md` §5 item 5, flagged there as unresolved) is
 a change order against this module, not a silent extension.
 
+### §4.5 Activation-load path (new, CO-NPU-01 — closes `hw/dv/npu/BUGS.md` A5)
+
+**The gap.** From `rst_n` deassertion, the activation SRAM's data contents
+are unspecified (NPU-01) and, empirically, zero (`BUGS.md` A5's
+`test_sram_reset_content_finding` repro). Every write to that SRAM is
+normal-mode GEMV writeback (NPU-13), a function of the *existing* activation
+content with no additive/bias term (§4.1) — so an all-zero start is
+absorbing: no sequence of normal-mode GEMVs can ever produce a nonzero
+activation byte. `profile.md` §1's workload begins each token by looking up
+a 288-byte (`dim`) row of the tied embedding/`lm_head` matrix for the current
+token id — data that lives in external flash alongside the weights, not
+anywhere already on-chip — and that row is the first-layer input. Before
+this change order there was no CPU-visible or hardware-autonomous path for
+that row (or any other externally-sourced value) to reach the activation
+SRAM at all.
+
+**Options evaluated, decided with numbers.** The embedding row is 288 bytes
+(`profile.md` §1 `dim`), sourced from flash, needed once per token, ahead of
+that token's first GEMV dispatch:
+
+- **(i) Chosen: extend the weight-stream descriptor's destination mode.**
+  `soc_1.md` SOC1-12 already has a destination-bit precedent (weight FIFO vs.
+  firmware SRAM, established for the boot-time firmware load, SOC1-08); this
+  change order adds a third destination value routing to this module's new
+  §2.3a port. At the committed `WS_WIDTH = 32` (`soc_1.md` SOC1-19, 4 B/cycle
+  @ 50 MHz), 288 B is 72 words = **72 cycles ≈ 1.44 µs**.
+- **(ii) Rejected (standalone): map the activation SRAM into the CSR window
+  for direct Wishbone writes.** At the CPU's classic ack-per-transaction rate
+  (generously 5 cycles/transaction, the same figure §4.4 uses for the
+  `lm_head` result-path comparison), 72 words costs **360 cycles ≈ 7.2 µs**.
+  Both (i) and (ii) are three to four orders of magnitude below the
+  ≈1,953,792-cycle (≈39 ms) GEMV budget for one token (`soc_1.md` §1, D4) —
+  **speed does not distinguish them.** What does: (ii) does not actually
+  solve the problem. The embedding row lives in external flash; the CPU has
+  no on-chip copy to write from (firmware SRAM holds code/data, not a 9.2 MB
+  embedding table — `soc_1.md` §3.2's area note, and `profile.md` §2's
+  `lm_head` row shows the *shared* embedding/classifier matrix is
+  `288 × 32000` bytes, itself the largest single tensor in the model). Using
+  (ii) at all would first require the CPU to read the row from flash over
+  Wishbone — reintroducing exactly the "CPU-mediated, through the WB bus"
+  pattern `soc_1.md` §4.2 already rejected for the weight datapath, and the
+  same orchestration-purity objection §4.4 raises against CPU-serviced
+  per-byte transfers (`soc_1.md` SOC1-10). (ii) is rejected as a standalone
+  mechanism: redundant with (i) for this module's only real use case, and it
+  would add CSR decode logic and a second write-port mux input for the
+  activation SRAM (contending with the one NPU-13 already needs) for zero
+  net capability over (i).
+- **(iii) Both — rejected as unnecessary.** Nothing in `profile.md`'s
+  workload needs a CPU-authored activation write (every activation value
+  either comes from flash, once per token, or from a prior GEMV's own
+  writeback). DV's module-level testbench already drives the weight-stream
+  ingress port directly with no real flash controller present
+  (`BUGS.md` A5's own "weights are 100% DV-controlled" framing) — the same
+  is true of the new §2.3a port by construction, so DV's numeric-coverage
+  need (the actual trigger for this change order) is served by (i) alone,
+  without also paying for (ii)'s CSR/mux cost.
+
+**NPU-24 through NPU-27 (§2.3a)** are this option's hardware contract.
+Firmware's sequencing (informative, not itself a hardware requirement): at
+the start of each token, dispatch a flash-controller descriptor with
+destination = activation SRAM (`soc_1.md` SOC1-12) and length = `dim`
+(288 B for `stories15M`, `profile.md` §1) before dispatching any GEMV whose
+`ACT_BASE` reads that region; the two mechanisms never execute concurrently
+because NPU-26 gates the new port on `STATUS.BUSY == 0`.
+
+**NPU-28 (group-boundary stall bound — closes `hw/dv/npu/BUGS.md` A6):** at
+each output-channel-group boundary (§4.2 NPU-16, `N/C − 1` times per
+descriptor with `N > C`), the sequencer re-reads the activation SRAM from the
+start of the `K`-byte range for the next group; this introduces **at most one
+stall cycle** in which the sequencer does not consume a weight-FIFO word —
+`o_ws_ready` may deassert during that cycle exactly per NPU-07's existing
+2-entry-FIFO contract (never more, and never in violation of NPU-07). This
+bound is independent of `K`, `N`, and `WS_WIDTH`, and does not apply at a
+descriptor's final group (no re-read follows it). This matches
+`BUGS.md` A6's empirical observation (`o_ws_ready` dropping for exactly one
+cycle per group boundary at max ingress rate) and gives formal (NPU-07's
+proof) and the vplan a concrete number instead of an unmodeled latency.
+
 ## §5 Error conditions
 
 **NPU-21 (malformed descriptor, closes SOC1-26 for this module):** on
@@ -442,6 +588,17 @@ condition — `irq[5]` (flash controller) is the sole hardware signal.
 - `soc_1.md` §6's system-level corner cases (reset mid-weight-stream, WB
   decode boundaries) apply to this module as a WB slave and weight-stream
   consumer; not repeated here.
+- **New (CO-NPU-01):** an activation-load transfer (§2.3a) followed by a
+  normal-mode GEMV that reads it back (`ACT_BASE = 0`) — this is the
+  end-to-end path that unblocks `npu_requant.sv`'s toggle coverage
+  (`BUGS.md` A5); directed lengths at least `{1, 288 (dim), 2048
+  (ACT_SRAM_BYTES, boundary), 2049 (wraparound, NPU-25)}`; `o_actld_ready`
+  observed low while `STATUS.BUSY == 1` (NPU-26); an activation-load
+  descriptor's `irq[4]` distinguished only by firmware bookkeeping from a
+  weight-load's (NPU-27) — not a hardware distinction to test for. Separately,
+  a directed `N > C` descriptor at max ingress rate confirming NPU-28's
+  one-cycle group-boundary bound (`BUGS.md` A6), including the negative
+  check that it is never more than one cycle.
 
 ## §7 Open questions
 
@@ -474,3 +631,36 @@ result-path decision in §4.4 needs revisiting (likely a secondary,
 lower-throughput streaming-readout mode alongside argmax, not a replacement
 for it) — flagged so a future sampling-mode decision doesn't silently
 conflict with NPU-20.
+
+## §8 Change log
+
+**v1.0 → v1.1 (CO-NPU-01, this change order).** Ruled by the maintainer-proxy
+per issue #15 (`hw/dv/npu/BUGS.md` A5, filed against v1.0 by DV as a
+spec/system-level gap, not an RTL defect — Iron Rule 2): **revise the spec**
+rather than waive the coverage gate it caused.
+
+- Added: §2.3a (activation-load ingress port: `i_actld_valid`, `i_actld_data`,
+  `o_actld_ready`), NPU-24, NPU-25, NPU-26, NPU-27, §4.5 (rationale + rejected
+  alternatives), NPU-28 (`BUGS.md` A6's stall bound), §6 corner cases, this §8.
+- Changed: §1 overview (mentions the new port); no existing register, shall,
+  or signal in v1.0 was altered or removed — this is a strict addition.
+- **Invalidated downstream artifacts** (each needs a follow-on issue filed to
+  the owning role, not fixed here — chief-architect writes no RTL/DV):
+  - `hw/rtl/npu/npu.sv`, `hw/rtl/npu/npu_act_sram.sv` — need the new port,
+    the `BUSY`-gated write-port mux input, the wraparound counter (NPU-25),
+    and (if not already exactly one cycle) an RTL fix to match NPU-28's bound
+    — **rtl-engineer**, branch `rtl/npu`.
+  - `hw/dv/common/models/npu.py` — golden model has no activation-load or
+    group-boundary-stall model at all today (`BUGS.md` A4/A6); needs both,
+    from this spec text alone, not from reading the RTL fix above —
+    **verif-architect**, then **dv-engineer** for the directed tests listed
+    in §6 and closing `BUGS.md` A5/A6 — branch `dv/npu`.
+  - `hw/dv/npu/vplan.md`, `hw/dv/npu/BUGS.md` — A4 and A5 close (mechanism now
+    specified); A6 closes (bound now specified); new vplan rows needed for
+    NPU-24–28 — **verif-architect** / **dv-engineer**.
+  - `hw/formal/` has no NPU proofs yet; when one lands, NPU-07's existing
+    proof extends naturally to cover NPU-26's `BUSY`-gated backpressure on
+    the new port — **formal-engineer**, no action required now.
+  - `docs/spec/soc_1.md` — SOC1-12 destination field extended in the
+    companion edit of this same change order (see that file's own §8-style
+    note); not a separate follow-on issue.
