@@ -10,23 +10,24 @@ quantised llama2.c-family checkpoint (primary target: `stories15M`, int8,
 dim 288/6 layers/6 heads/vocab 32000 — `workloads/tinystories/profile.md` §1)
 and prints them over UART, bit-exact against a PyTorch reference, at a
 sustained rate of **≥ 10 tok/s** (conservative acceptance target; the
-underlying architecture's modelled headline is 25.4 tok/s — ADR-0002 §7.3).
+underlying architecture's modelled headline is 25.4 tok/s —
+`explore/npu-dse/results.md` §7.3).
 
 It integrates three decided blocks — the Wishbone B4 pipelined on-chip bus
 (ADR-0001), the PicoRV32 `picorv32_wb` control core (ADR-0003), and the 1×8
 weight-streaming int8 GEMV NPU (ADR-0002) — plus the system-infrastructure
 glue (boot ROM, firmware SRAM, flash/PSRAM controller, UART, interrupt
 status block, reset synchronizer) needed to make those three blocks a
-running chip. Per ADR-0002 §2's finding, the 15.2 MB stories15M weight set
+running chip. Per `explore/npu-dse/results.md` §2's finding, the 15.2 MB stories15M weight set
 does not fit on any sky130 die by three orders of magnitude — SoC-1 is
 architecturally a **streaming engine hanging off an external memory port**,
 not a self-contained accelerator, and every decision in this spec follows
 from that fact.
 
-This spec targets **area scenario (c)** from ADR-0002 §5 — a free-form
+This spec targets **area scenario (c)** from `explore/npu-dse/results.md` §5 — a free-form
 ~2×2 mm die, 3.24 mm² usable core after ring/PDN margin. Tiny Tapeout is
-explicitly ruled out for the stories15M acceptance anchor (ADR-0002 §5(a)/(b)
-verdicts); this is a **scope decision already made by the issue**, not
+explicitly ruled out for the stories15M acceptance anchor
+(`explore/npu-dse/results.md` §5(a)/(b) verdicts); this is a **scope decision already made by the issue**, not
 re-litigated here, and it resolves ADR-0002's own open question **Q9**.
 
 This is the **top-level integration spec**. It fixes the system memory map,
@@ -82,7 +83,8 @@ this bus).
    a classic master (a classic master is a degenerate case of pipelined
    operation — one outstanding request at a time).
 5. **SOC1-05:** Because there is exactly one bus master, the interconnect
-   is a **fixed, arbiter-free address decoder**: `wbm_adr_o[31:16]` selects
+   is a **fixed, arbiter-free address decoder**: `wbm_adr_o[31:20]` shall be
+   must-be-zero (else unmapped, SOC1-06) and `wbm_adr_o[19:16]` selects
    one of the sixteen 64 KB regions in §3.2's memory map; the decoder muxes
    `wb_cyc/wb_stb` to the selected slave and muxes that slave's
    `wb_dat_r/wb_ack/wb_err/wb_stall` back to the CPU. No round-robin or
@@ -104,7 +106,7 @@ cited already in ADR-0003 for its PicoRV32-at-sky130-50MHz precedent).
 | Pad group | Signals | Notes |
 |---|---|---|
 | Clock/reset | `i_clk`, `i_rst_n_pad` | §2.1 |
-| Flash/PSRAM PHY | mode-dependent — see §4.3 (either ≥32 parallel data/addr/ctrl pins, or a serial Quad/Octal-SPI pin group) | **Q-SOC1-01/02** — pin count and clocking depend on which option is chosen |
+| Flash/PSRAM PHY | 32-bit parallel data/addr/ctrl pins, ~55–60 pads, 50 MHz SDR — see §4.3 | Ruled per Q-SOC1-01 (resolved); Q-SOC1-02 resolved-moot |
 | UART | `o_uart_tx`, `i_uart_rx` | 8N1, divisor TBD in `uart.md` |
 | Debug/GPIO | small number, e.g. status LED | minimal; **Q-SOC1-08** |
 
@@ -127,9 +129,13 @@ cited already in ADR-0003 for its PicoRV32-at-sky130-50MHz precedent).
 
 ### §3.2 System address map
 
-Sixteen 64 KB regions selected by `wb_adr[31:16]` (SOC1-05); each region is
+Sixteen 64 KB regions selected by `wb_adr[19:16]` (SOC1-05); each region is
 far larger than any block's current register count, leaving headroom for
-growth without redesigning the decoder — deliberate, not accidental.
+growth without redesigning the decoder — deliberate, not accidental. The
+16 regions span only `0x0000_0000`–`0x000F_FFFF` (1 MB): the decoder shall
+treat `wb_adr[31:20]` as must-be-zero (any access with a nonzero bit there
+is unmapped, SOC1-06) and shall compare only `wb_adr[19:16]` against the
+region index to select among the sixteen 64 KB windows in the table below.
 
 | Region base | Size | Slave | Access | Notes |
 |---|---|---|---|---|
@@ -140,12 +146,12 @@ growth without redesigning the decoder — deliberate, not accidental.
 | `0x0004_0000` | 64 KB window | UART | RW | Divisor + data registers, PicoSoC-precedent arrangement. Field-level layout: future `uart.md`. |
 | `0x0005_0000` | 64 KB window | IRQ status/mask mirror | RW | See §4.4. Field-level layout: future `irqc.md`. |
 | `0x0006_0000` | 64 KB window | GPIO/debug | RW | Minimal; **Q-SOC1-08**. |
-| `0x0007_0000` – `0x0000_FFFF`×n | reserved | — | — | Unmapped → `wb_err` (SOC1-06). |
+| `0x0007_0000` – `0x000F_FFFF` | nine 64 KB windows | reserved | — | Unmapped → `wb_err` (SOC1-06). |
 
 Note on firmware-SRAM area cost (informs **Q-SOC1-03**, not a decision):
 ADR-0002's 2 kB OpenRAM macro anchor is 284,538 µm² (`explore/npu-dse/results.md`
 §1), i.e. ≈142,000 µm²/KB at that density. Against the 3.24 mm² core budget
-with 0.449 mm² (14 %) already spent on the NPU (ADR-0002 §7.2), a firmware
+with 0.449 mm² (14 %) already spent on the NPU (`explore/npu-dse/results.md` §7.2), a firmware
 image in the low tens of KB is affordable but not free — e.g. 8 KB ≈
 1.14 mm² (35 % of the whole core budget) at this macro's density. This
 must be sized from a real firmware footprint, not guessed.
@@ -262,29 +268,31 @@ Wishbone transactions.
     stretch target that reaches ADR-0002's 25.4 tok/s headline.
 
 **This bandwidth floor is not free, and "flash" as literally named in the
-issue needs scrutiny — flagged as Q-SOC1-01, the single most important open
-question in this spec.** ADR-0002's own bandwidth table
-(`explore/npu-dse/results.md` §4) anchors its 4 B/cycle point to a
-**"32-bit external SRAM/PSRAM SDR @ 50 MHz"** platform class — not to a
-literal serial NOR flash part. Its adjacent row, "QSPI PSRAM ×8 DDR @
-50 MHz", delivers only **2 B/cycle** (100 MB/s) — under the acceptance
-floor. Commodity serial Quad-SPI NOR flash parts in this class typically
-top out around 100–166 MHz SDR (≈ 400–666 Mbit/s ≈ 1.0–1.7 B/cycle-equivalent
-at our 50 MHz system clock) — also under the floor unless an Octal-SPI DDR
-part (8 data lines, DDR, ~100+ MHz) is specifically sourced, which can
-reach 3–8 B/cycle but requires the PHY to run faster than the fixed 50 MHz
-system clock (§4.5, **Q-SOC1-02**).
+issue needed scrutiny — this was Q-SOC1-01, the single most important open
+question in this spec, now resolved by maintainer ruling (see below).**
+ADR-0002's own bandwidth table (`explore/npu-dse/results.md` §4) anchors its
+4 B/cycle point to a **"32-bit external SRAM/PSRAM SDR @ 50 MHz"** platform
+class — not to a literal serial NOR flash part. Its adjacent row, "QSPI
+PSRAM ×8 DDR @ 50 MHz", delivers only **2 B/cycle** (100 MB/s) — under the
+acceptance floor. Commodity serial Quad-SPI NOR flash parts in this class
+typically top out around 100–166 MHz SDR (≈ 400–666 Mbit/s ≈
+1.0–1.7 B/cycle-equivalent at our 50 MHz system clock) — also under the
+floor unless an Octal-SPI DDR part (8 data lines, DDR, ~100+ MHz) is
+specifically sourced, which can reach 3–8 B/cycle but requires the PHY to
+run faster than the fixed 50 MHz system clock (§4.5).
 
-**This spec's working recommendation** (not yet a ruling — see Q-SOC1-01):
-prefer a **32-bit-wide parallel PSRAM (or parallel NOR flash, if sourceable
-at this width) run at exactly 50 MHz SDR** — single clock domain, no PLL,
-no DDR, no CDC, and it lands exactly on ADR-0002's own 4 B/cycle anchor
-with no extrapolation needed. Pin cost (~55–60 pads for a 32-bit
-data/address/control interface) fits comfortably inside the ~100–130 pad
-budget ADR-0002 §5 computes for a 2×2 mm die. This trades "flash" in the
-strictest non-volatile-serial-NOR sense for a lower-risk path to the
-acceptance number; whether that trade is acceptable is a human call
-(Q-SOC1-01).
+**Ruling (Q-SOC1-01, resolved by maintainer-proxy decision under the
+full-autonomy directive, revertible):** option (a) — accept a **32-bit-wide
+parallel PSRAM (or parallel NOR flash, if sourceable at this width) run at
+exactly 50 MHz SDR**, despite the issue's literal "flash" wording. Single
+clock domain, no PLL, no DDR, no CDC, and it lands exactly on ADR-0002's
+own 4 B/cycle anchor with no extrapolation needed. Pin cost (~55–60 pads
+for a 32-bit data/address/control interface) fits comfortably inside the
+~100–130 pad budget `explore/npu-dse/results.md` §5 computes for a 2×2 mm
+die. This is now the spec's committed external-memory class, not a working
+recommendation; **Q-SOC1-02 (serial-DDR PHY clocking) is therefore
+resolved-moot** — it applied only to the rejected serial Octal-SPI-DDR
+option (b).
 
 17. **SOC1-17:** The controller shall be a Wishbone B4 slave for CSR
     access only (mode select, clock divider, descriptor registers) — CSR
@@ -293,11 +301,12 @@ acceptance number; whether that trade is acceptable is a human call
 18. **SOC1-18:** The controller shall drive the weight-stream output
     (§4.2) autonomously once a descriptor is armed, with no further
     per-word CPU or Wishbone involvement.
-19. **SOC1-19:** The controller's external-part interface width/mode
-    (parallel SDR vs. serial Quad/Octal SPI, SDR vs. DDR) shall be a
-    build-time parameter, not hard-coded into the datapath — the actual
-    part is undecided (Q-SOC1-01) and RTL should not be locked to one
-    choice before IP intake confirms availability.
+19. **SOC1-19:** The controller's external-part interface width/mode is
+    **ruled** as 32-bit parallel SDR @ 50 MHz (Q-SOC1-01, resolved, above).
+    It shall still be a build-time parameter rather than hard-coded into
+    the datapath, so a future part swap within the same platform class
+    does not require a datapath redesign; RTL intake confirms the exact
+    part's electrical availability against this width/mode.
 
 ### §4.4 Interrupt map
 
@@ -333,14 +342,12 @@ the core does the actual latching.
 21. **SOC1-21:** All blocks in §3.1 except the flash/PSRAM PHY's external
     signalling run in the single 50 MHz `clk` domain (§2.1) with no
     internal CDC.
-22. **SOC1-22:** If the flash/PSRAM part ultimately chosen needs a PHY
-    clock faster than 50 MHz (true for the Octal-SPI-DDR option in §4.3,
-    false for the recommended 32-bit-parallel-SDR option), that PHY clock
-    domain and its crossing into the 50 MHz weight-stream FIFO (§4.2,
-    SOC1-11) is **not designed in this spec** — flagged as **Q-SOC1-02**,
-    including the real risk that sky130's open PDK/tool stack (ADR-0001)
-    does not ship a freely-usable, silicon-proven on-chip PLL, which would
-    force an external second reference clock instead.
+22. **SOC1-22:** Per the Q-SOC1-01 ruling (§4.3), the flash/PSRAM PHY runs
+    at the same 50 MHz as the rest of the system — no PHY clock domain
+    crossing into the weight-stream FIFO (§4.2, SOC1-11) is needed, and no
+    on-chip PLL is required. **Q-SOC1-02 is resolved-moot**: it addressed
+    the CDC/PLL cost of a serial Octal-SPI-DDR PHY, an option the Q-SOC1-01
+    ruling did not select.
 
 ### §4.6 System-infrastructure blocks
 
@@ -378,9 +385,9 @@ out of scope for this spec (**Q-SOC1-08**).
   copy bit-exactness (SOC1-08); `lm_head`'s long descriptor (SOC1-15) vs.
   short transformer-body descriptors exercising the same datapath at very
   different lengths.
-- If Q-SOC1-02 resolves toward a multi-clock-domain flash PHY, the CDC
-  FIFO at the domain boundary needs its own formal proof (never-overflow/
-  never-underflow), not just simulation.
+- Q-SOC1-02 is resolved-moot (§4.3/§4.5, ruled 50 MHz single-clock-domain
+  PHY): no multi-clock-domain flash PHY exists in this spec, so no CDC
+  FIFO formal proof is needed for that boundary.
 
 ## §7 Open questions
 
@@ -389,23 +396,20 @@ moves past `draft`. None of the items below are guesses dressed up as
 decisions — each is a judgment call this spec deliberately did not make
 silently.
 
-**Q-SOC1-01 (highest priority — gates the acceptance target itself).**
-Does "external flash" (issue's literal wording) mean actual non-volatile
-serial NOR/Octal-SPI flash, or does the ≥ 10 tok/s target implicitly
-require the wider parallel PSRAM-class part ADR-0002's own 4 B/cycle
-bandwidth anchor is based on? §4.3 lays out the tradeoff and proposes the
-32-bit-parallel-SDR option as lower risk (single clock domain, exactly
-matches ADR-0002's anchor, no PLL). Needs a human ruling: (a) accept
-parallel PSRAM/flash despite the literal wording, (b) commit to serial
-Octal-SPI DDR flash and accept Q-SOC1-02's clocking cost, or (c) relax the
-tok/s target. This spec proceeds on (a) as its working assumption only.
+**Q-SOC1-01 — RESOLVED** (maintainer-proxy ruling under the full-autonomy
+directive, revertible). Does "external flash" (issue's literal wording)
+mean actual non-volatile serial NOR/Octal-SPI flash, or does the
+≥ 10 tok/s target implicitly require the wider parallel PSRAM-class part
+ADR-0002's own 4 B/cycle bandwidth anchor is based on? **Ruling: option
+(a)** — accept 32-bit parallel PSRAM/flash SDR @ 50 MHz despite the
+literal "flash" wording (single clock domain, exactly matches ADR-0002's
+anchor, no PLL). This is now a spec decision, not a working assumption —
+see §4.3.
 
-**Q-SOC1-02 (depends on Q-SOC1-01).** If a serial DDR flash part is
-chosen, its PHY clock exceeds the fixed 50 MHz system clock and needs
-either an on-chip PLL (sky130's open flow may not have one available,
-§4.5) or a second external reference clock, plus a CDC-safe async FIFO at
-the weight-stream boundary. Moot if Q-SOC1-01 resolves to the parallel
-SDR option.
+**Q-SOC1-02 — RESOLVED-MOOT** (consequence of Q-SOC1-01's ruling). Would
+have covered PHY clocking/CDC cost for a serial DDR flash part; that
+option (b) was not selected, so no PHY clock domain beyond the single
+50 MHz system clock exists in this spec (§4.5).
 
 **Q-SOC1-03.** Boot ROM and firmware SRAM sizes are placeholders (§3.2).
 Firmware SRAM area is non-trivial (≈142,000 µm²/KB at ADR-0002's OpenRAM
@@ -420,11 +424,14 @@ flash controller, UART, and IRQ status blocks belong in their own future
 per-module specs, which should adopt this tooling once it lands. Process
 decision for the human maintainer, not an architectural one.
 
-**Q-SOC1-05 (inherited, unresolved).** ADR-0003's Q1 — PicoRV32's ISC
-license needs an explicit human IP-policy sign-off (issue #1 named
-Apache-2.0/BSD/MIT explicitly; ISC is functionally equivalent but not on
-that list). Blocks RTL intake of the actual picorv32 source, not this
-spec directly.
+**Q-SOC1-05 — RESOLVED** (maintainer-proxy ruling under the full-autonomy
+directive, revertible; inherited from ADR-0003's Q1). PicoRV32's ISC
+license needed an explicit human IP-policy sign-off (issue #1 named
+Apache-2.0/BSD/MIT explicitly; ISC is functionally equivalent but was not
+on that list). **Ruling: ISC accepted into the project license set.** RTL
+intake of the actual picorv32 source is unblocked by this spec's
+traceability chain; Q-SOC1-06 (reset polarity/synchronicity confirmation
+at RTL intake) remains open independently.
 
 **Q-SOC1-06.** SOC1-03's `wb_rst_i = ~rst_n` inversion and the assumption
 that `picorv32_wb`'s reset is synchronous are based on the upstream port
