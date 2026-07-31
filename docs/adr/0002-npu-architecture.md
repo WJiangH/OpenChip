@@ -1,7 +1,6 @@
 # ADR 0002 — NPU architecture: streaming GEMV vector unit for int8 LLM decode
 
-**Status: proposed — AWAITING HUMAN APPROVAL. This ADR is not accepted and no spec, RTL,
-DV, model or PD work may derive from it until a human maintainer changes this line.**
+**Status: accepted — approved by the human maintainer 2026-07-30 (recorded by the orchestrator on their instruction). Downstream spec/RTL/DV/model work may now derive from this ADR.**
 
 Date: 2026-07-26 · Author role: chief-architect · Supersedes: nothing · Depends on: ADR 0001
 
