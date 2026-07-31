@@ -583,6 +583,26 @@ def _self_check() -> bool:
     check("NPU-09 max-magnitude acc stays in-bounds", max_acc < 2 ** 31, True)
     check("NPU-09 max-magnitude end-to-end output saturates", list(m3.act_sram[2000:2008]), [127] * 8)
 
+    # --- Accumulator at NPU-09's stated bound (K=4096, all bytes +-127) ---
+    # NPU-09: "the accumulator shall never overflow for any descriptor with
+    # K <= 4096" — a bound this module's ERR_ACT_RANGE check does not itself
+    # enforce (ACT_BASE+K_LEN > 2048 in fact rejects any legal dispatch with
+    # K > 2048, since ACT_SRAM_BYTES=2048 and ACT_BASE >= 0; K=4096 is thus
+    # reachable only via wrap-around reads, an out-of-scope descriptor for
+    # dispatch_and_run). This drives the same lane-accumulate arithmetic
+    # `_consume_word` uses (`to_s32(acc + x*w)`, x=w=127 each MAC, the
+    # magnitude-maximizing case) directly, K=4096 times, to check NPU-09's
+    # overflow claim at its literal stated bound independent of the
+    # separately-spec'd SRAM-sizing check.
+    K4 = 4096
+    acc4 = 0
+    for _ in range(K4):
+        acc4 = to_s32(acc4 + 127 * 127)
+    max_acc4 = K4 * 127 * 127
+    check("NPU-09 K=4096 max-magnitude acc stays in-bounds", max_acc4 < 2 ** 31, True)
+    check("NPU-09 K=4096 accumulator does not wrap (to_s32 matches exact sum)", acc4, max_acc4)
+    check("NPU-09 K=4096 max-magnitude requantised result saturates", requantize(acc4, 1, 0), 127)
+
     # --- NPU-21 error codes, individually and in priority combination ---
     def fresh():
         mm = NpuModel(ws_width=32)
