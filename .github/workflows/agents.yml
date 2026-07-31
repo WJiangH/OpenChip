@@ -108,6 +108,7 @@ jobs:
         with:
           claude_code_oauth_token: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
           show_full_output: true
+          allowed_bots: "claude"
           claude_args: >-
             --allowedTools "Bash(gh:*),Bash(git:*),Bash(make:*),Bash(python3:*),Bash(bash:*),Read,Glob,Grep"
           prompt: |
