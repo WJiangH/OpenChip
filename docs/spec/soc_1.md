@@ -11,7 +11,7 @@ dim 288/6 layers/6 heads/vocab 32000 — `workloads/tinystories/profile.md` §1)
 and prints them over UART, bit-exact against a PyTorch reference, at a
 sustained rate of **≥ 10 tok/s** (conservative acceptance target; the
 underlying architecture's modelled headline is 25.4 tok/s —
-`explore/npu-dse/results.md` §7.3).
+`explore/npu-dse/results.md` §7.2).
 
 It integrates three decided blocks — the Wishbone B4 pipelined on-chip bus
 (ADR-0001), the PicoRV32 `picorv32_wb` control core (ADR-0003), and the 1×8
@@ -288,7 +288,7 @@ exactly 50 MHz SDR**, despite the issue's literal "flash" wording. Single
 clock domain, no PLL, no DDR, no CDC, and it lands exactly on ADR-0002's
 own 4 B/cycle anchor with no extrapolation needed. Pin cost (~55–60 pads
 for a 32-bit data/address/control interface) fits comfortably inside the
-~100–130 pad budget `explore/npu-dse/results.md` §5 computes for a 2×2 mm
+~100–130 pad budget `explore/npu-dse/results.md` §4 computes for a 2×2 mm
 die. This is now the spec's committed external-memory class, not a working
 recommendation; **Q-SOC1-02 (serial-DDR PHY clocking) is therefore
 resolved-moot** — it applied only to the rejected serial Octal-SPI-DDR
