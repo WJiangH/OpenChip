@@ -1,7 +1,6 @@
 # ADR 0003 — CPU core selection: PicoRV32 for the SoC control core
 
-**Status: proposed — AWAITING HUMAN APPROVAL. This ADR is not accepted and no spec, RTL,
-DV, model or PD work may derive from it until a human maintainer changes this line.**
+**Status: accepted — approved by the human maintainer via PR #2 merge (2026-07-28); status line updated by the orchestrator on the maintainer's go-ahead. Downstream work may derive from this ADR.**
 
 Date: 2026-07-27 · Author role: chief-architect · Supersedes: nothing · Depends on: ADR 0001, ADR 0002
 
