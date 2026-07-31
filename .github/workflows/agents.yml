@@ -22,7 +22,7 @@ on:
   issue_comment:
     types: [created]
   pull_request:
-    types: [opened, reopened, ready_for_review]
+    types: [opened, reopened, ready_for_review, synchronize]
 
 permissions:
   contents: write
@@ -128,10 +128,16 @@ jobs:
                gates (make lint MOD=..., make sim MOD=...) and compare with
                the PR's claims.
 
-            Deliver the verdict as a formal GitHub review:
-            - clean: gh pr review <N> --approve --body "<one line + your
-              spot-check evidence>"
-            - otherwise: gh pr review <N> --request-changes --body
-              "<numbered findings, each file:line + the rule or spec § violated>"
-            Do NOT merge — merging stays with the human maintainer.
+            Deliver the verdict (auto-merge authority granted by the maintainer):
+            - clean: merge it yourself — gh pr merge <N> --merge --delete-branch —
+              then comment a one-line verdict + your spot-check evidence.
+              (GitHub blocks formal self-approve on same-app PRs; the merge
+              itself is the approval record.)
+            - otherwise: comment the numbered findings (file:line + rule/§)
+              and do NOT merge; the author fixes and pushes, which re-triggers
+              this review automatically.
+            Hard brakes — never merge, mention @WJiangH instead, when:
+            - this PR already has 3+ request-changes rounds without converging
+            - any gate/threshold/constraint/waiver is weakened (Iron Rule 5)
+            - the diff crosses the author role's directory boundary
             Praise is not a finding.
