@@ -6,20 +6,9 @@ In early 2026, Moonshot's Kimi K3 designed a working accelerator in 48 hours usi
 
 ## What "end-to-end" means here
 
-```mermaid
-flowchart LR
-    A[Spec<br/>markdown] --> B[RTL<br/>SystemVerilog]
-    B --> C[Unit DV<br/>cocotb + Verilator]
-    B --> D[Formal proof<br/>SymbiYosys]
-    C --> E[SoC sim<br/>runs real C firmware]
-    D --> E
-    E --> F[Synthesis + STA<br/>Yosys + OpenSTA]
-    F --> G[Place & Route<br/>LibreLane / OpenROAD]
-    G --> H[Signoff<br/>DRC + LVS + GL-sim]
-    H --> I[Silicon<br/>Tiny Tapeout shuttle]
-```
+![OpenChip end-to-end framework](docs/images/architecture.svg)
 
-Every stage is a machine-checkable quality gate. An agent's work is accepted only when the tools say so — never because the agent says so.
+Every stage is a machine-checkable quality gate, and the same AI-agent loop drives every stage: generate artifacts → run the tools → read the diagnostics → the gates decide. An agent's work is accepted only when the tools say so — never because the agent says so.
 
 ## The stack (100% open source, no hardware required)
 
