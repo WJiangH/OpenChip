@@ -63,13 +63,18 @@ Full model: [docs/AGENTS.md](docs/AGENTS.md) · Verification strategy: [docs/VER
 
 ```
 docs/spec/   Specifications — the single source of truth
-rtl/         SystemVerilog RTL, one directory per module
-verif/       cocotb testbenches (independent from rtl/ authorship)
-formal/      SymbiYosys jobs + SVA properties
-sw/          Firmware: crt0, linker scripts, tests, CoreMark
-syn/         Yosys synthesis + OpenSTA scripts
-pd/          LibreLane configs, floorplans, signoff reports
-flow/        Shared make fragments (lint/sim/formal/synth)
+docs/adr/    Architecture decision records
+hw/rtl/      SystemVerilog RTL, one directory per module
+hw/dv/       cocotb testbenches + golden models (independent from hw/rtl/ authorship)
+hw/formal/   SymbiYosys jobs + SVA properties
+hw/syn/      Yosys synthesis + OpenSTA scripts
+hw/pd/       LibreLane configs, floorplans, signoff reports
+sw/          Firmware, model compiler, host runtime
+sim/         Bit-accurate ISS and performance models
+workloads/   Workload profiling — what the silicon must actually run
+explore/     Design space exploration and cost models
+evidence/    The per-design evidence package
+flow/        Shared make fragments (lint/sim/formal/synth) + gate thresholds
 AGENTS.md    The agent constitution — iron rules, role index, conventions
 .agents/     Role method files (skills), canonical and CLI-agnostic
 ```

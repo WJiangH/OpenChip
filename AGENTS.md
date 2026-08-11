@@ -41,11 +41,11 @@ file, never a mirror. `make agents` lists the CLIs installed on this machine.
 
 2. **Design/DV independence.** The agent (or session) that writes a module's RTL
    must never write or modify that module's testbench, and vice versa.
-   - RTL work writes only under `rtl/` (+ its formal constraints under `formal/` are OK).
-   - DV work writes only under `verif/` and derives expected values from
+   - RTL work writes only under `hw/rtl/` (+ its formal constraints under `hw/formal/` are OK).
+   - DV work writes only under `hw/dv/` and derives expected values from
      `docs/spec/` and golden models — **never** from reading the RTL implementation.
    - If a test fails, the DV agent files a bug report (GitHub issue or
-     `verif/<mod>/BUGS.md`); it does not patch the RTL. The RTL agent fixes it.
+     `hw/dv/<mod>/BUGS.md`); it does not patch the RTL. The RTL agent fixes it.
 
 3. **Tools are the arbiter.** Work is done only when the machine says so:
    lint clean → sim green → coverage met → formal proven → timing met → DRC/LVS clean.
@@ -61,7 +61,7 @@ file, never a mirror. `make agents` lists the CLIs installed on this machine.
 ## Commands
 
 ```bash
-make lint                # Verilator --lint-only + Verible over all rtl/
+make lint                # Verilator --lint-only + Verible over all hw/rtl/
 make sim MOD=<mod>       # cocotb suite for one module (omit MOD for all)
 make formal MOD=<mod>    # SymbiYosys proof for one module
 make synth MOD=<mod>     # Yosys synth + OpenSTA report
@@ -84,8 +84,8 @@ make clean
 
 ## Verification conventions
 
-- cocotb testbenches in `verif/<mod>/`, one `Makefile` including `flow/sim.mk`.
-- Golden/reference models live in `verif/common/models/` as plain Python;
+- cocotb testbenches in `hw/dv/<mod>/`, one `Makefile` including `flow/sim.mk`.
+- Golden/reference models live in `hw/dv/common/models/` as plain Python;
   they must cite the spec section they implement in a docstring.
 - Every test suite ends by writing coverage; the gate is ≥ 90% line + toggle
   (thresholds live in `flow/gates.mk` — never edit them to pass, see Iron Rule 5).
