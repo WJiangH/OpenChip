@@ -3,7 +3,7 @@
 OpenChip is developed by a fleet of specialized AI agents modeled on a real
 silicon team. This document defines the roles, their boundaries, and the
 coordination protocol. The role definitions used by Claude Code live in
-`.claude/agents/`.
+`.claude/agents/` (Claude Code) and `.agents/skills/` (all agents).
 
 ## Why multiple agents (not one big prompt)
 

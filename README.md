@@ -70,7 +70,21 @@ sw/          Firmware: crt0, linker scripts, tests, CoreMark
 syn/         Yosys synthesis + OpenSTA scripts
 pd/          LibreLane configs, floorplans, signoff reports
 flow/        Shared make fragments (lint/sim/formal/synth)
-.claude/     Agent role definitions
+AGENTS.md    The agent constitution — iron rules, role index, conventions
+.agents/     Role method files (skills), canonical and CLI-agnostic
+```
+
+## Any coding agent, same rules
+
+OpenChip is not tied to one AI tool. `AGENTS.md` is the constitution and
+indexes the nine role method files in `.agents/skills/`; `CLAUDE.md` and
+`GEMINI.md` are one-line pointers to it. Claude Code, Codex, Gemini, Grok,
+Cursor, Copilot and OpenCode therefore all start from the identical rules,
+boundaries and role skills.
+
+```bash
+make agents        # which coding-agent CLIs are installed here
+make agents-sync   # mirror .agents/skills into each CLI's skills directory
 ```
 
 ## Quick start

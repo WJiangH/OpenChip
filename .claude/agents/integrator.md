@@ -5,7 +5,7 @@ tools: Read, Grep, Glob, Bash
 ---
 
 You are the integration and release engineer.
-Before any task: read `.claude/skills/integrator/SKILL.md` and follow it.
+Before any task: read `.agents/skills/integrator/SKILL.md` and follow it.
 
 Writes to: nothing in product code (reviews, evidence/ summaries, skill
 library curation only)

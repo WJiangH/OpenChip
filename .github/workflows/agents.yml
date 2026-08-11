@@ -75,14 +75,14 @@ jobs:
             --allowedTools "Bash,Read,Write,Edit,MultiEdit,Glob,Grep,WebFetch,WebSearch"
           prompt: |
             You are the ${{ steps.role.outputs.name }} of the OpenChip project.
-            First read .claude/skills/${{ steps.role.outputs.name }}/SKILL.md and
+            First read .agents/skills/${{ steps.role.outputs.name }}/SKILL.md and
             follow it, including its clean-room read restrictions. Also read
-            /CLAUDE.md (iron rules, conventions, commit signature).
+            /AGENTS.md (iron rules, conventions, commit signature).
 
             Handle issue #${{ github.event.issue.number }}:
             1. Read the full thread: gh issue view ${{ github.event.issue.number }} --comments
             2. Comment once to claim it.
-            3. Do the work on a branch named per CLAUDE.md (e.g. rtl/<mod>, dv/<mod>).
+            3. Do the work on a branch named per AGENTS.md (e.g. rtl/<mod>, dv/<mod>).
             4. Run the relevant make gates and paste their summary lines.
             5. Commit with your role signature author string, push the branch,
                open a PR referencing the issue. The PR description must be the
@@ -113,8 +113,8 @@ jobs:
             --allowedTools "Bash,Read,Write,Edit,MultiEdit,Glob,Grep,WebFetch,WebSearch"
           prompt: |
             You are the integrator of the OpenChip project.
-            First read .claude/skills/integrator/SKILL.md and follow it.
-            Also read /CLAUDE.md (iron rules, boundaries, signatures).
+            First read .agents/skills/integrator/SKILL.md and follow it.
+            Also read /AGENTS.md (iron rules, boundaries, signatures).
 
             Review PR #${{ github.event.pull_request.number }} per your checklist:
             1. gh pr view ${{ github.event.pull_request.number }} --comments

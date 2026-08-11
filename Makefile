@@ -15,7 +15,7 @@ SIM_MODS := $(notdir $(patsubst %/Makefile,%,$(wildcard hw/dv/*/Makefile)))
 SBY_MODS := $(notdir $(patsubst %.sby,%,$(wildcard hw/formal/*/*.sby)))
 MOD      ?=
 
-.PHONY: help lint sim formal synth compliance soc-sim gds glsim sw clean
+.PHONY: help lint sim formal synth compliance soc-sim gds glsim sw agents agents-sync clean
 
 help:
 	@echo "OpenChip flow targets:"
@@ -28,6 +28,8 @@ help:
 	@echo "  make gds     MOD=<top>  LibreLane RTL->GDSII via Docker (M0/M4)"
 	@echo "  make glsim   MOD=<top>  gate-level sim with SDF (M4)"
 	@echo "  make sw                 build RISC-V firmware (M3)"
+	@echo "  make agents             list coding-agent CLIs installed here"
+	@echo "  make agents-sync        mirror .agents/skills into every CLI (--all)"
 
 # --- Gate 1: lint -----------------------------------------------------------
 LINT_MODS = $(if $(MOD),$(MOD),$(MODULES))
@@ -95,6 +97,14 @@ glsim:
 # --- Firmware (M3) ----------------------------------------------------------
 sw:
 	@test -f sw/Makefile && $(MAKE) -C sw || echo "sw: firmware tree lands in M3"
+
+# --- Agent workspace --------------------------------------------------------
+# AGENTS.md + .agents/skills/ are CLI-agnostic; these expose them per CLI.
+agents:
+	@tools/agents.sh scan
+
+agents-sync:
+	@tools/agents.sh sync --all
 
 clean:
 	rm -rf obj_dir sim_build
