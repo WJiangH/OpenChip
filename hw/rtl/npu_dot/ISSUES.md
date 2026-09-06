@@ -1,11 +1,20 @@
 # npu_dot — spec issues raised during implementation
 
-Spec under implementation: `docs/spec/llm-soc-v1/` 1.0-rc3.
+Spec under implementation: `docs/spec/llm-soc-v1/` 1.0-rc4 (was 1.0-rc3 when the
+issues below were filed).
 Raised by the RTL author of `hw/rtl/npu_dot/npu_dot.sv`; not resolved in RTL.
+
+| id | status |
+|---|---|
+| ISSUE-npu_dot-01 | **RULED by change order rc4 (spec-gap, F-01) — closed; code changed** |
 
 ---
 
 ## ISSUE-npu_dot-01 — no way for npu_dma to know npu_dot still holds an unconsumed result
+
+**Status: RULED by `docs/spec/llm-soc-v1/CHANGE_ORDER_rc4.md`, row
+"ISSUE-npu_dot-01 + ISSUE-npu_local-03 (F-01)" — disposition `spec-gap`.
+Implemented in `npu_dot.sv`; nothing is provisional here any more.**
 
 - **id**: ISSUE-npu_dot-01
 - **spec_ref**:
@@ -53,3 +62,35 @@ Raised by the RTL author of `hw/rtl/npu_dot/npu_dot.sv`; not resolved in RTL.
   the C15/C16 fields `contract.json` lists, one result outstanding at a time,
   and the result register drained only by `group_result.ready`. Marked in
   `npu_dot.sv` as `// ISSUE-npu_dot-01: provisional`.
+- **ruling (rc4)**: option 3 (flush input), not the recommended option 1. A new
+  connection **C34** `dot_lifecycle` (`npu_ctl` -> `npu_dot`, one signal
+  `flush`) is added to `contract.json`, and `npu.md` NPU-09(b) fixes its
+  semantics: `flush` is a level *registered in npu_ctl* with reset value 1, set
+  on the `dma_terminal` sampling edge T, cleared only on the C25 handshake edge
+  and never on the C12 accept edge. The recommendation in option 1
+  (`npu_dma` holds `group_result.ready`=1 while draining) is **explicitly
+  rejected**: NPU-09(d) keeps `group_result.ready`=0 from npu_dma's first
+  non-OKAY response until its next dispatch handshake. The NPU-03 "structurally
+  identical" concern raised against option 3 is answered by NPU-06's rewrite:
+  the arithmetic is untouched, and flush only clears and discards — it never
+  changes a product, a sum or the order of results.
+- **what changed in the code (rc4)**:
+  - new port `input wire i_dot_lifecycle_flush` (C34; the spelling is fixed by
+    `contract.json` `port_identifier_convention` via ISSUE-npu_dma-01).
+  - `o_group_result_valid = result_valid_q && !i_dot_lifecycle_flush` and
+    `o_dot_operands_ready = i_dot_lifecycle_flush || !result_valid_q` —
+    combinational functions of the registered flush, per NPU-09(b) ("this
+    creates no VALID-on-READY dependence"). Neither output depends on
+    `i_dot_operands_valid` or `i_group_result_ready`, so no combinational loop
+    exists.
+  - a flush branch in the single `always_ff`, with priority over the operand
+    branch, clears `acc_q` and all five result registers on every edge at which
+    flush=1 and thereby discards the operand beat accepted at that edge.
+  - the single-result-outstanding property, the ordering argument and the exact
+    INT8xINT8 -> INT32 arithmetic are unchanged.
+- **residual obligation on other modules** (not npu_dot's to implement):
+  `npu_ctl` must add `o_dot_lifecycle_flush` with the reset-1 / set-at-T /
+  clear-only-at-C25 behaviour, and `llm_soc_top` must wire C34. If `flush` were
+  tied to 0 at integration, npu_dot degrades exactly to its rc3 behaviour and
+  the F-01 race returns; if it were tied to 1, npu_dot would never emit a
+  result. Both are integration errors visible to DV as an NPU-09(b) violation.
