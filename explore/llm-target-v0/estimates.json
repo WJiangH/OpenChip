@@ -1,0 +1,507 @@
+{
+  "status": "analytical-only; not a frozen requirement or measured performance",
+  "retrieved": "2026-09-05",
+  "models": [
+    {
+      "name": "Qwen3-0.6B",
+      "hidden": 1024,
+      "intermediate": 3072,
+      "layers": 28,
+      "heads": 16,
+      "kv_heads": 8,
+      "head_dim": 128,
+      "vocab": 151936,
+      "tied_embeddings": true,
+      "source": "https://huggingface.co/Qwen/Qwen3-0.6B/raw/main/config.json"
+    },
+    {
+      "name": "Qwen3-1.7B",
+      "hidden": 2048,
+      "intermediate": 6144,
+      "layers": 28,
+      "heads": 16,
+      "kv_heads": 8,
+      "head_dim": 128,
+      "vocab": 151936,
+      "tied_embeddings": true,
+      "source": "https://huggingface.co/Qwen/Qwen3-1.7B/raw/main/config.json"
+    },
+    {
+      "name": "Qwen3-4B",
+      "hidden": 2560,
+      "intermediate": 9728,
+      "layers": 36,
+      "heads": 32,
+      "kv_heads": 8,
+      "head_dim": 128,
+      "vocab": 151936,
+      "tied_embeddings": true,
+      "source": "https://huggingface.co/Qwen/Qwen3-4B/raw/main/config.json"
+    }
+  ],
+  "rows": [
+    {
+      "model": "Qwen3-0.6B",
+      "context": 2048,
+      "weight_bits": 4,
+      "params": 596049920,
+      "weight_bytes": 307435520,
+      "kv_bytes": 234881024,
+      "resident_floor_bytes": 542316544,
+      "decode_bytes": 542433280,
+      "decode_macs": 830865408,
+      "prefill_1024_macs": 511315410944,
+      "bandwidth_for_20_tps_gbps": 10.8486656
+    },
+    {
+      "model": "Qwen3-0.6B",
+      "context": 2048,
+      "weight_bits": 8,
+      "params": 596049920,
+      "weight_bytes": 605427712,
+      "kv_bytes": 234881024,
+      "resident_floor_bytes": 840308736,
+      "decode_bytes": 840425472,
+      "decode_macs": 830865408,
+      "prefill_1024_macs": 511315410944,
+      "bandwidth_for_20_tps_gbps": 16.80850944
+    },
+    {
+      "model": "Qwen3-0.6B",
+      "context": 8192,
+      "weight_bits": 4,
+      "params": 596049920,
+      "weight_bytes": 307435520,
+      "kv_bytes": 939524096,
+      "resident_floor_bytes": 1246959616,
+      "decode_bytes": 1247076352,
+      "decode_macs": 1535508480,
+      "prefill_1024_macs": 511315410944,
+      "bandwidth_for_20_tps_gbps": 24.94152704
+    },
+    {
+      "model": "Qwen3-0.6B",
+      "context": 8192,
+      "weight_bits": 8,
+      "params": 596049920,
+      "weight_bytes": 605427712,
+      "kv_bytes": 939524096,
+      "resident_floor_bytes": 1544951808,
+      "decode_bytes": 1545068544,
+      "decode_macs": 1535508480,
+      "prefill_1024_macs": 511315410944,
+      "bandwidth_for_20_tps_gbps": 30.90137088
+    },
+    {
+      "model": "Qwen3-1.7B",
+      "context": 2048,
+      "weight_bits": 4,
+      "params": 1720574976,
+      "weight_bytes": 887355392,
+      "kv_bytes": 234881024,
+      "resident_floor_bytes": 1122236416,
+      "decode_bytes": 1122355200,
+      "decode_macs": 1955332096,
+      "prefill_1024_macs": 1503608438784,
+      "bandwidth_for_20_tps_gbps": 22.447104
+    },
+    {
+      "model": "Qwen3-1.7B",
+      "context": 2048,
+      "weight_bits": 8,
+      "params": 1720574976,
+      "weight_bytes": 1747580928,
+      "kv_bytes": 234881024,
+      "resident_floor_bytes": 1982461952,
+      "decode_bytes": 1982580736,
+      "decode_macs": 1955332096,
+      "prefill_1024_macs": 1503608438784,
+      "bandwidth_for_20_tps_gbps": 39.65161472
+    },
+    {
+      "model": "Qwen3-1.7B",
+      "context": 8192,
+      "weight_bits": 4,
+      "params": 1720574976,
+      "weight_bytes": 887355392,
+      "kv_bytes": 939524096,
+      "resident_floor_bytes": 1826879488,
+      "decode_bytes": 1826998272,
+      "decode_macs": 2659975168,
+      "prefill_1024_macs": 1503608438784,
+      "bandwidth_for_20_tps_gbps": 36.53996544
+    },
+    {
+      "model": "Qwen3-1.7B",
+      "context": 8192,
+      "weight_bits": 8,
+      "params": 1720574976,
+      "weight_bytes": 1747580928,
+      "kv_bytes": 939524096,
+      "resident_floor_bytes": 2687105024,
+      "decode_bytes": 2687223808,
+      "decode_macs": 2659975168,
+      "prefill_1024_macs": 1503608438784,
+      "bandwidth_for_20_tps_gbps": 53.74447616
+    },
+    {
+      "model": "Qwen3-4B",
+      "context": 2048,
+      "weight_bits": 4,
+      "params": 4022468096,
+      "weight_bytes": 2074376192,
+      "kv_bytes": 301989888,
+      "resident_floor_bytes": 2376366080,
+      "decode_bytes": 2376518656,
+      "decode_macs": 4626251776,
+      "prefill_1024_macs": 3875674193920,
+      "bandwidth_for_20_tps_gbps": 47.53037312
+    },
+    {
+      "model": "Qwen3-4B",
+      "context": 2048,
+      "weight_bits": 8,
+      "params": 4022468096,
+      "weight_bytes": 4085512192,
+      "kv_bytes": 301989888,
+      "resident_floor_bytes": 4387502080,
+      "decode_bytes": 4387654656,
+      "decode_macs": 4626251776,
+      "prefill_1024_macs": 3875674193920,
+      "bandwidth_for_20_tps_gbps": 87.75309312
+    },
+    {
+      "model": "Qwen3-4B",
+      "context": 8192,
+      "weight_bits": 4,
+      "params": 4022468096,
+      "weight_bytes": 2074376192,
+      "kv_bytes": 1207959552,
+      "resident_floor_bytes": 3282335744,
+      "decode_bytes": 3282488320,
+      "decode_macs": 6438191104,
+      "prefill_1024_macs": 3875674193920,
+      "bandwidth_for_20_tps_gbps": 65.6497664
+    },
+    {
+      "model": "Qwen3-4B",
+      "context": 8192,
+      "weight_bits": 8,
+      "params": 4022468096,
+      "weight_bytes": 4085512192,
+      "kv_bytes": 1207959552,
+      "resident_floor_bytes": 5293471744,
+      "decode_bytes": 5293624320,
+      "decode_macs": 6438191104,
+      "prefill_1024_macs": 3875674193920,
+      "bandwidth_for_20_tps_gbps": 105.8724864
+    }
+  ],
+  "budgets": [
+    {
+      "name": "A",
+      "peak_tmac_s": 0.25,
+      "effective_gbps": 16
+    },
+    {
+      "name": "B",
+      "peak_tmac_s": 1,
+      "effective_gbps": 32
+    },
+    {
+      "name": "C",
+      "peak_tmac_s": 4,
+      "effective_gbps": 64
+    }
+  ],
+  "sweep": [
+    {
+      "model": "Qwen3-0.6B",
+      "context": 2048,
+      "weight_bits": 4,
+      "budget": "A",
+      "optimistic_tps": 29.496715245790227,
+      "prefill_compute_floor_s": 2.045261643776
+    },
+    {
+      "model": "Qwen3-0.6B",
+      "context": 2048,
+      "weight_bits": 4,
+      "budget": "B",
+      "optimistic_tps": 58.993430491580455,
+      "prefill_compute_floor_s": 0.511315410944
+    },
+    {
+      "model": "Qwen3-0.6B",
+      "context": 2048,
+      "weight_bits": 4,
+      "budget": "C",
+      "optimistic_tps": 117.98686098316091,
+      "prefill_compute_floor_s": 0.127828852736
+    },
+    {
+      "model": "Qwen3-0.6B",
+      "context": 2048,
+      "weight_bits": 8,
+      "budget": "A",
+      "optimistic_tps": 19.037976040783306,
+      "prefill_compute_floor_s": 2.045261643776
+    },
+    {
+      "model": "Qwen3-0.6B",
+      "context": 2048,
+      "weight_bits": 8,
+      "budget": "B",
+      "optimistic_tps": 38.07595208156661,
+      "prefill_compute_floor_s": 0.511315410944
+    },
+    {
+      "model": "Qwen3-0.6B",
+      "context": 2048,
+      "weight_bits": 8,
+      "budget": "C",
+      "optimistic_tps": 76.15190416313322,
+      "prefill_compute_floor_s": 0.127828852736
+    },
+    {
+      "model": "Qwen3-0.6B",
+      "context": 8192,
+      "weight_bits": 4,
+      "budget": "A",
+      "optimistic_tps": 12.830008342584625,
+      "prefill_compute_floor_s": 2.045261643776
+    },
+    {
+      "model": "Qwen3-0.6B",
+      "context": 8192,
+      "weight_bits": 4,
+      "budget": "B",
+      "optimistic_tps": 25.66001668516925,
+      "prefill_compute_floor_s": 0.511315410944
+    },
+    {
+      "model": "Qwen3-0.6B",
+      "context": 8192,
+      "weight_bits": 4,
+      "budget": "C",
+      "optimistic_tps": 51.3200333703385,
+      "prefill_compute_floor_s": 0.127828852736
+    },
+    {
+      "model": "Qwen3-0.6B",
+      "context": 8192,
+      "weight_bits": 8,
+      "budget": "A",
+      "optimistic_tps": 10.355527631530112,
+      "prefill_compute_floor_s": 2.045261643776
+    },
+    {
+      "model": "Qwen3-0.6B",
+      "context": 8192,
+      "weight_bits": 8,
+      "budget": "B",
+      "optimistic_tps": 20.711055263060224,
+      "prefill_compute_floor_s": 0.511315410944
+    },
+    {
+      "model": "Qwen3-0.6B",
+      "context": 8192,
+      "weight_bits": 8,
+      "budget": "C",
+      "optimistic_tps": 41.42211052612045,
+      "prefill_compute_floor_s": 0.127828852736
+    },
+    {
+      "model": "Qwen3-1.7B",
+      "context": 2048,
+      "weight_bits": 4,
+      "budget": "A",
+      "optimistic_tps": 14.255736508370969,
+      "prefill_compute_floor_s": 6.014433755136
+    },
+    {
+      "model": "Qwen3-1.7B",
+      "context": 2048,
+      "weight_bits": 4,
+      "budget": "B",
+      "optimistic_tps": 28.511473016741938,
+      "prefill_compute_floor_s": 1.503608438784
+    },
+    {
+      "model": "Qwen3-1.7B",
+      "context": 2048,
+      "weight_bits": 4,
+      "budget": "C",
+      "optimistic_tps": 57.022946033483876,
+      "prefill_compute_floor_s": 0.375902109696
+    },
+    {
+      "model": "Qwen3-1.7B",
+      "context": 2048,
+      "weight_bits": 8,
+      "budget": "A",
+      "optimistic_tps": 8.070289249496673,
+      "prefill_compute_floor_s": 6.014433755136
+    },
+    {
+      "model": "Qwen3-1.7B",
+      "context": 2048,
+      "weight_bits": 8,
+      "budget": "B",
+      "optimistic_tps": 16.140578498993346,
+      "prefill_compute_floor_s": 1.503608438784
+    },
+    {
+      "model": "Qwen3-1.7B",
+      "context": 2048,
+      "weight_bits": 8,
+      "budget": "C",
+      "optimistic_tps": 32.28115699798669,
+      "prefill_compute_floor_s": 0.375902109696
+    },
+    {
+      "model": "Qwen3-1.7B",
+      "context": 8192,
+      "weight_bits": 4,
+      "budget": "A",
+      "optimistic_tps": 8.757534281893399,
+      "prefill_compute_floor_s": 6.014433755136
+    },
+    {
+      "model": "Qwen3-1.7B",
+      "context": 8192,
+      "weight_bits": 4,
+      "budget": "B",
+      "optimistic_tps": 17.515068563786798,
+      "prefill_compute_floor_s": 1.503608438784
+    },
+    {
+      "model": "Qwen3-1.7B",
+      "context": 8192,
+      "weight_bits": 4,
+      "budget": "C",
+      "optimistic_tps": 35.030137127573596,
+      "prefill_compute_floor_s": 0.375902109696
+    },
+    {
+      "model": "Qwen3-1.7B",
+      "context": 8192,
+      "weight_bits": 8,
+      "budget": "A",
+      "optimistic_tps": 5.954100269715979,
+      "prefill_compute_floor_s": 6.014433755136
+    },
+    {
+      "model": "Qwen3-1.7B",
+      "context": 8192,
+      "weight_bits": 8,
+      "budget": "B",
+      "optimistic_tps": 11.908200539431958,
+      "prefill_compute_floor_s": 1.503608438784
+    },
+    {
+      "model": "Qwen3-1.7B",
+      "context": 8192,
+      "weight_bits": 8,
+      "budget": "C",
+      "optimistic_tps": 23.816401078863915,
+      "prefill_compute_floor_s": 0.375902109696
+    },
+    {
+      "model": "Qwen3-4B",
+      "context": 2048,
+      "weight_bits": 4,
+      "budget": "A",
+      "optimistic_tps": 6.732537091431947,
+      "prefill_compute_floor_s": 15.50269677568
+    },
+    {
+      "model": "Qwen3-4B",
+      "context": 2048,
+      "weight_bits": 4,
+      "budget": "B",
+      "optimistic_tps": 13.465074182863894,
+      "prefill_compute_floor_s": 3.87567419392
+    },
+    {
+      "model": "Qwen3-4B",
+      "context": 2048,
+      "weight_bits": 4,
+      "budget": "C",
+      "optimistic_tps": 26.93014836572779,
+      "prefill_compute_floor_s": 0.96891854848
+    },
+    {
+      "model": "Qwen3-4B",
+      "context": 2048,
+      "weight_bits": 8,
+      "budget": "A",
+      "optimistic_tps": 3.6465951070511964,
+      "prefill_compute_floor_s": 15.50269677568
+    },
+    {
+      "model": "Qwen3-4B",
+      "context": 2048,
+      "weight_bits": 8,
+      "budget": "B",
+      "optimistic_tps": 7.293190214102393,
+      "prefill_compute_floor_s": 3.87567419392
+    },
+    {
+      "model": "Qwen3-4B",
+      "context": 2048,
+      "weight_bits": 8,
+      "budget": "C",
+      "optimistic_tps": 14.586380428204786,
+      "prefill_compute_floor_s": 0.96891854848
+    },
+    {
+      "model": "Qwen3-4B",
+      "context": 8192,
+      "weight_bits": 4,
+      "budget": "A",
+      "optimistic_tps": 4.874350931429971,
+      "prefill_compute_floor_s": 15.50269677568
+    },
+    {
+      "model": "Qwen3-4B",
+      "context": 8192,
+      "weight_bits": 4,
+      "budget": "B",
+      "optimistic_tps": 9.748701862859942,
+      "prefill_compute_floor_s": 3.87567419392
+    },
+    {
+      "model": "Qwen3-4B",
+      "context": 8192,
+      "weight_bits": 4,
+      "budget": "C",
+      "optimistic_tps": 19.497403725719884,
+      "prefill_compute_floor_s": 0.96891854848
+    },
+    {
+      "model": "Qwen3-4B",
+      "context": 8192,
+      "weight_bits": 8,
+      "budget": "A",
+      "optimistic_tps": 3.022503871222958,
+      "prefill_compute_floor_s": 15.50269677568
+    },
+    {
+      "model": "Qwen3-4B",
+      "context": 8192,
+      "weight_bits": 8,
+      "budget": "B",
+      "optimistic_tps": 6.045007742445916,
+      "prefill_compute_floor_s": 3.87567419392
+    },
+    {
+      "model": "Qwen3-4B",
+      "context": 8192,
+      "weight_bits": 8,
+      "budget": "C",
+      "optimistic_tps": 12.090015484891833,
+      "prefill_compute_floor_s": 0.96891854848
+    }
+  ]
+}

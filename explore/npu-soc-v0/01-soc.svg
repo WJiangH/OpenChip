@@ -1,0 +1,111 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1800" height="1140" viewBox="0 0 1800 1140" role="img">
+<title>OpenChip NPU SoC | Top-level block diagram</title>
+<desc>Architecture candidate v0.1 | logical connectivity, not floorplan | LOCAL DRAFT</desc>
+<rect width="100%" height="100%" fill="white"/>
+<style>text{font-family:Arial,Helvetica,sans-serif;fill:#182b3a} .edgeLabel{paint-order:stroke;stroke:white;stroke-width:7;stroke-linejoin:round}</style>
+<defs>
+<marker id="arrow-control" markerWidth="10" markerHeight="10" refX="9" refY="5" orient="auto-start-reverse" markerUnits="userSpaceOnUse"><path d="M0,0 L10,5 L0,10 Z" fill="#3468a0"/></marker>
+<marker id="arrow-data" markerWidth="10" markerHeight="10" refX="9" refY="5" orient="auto-start-reverse" markerUnits="userSpaceOnUse"><path d="M0,0 L10,5 L0,10 Z" fill="#28734e"/></marker>
+<marker id="arrow-security" markerWidth="10" markerHeight="10" refX="9" refY="5" orient="auto-start-reverse" markerUnits="userSpaceOnUse"><path d="M0,0 L10,5 L0,10 Z" fill="#785297"/></marker>
+<marker id="arrow-platform" markerWidth="10" markerHeight="10" refX="9" refY="5" orient="auto-start-reverse" markerUnits="userSpaceOnUse"><path d="M0,0 L10,5 L0,10 Z" fill="#a76a22"/></marker>
+<marker id="arrow-neutral" markerWidth="10" markerHeight="10" refX="9" refY="5" orient="auto-start-reverse" markerUnits="userSpaceOnUse"><path d="M0,0 L10,5 L0,10 Z" fill="#52606d"/></marker>
+</defs>
+<text x="50" y="52" font-size="31" font-weight="bold">OpenChip NPU SoC | Top-level block diagram</text>
+<text x="50" y="88" font-size="21">Architecture candidate v0.1 | logical connectivity, not floorplan | LOCAL DRAFT</text>
+<rect x="30" y="120" width="1500" height="955" rx="3" fill="white" stroke="#52606d" stroke-width="2"/>
+<text x="45" y="150" font-size="20" font-weight="bold">SoC boundary</text>
+<rect x="85" y="180" width="280" height="130" rx="3" fill="#edf3fb" stroke="#3468a0" stroke-width="2"/>
+<text x="225.0" y="226.0" text-anchor="middle" font-size="21" font-weight="bold">RISC-V control CPU</text>
+<text x="225.0" y="252.0" text-anchor="middle" font-size="18" font-weight="normal">RV32 core candidate</text>
+<text x="225.0" y="278.0" text-anchor="middle" font-size="18" font-weight="normal">Firmware / dispatch / exceptions</text>
+<rect x="445" y="170" width="430" height="145" rx="3" fill="#f4effa" stroke="#785297" stroke-width="2"/>
+<text x="660.0" y="210.5" text-anchor="middle" font-size="21" font-weight="bold">Security &amp; boot domain</text>
+<text x="660.0" y="236.5" text-anchor="middle" font-size="18" font-weight="normal">Caliptra subsystem candidate</text>
+<text x="660.0" y="262.5" text-anchor="middle" font-size="18" font-weight="normal">RoT + management MCU + protected memory</text>
+<text x="660.0" y="288.5" text-anchor="middle" font-size="18" font-weight="normal">Lifecycle / OTP / entropy integration</text>
+<rect x="1120" y="255" width="335" height="90" rx="3" fill="#fff4e5" stroke="#a76a22" stroke-width="2"/>
+<text x="1287.5" y="294.0" text-anchor="middle" font-size="21" font-weight="bold">Clock / reset / boot control</text>
+<text x="1287.5" y="320.0" text-anchor="middle" font-size="18" font-weight="normal">Boot: view 03 | clocks: view 04</text>
+<rect x="85" y="410" width="1370" height="75" rx="3" fill="#eaf5ef" stroke="#28734e" stroke-width="2"/>
+<text x="770.0" y="441.5" text-anchor="middle" font-size="21" font-weight="bold">AXI4 system interconnect + access control</text>
+<text x="770.0" y="467.5" text-anchor="middle" font-size="18" font-weight="normal">Request identity, region permissions, arbitration, error response</text>
+<rect x="85" y="555" width="245" height="115" rx="3" fill="#edf3fb" stroke="#3468a0" stroke-width="2"/>
+<text x="207.5" y="593.5" text-anchor="middle" font-size="21" font-weight="bold">ROM / QSPI controller</text>
+<text x="207.5" y="619.5" text-anchor="middle" font-size="18" font-weight="normal">Firmware image source</text>
+<text x="207.5" y="645.5" text-anchor="middle" font-size="18" font-weight="normal">AXI target</text>
+<rect x="365" y="555" width="270" height="115" rx="3" fill="#eaf5ef" stroke="#28734e" stroke-width="2"/>
+<text x="500.0" y="593.5" text-anchor="middle" font-size="21" font-weight="bold">Banked system SRAM</text>
+<text x="500.0" y="619.5" text-anchor="middle" font-size="18" font-weight="normal">Code / queues / shared tensors</text>
+<text x="500.0" y="645.5" text-anchor="middle" font-size="18" font-weight="normal">AXI target; capacity TBD</text>
+<rect x="735" y="555" width="290" height="115" rx="3" fill="#fff4e5" stroke="#a76a22" stroke-width="2"/>
+<text x="880.0" y="593.5" text-anchor="middle" font-size="21" font-weight="bold">External-memory controller</text>
+<text x="880.0" y="619.5" text-anchor="middle" font-size="18" font-weight="normal">DDR controller + PHY candidate</text>
+<text x="880.0" y="645.5" text-anchor="middle" font-size="18" font-weight="normal">FPGA / ASIC platform adapter</text>
+<rect x="1120" y="555" width="335" height="95" rx="3" fill="#edf3fb" stroke="#3468a0" stroke-width="2"/>
+<text x="1287.5" y="596.5" text-anchor="middle" font-size="21" font-weight="bold">AXI-to-APB bridge</text>
+<text x="1287.5" y="622.5" text-anchor="middle" font-size="18" font-weight="normal">Peripheral register access</text>
+<rect x="1120" y="715" width="335" height="90" rx="3" fill="#edf3fb" stroke="#3468a0" stroke-width="2"/>
+<text x="1287.5" y="754.0" text-anchor="middle" font-size="21" font-weight="bold">UART / GPIO / timer / watchdog</text>
+<text x="1287.5" y="780.0" text-anchor="middle" font-size="18" font-weight="normal">Low-bandwidth peripherals</text>
+<rect x="1120" y="875" width="335" height="80" rx="3" fill="#edf3fb" stroke="#3468a0" stroke-width="2"/>
+<text x="1287.5" y="909.0" text-anchor="middle" font-size="21" font-weight="bold">Interrupt aggregation</text>
+<text x="1287.5" y="935.0" text-anchor="middle" font-size="18" font-weight="normal">CPU interrupt delivery</text>
+<rect x="85" y="765" width="900" height="230" rx="3" fill="white" stroke="#28734e" stroke-width="2"/>
+<text x="100" y="795" font-size="20" font-weight="bold">NPU subsystem | project-owned compute</text>
+<rect x="115" y="825" width="205" height="100" rx="3" fill="#edf3fb" stroke="#3468a0" stroke-width="2"/>
+<text x="217.5" y="856.0" text-anchor="middle" font-size="21" font-weight="bold">Command / CSR</text>
+<text x="217.5" y="882.0" text-anchor="middle" font-size="18" font-weight="normal">AXI4-Lite target</text>
+<text x="217.5" y="908.0" text-anchor="middle" font-size="18" font-weight="normal">Validated descriptors</text>
+<rect x="405" y="825" width="200" height="100" rx="3" fill="#eaf5ef" stroke="#28734e" stroke-width="2"/>
+<text x="505.0" y="856.0" text-anchor="middle" font-size="21" font-weight="bold">Tensor DMA</text>
+<text x="505.0" y="882.0" text-anchor="middle" font-size="18" font-weight="normal">AXI4 initiator</text>
+<text x="505.0" y="908.0" text-anchor="middle" font-size="18" font-weight="normal">Data + command reads</text>
+<rect x="690" y="825" width="255" height="100" rx="3" fill="#eaf5ef" stroke="#28734e" stroke-width="2"/>
+<text x="817.5" y="856.0" text-anchor="middle" font-size="21" font-weight="bold">Local SRAM + compute</text>
+<text x="817.5" y="882.0" text-anchor="middle" font-size="18" font-weight="normal">Matrix MAC / vector / SFU</text>
+<text x="817.5" y="908.0" text-anchor="middle" font-size="18" font-weight="normal">Detail: view 02</text>
+<rect x="1570" y="165" width="195" height="115" rx="3" fill="#f4effa" stroke="#785297" stroke-width="2"/>
+<text x="1667.5" y="203.5" text-anchor="middle" font-size="21" font-weight="bold">Recovery host</text>
+<text x="1667.5" y="229.5" text-anchor="middle" font-size="18" font-weight="normal">I3C / streaming boot</text>
+<text x="1667.5" y="255.5" text-anchor="middle" font-size="18" font-weight="normal">External test model</text>
+<rect x="1570" y="550" width="195" height="125" rx="3" fill="#fff4e5" stroke="#a76a22" stroke-width="2"/>
+<text x="1667.5" y="593.5" text-anchor="middle" font-size="21" font-weight="bold">External DRAM</text>
+<text x="1667.5" y="619.5" text-anchor="middle" font-size="18" font-weight="normal">Weights / tensors / KV</text>
+<text x="1667.5" y="645.5" text-anchor="middle" font-size="18" font-weight="normal">Board-specific part</text>
+<polyline points="225,310 225,410" fill="none" stroke="#3468a0" stroke-width="2.5" marker-start="url(#arrow-control)" marker-end="url(#arrow-control)"/>
+<text x="325" y="365" text-anchor="middle" font-size="18" class="edgeLabel">AXI4-Lite + adapter</text>
+<polyline points="655,315 655,410" fill="none" stroke="#785297" stroke-width="2.5" marker-start="url(#arrow-security)" marker-end="url(#arrow-security)"/>
+<text x="820" y="365" text-anchor="middle" font-size="18" class="edgeLabel">AXI4 + trusted USER</text>
+<polyline points="875,205 1570,205" fill="none" stroke="#785297" stroke-width="2.5" marker-start="url(#arrow-security)" marker-end="url(#arrow-security)"/>
+<text x="1220" y="191" text-anchor="middle" font-size="18" class="edgeLabel">I3C</text>
+<polyline points="1300,345 1300,410" fill="none" stroke="#a76a22" stroke-width="2.5" stroke-dasharray="8 5" marker-end="url(#arrow-platform)"/>
+<text x="1370" y="380" text-anchor="middle" font-size="18" class="edgeLabel">clk / rst</text>
+<polyline points="205,485 205,555" fill="none" stroke="#3468a0" stroke-width="2.5" marker-start="url(#arrow-control)" marker-end="url(#arrow-control)"/>
+<text x="240" y="529" text-anchor="middle" font-size="18" class="edgeLabel">AXI</text>
+<polyline points="505,485 505,555" fill="none" stroke="#28734e" stroke-width="2.5" marker-start="url(#arrow-data)" marker-end="url(#arrow-data)"/>
+<text x="553" y="529" text-anchor="middle" font-size="18" class="edgeLabel">AXI4</text>
+<polyline points="880,485 880,555" fill="none" stroke="#28734e" stroke-width="2.5" marker-start="url(#arrow-data)" marker-end="url(#arrow-data)"/>
+<text x="932" y="529" text-anchor="middle" font-size="18" class="edgeLabel">AXI4</text>
+<polyline points="1025,610 1065,610 1065,690 1550,690 1550,610 1570,610" fill="none" stroke="#a76a22" stroke-width="2.5" marker-start="url(#arrow-platform)" marker-end="url(#arrow-platform)"/>
+<text x="1300" y="685" text-anchor="middle" font-size="18" class="edgeLabel">Physical memory interface</text>
+<polyline points="1300,485 1300,555" fill="none" stroke="#3468a0" stroke-width="2.5" marker-start="url(#arrow-control)" marker-end="url(#arrow-control)"/>
+<text x="1350" y="529" text-anchor="middle" font-size="18" class="edgeLabel">AXI4</text>
+<polyline points="1300,650 1300,715" fill="none" stroke="#3468a0" stroke-width="2.5" marker-start="url(#arrow-control)" marker-end="url(#arrow-control)"/>
+<text x="1340" y="704" text-anchor="middle" font-size="18" class="edgeLabel">APB</text>
+<polyline points="105,485 60,485 60,875 115,875" fill="none" stroke="#3468a0" stroke-width="2.5" marker-start="url(#arrow-control)" marker-end="url(#arrow-control)"/>
+<text x="165" y="719" text-anchor="middle" font-size="18" class="edgeLabel">AXI4 to Lite</text>
+<polyline points="505,825 505,725 680,725 680,485" fill="none" stroke="#28734e" stroke-width="2.5" marker-start="url(#arrow-data)" marker-end="url(#arrow-data)"/>
+<text x="602" y="713" text-anchor="middle" font-size="18" class="edgeLabel">AXI4 bursts</text>
+<polyline points="320,875 405,875" fill="none" stroke="#3468a0" stroke-width="2.5" stroke-dasharray="8 5" marker-end="url(#arrow-control)"/>
+<text x="364" y="854" text-anchor="middle" font-size="18" class="edgeLabel">dispatch</text>
+<polyline points="605,875 690,875" fill="none" stroke="#28734e" stroke-width="2.5" marker-start="url(#arrow-data)" marker-end="url(#arrow-data)"/>
+<text x="647" y="854" text-anchor="middle" font-size="18" class="edgeLabel">local data</text>
+<polyline points="985,915 1120,915" fill="none" stroke="#3468a0" stroke-width="2.5" stroke-dasharray="8 5" marker-end="url(#arrow-control)"/>
+<text x="1052" y="899" text-anchor="middle" font-size="18" class="edgeLabel">done / fault</text>
+<polyline points="1360,805 1360,875" fill="none" stroke="#3468a0" stroke-width="2.5" stroke-dasharray="8 5" marker-end="url(#arrow-control)"/>
+<text x="1410" y="846" text-anchor="middle" font-size="18" class="edgeLabel">IRQ</text>
+<polyline points="1200,955 1200,1030 45,1030 45,245 85,245" fill="none" stroke="#3468a0" stroke-width="2.5" stroke-dasharray="8 5" marker-end="url(#arrow-control)"/>
+<text x="1030" y="1022" text-anchor="middle" font-size="18" class="edgeLabel">CPU IRQ</text>
+<text x="85" y="1056" font-size="19">Security authorization / debug / reset sidebands are expanded in view 03, not implicit in AXI.</text>
+<text x="50" y="1115" font-size="19">Solid arrows: interface traffic (double = bidirectional). Dashed: control / IRQ. Crossings without dots are not junctions.</text>
+</svg>

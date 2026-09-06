@@ -1,0 +1,205 @@
+{
+  "status": "analytical-only, all utilization assumed ideal",
+  "context": 128,
+  "model": "stories15M",
+  "decode_macs": 15630336,
+  "decode_bytes": 15641568,
+  "decode_mac_per_byte": 0.9992819134245364,
+  "prefill_macs": 802160640,
+  "prefill_weight_bytes": 15195744,
+  "prefill_mac_per_byte": 52.78850709777685,
+  "rows": [
+    {
+      "macs_per_cycle": 8,
+      "clock_mhz": 100,
+      "effective_external_gbps": 1,
+      "peak_gmac_s": 0.8,
+      "decode_optimistic_gmac_s": 0.8,
+      "prefill_optimistic_gmac_s": 0.8
+    },
+    {
+      "macs_per_cycle": 8,
+      "clock_mhz": 100,
+      "effective_external_gbps": 4,
+      "peak_gmac_s": 0.8,
+      "decode_optimistic_gmac_s": 0.8,
+      "prefill_optimistic_gmac_s": 0.8
+    },
+    {
+      "macs_per_cycle": 8,
+      "clock_mhz": 100,
+      "effective_external_gbps": 8,
+      "peak_gmac_s": 0.8,
+      "decode_optimistic_gmac_s": 0.8,
+      "prefill_optimistic_gmac_s": 0.8
+    },
+    {
+      "macs_per_cycle": 8,
+      "clock_mhz": 200,
+      "effective_external_gbps": 1,
+      "peak_gmac_s": 1.6,
+      "decode_optimistic_gmac_s": 0.9992819134245364,
+      "prefill_optimistic_gmac_s": 1.6
+    },
+    {
+      "macs_per_cycle": 8,
+      "clock_mhz": 200,
+      "effective_external_gbps": 4,
+      "peak_gmac_s": 1.6,
+      "decode_optimistic_gmac_s": 1.6,
+      "prefill_optimistic_gmac_s": 1.6
+    },
+    {
+      "macs_per_cycle": 8,
+      "clock_mhz": 200,
+      "effective_external_gbps": 8,
+      "peak_gmac_s": 1.6,
+      "decode_optimistic_gmac_s": 1.6,
+      "prefill_optimistic_gmac_s": 1.6
+    },
+    {
+      "macs_per_cycle": 64,
+      "clock_mhz": 100,
+      "effective_external_gbps": 1,
+      "peak_gmac_s": 6.4,
+      "decode_optimistic_gmac_s": 0.9992819134245364,
+      "prefill_optimistic_gmac_s": 6.4
+    },
+    {
+      "macs_per_cycle": 64,
+      "clock_mhz": 100,
+      "effective_external_gbps": 4,
+      "peak_gmac_s": 6.4,
+      "decode_optimistic_gmac_s": 3.9971276536981457,
+      "prefill_optimistic_gmac_s": 6.4
+    },
+    {
+      "macs_per_cycle": 64,
+      "clock_mhz": 100,
+      "effective_external_gbps": 8,
+      "peak_gmac_s": 6.4,
+      "decode_optimistic_gmac_s": 6.4,
+      "prefill_optimistic_gmac_s": 6.4
+    },
+    {
+      "macs_per_cycle": 64,
+      "clock_mhz": 200,
+      "effective_external_gbps": 1,
+      "peak_gmac_s": 12.8,
+      "decode_optimistic_gmac_s": 0.9992819134245364,
+      "prefill_optimistic_gmac_s": 12.8
+    },
+    {
+      "macs_per_cycle": 64,
+      "clock_mhz": 200,
+      "effective_external_gbps": 4,
+      "peak_gmac_s": 12.8,
+      "decode_optimistic_gmac_s": 3.9971276536981457,
+      "prefill_optimistic_gmac_s": 12.8
+    },
+    {
+      "macs_per_cycle": 64,
+      "clock_mhz": 200,
+      "effective_external_gbps": 8,
+      "peak_gmac_s": 12.8,
+      "decode_optimistic_gmac_s": 7.994255307396291,
+      "prefill_optimistic_gmac_s": 12.8
+    },
+    {
+      "macs_per_cycle": 256,
+      "clock_mhz": 100,
+      "effective_external_gbps": 1,
+      "peak_gmac_s": 25.6,
+      "decode_optimistic_gmac_s": 0.9992819134245364,
+      "prefill_optimistic_gmac_s": 25.6
+    },
+    {
+      "macs_per_cycle": 256,
+      "clock_mhz": 100,
+      "effective_external_gbps": 4,
+      "peak_gmac_s": 25.6,
+      "decode_optimistic_gmac_s": 3.9971276536981457,
+      "prefill_optimistic_gmac_s": 25.6
+    },
+    {
+      "macs_per_cycle": 256,
+      "clock_mhz": 100,
+      "effective_external_gbps": 8,
+      "peak_gmac_s": 25.6,
+      "decode_optimistic_gmac_s": 7.994255307396291,
+      "prefill_optimistic_gmac_s": 25.6
+    },
+    {
+      "macs_per_cycle": 256,
+      "clock_mhz": 200,
+      "effective_external_gbps": 1,
+      "peak_gmac_s": 51.2,
+      "decode_optimistic_gmac_s": 0.9992819134245364,
+      "prefill_optimistic_gmac_s": 51.2
+    },
+    {
+      "macs_per_cycle": 256,
+      "clock_mhz": 200,
+      "effective_external_gbps": 4,
+      "peak_gmac_s": 51.2,
+      "decode_optimistic_gmac_s": 3.9971276536981457,
+      "prefill_optimistic_gmac_s": 51.2
+    },
+    {
+      "macs_per_cycle": 256,
+      "clock_mhz": 200,
+      "effective_external_gbps": 8,
+      "peak_gmac_s": 51.2,
+      "decode_optimistic_gmac_s": 7.994255307396291,
+      "prefill_optimistic_gmac_s": 51.2
+    },
+    {
+      "macs_per_cycle": 1024,
+      "clock_mhz": 100,
+      "effective_external_gbps": 1,
+      "peak_gmac_s": 102.4,
+      "decode_optimistic_gmac_s": 0.9992819134245364,
+      "prefill_optimistic_gmac_s": 52.78850709777685
+    },
+    {
+      "macs_per_cycle": 1024,
+      "clock_mhz": 100,
+      "effective_external_gbps": 4,
+      "peak_gmac_s": 102.4,
+      "decode_optimistic_gmac_s": 3.9971276536981457,
+      "prefill_optimistic_gmac_s": 102.4
+    },
+    {
+      "macs_per_cycle": 1024,
+      "clock_mhz": 100,
+      "effective_external_gbps": 8,
+      "peak_gmac_s": 102.4,
+      "decode_optimistic_gmac_s": 7.994255307396291,
+      "prefill_optimistic_gmac_s": 102.4
+    },
+    {
+      "macs_per_cycle": 1024,
+      "clock_mhz": 200,
+      "effective_external_gbps": 1,
+      "peak_gmac_s": 204.8,
+      "decode_optimistic_gmac_s": 0.9992819134245364,
+      "prefill_optimistic_gmac_s": 52.78850709777685
+    },
+    {
+      "macs_per_cycle": 1024,
+      "clock_mhz": 200,
+      "effective_external_gbps": 4,
+      "peak_gmac_s": 204.8,
+      "decode_optimistic_gmac_s": 3.9971276536981457,
+      "prefill_optimistic_gmac_s": 204.8
+    },
+    {
+      "macs_per_cycle": 1024,
+      "clock_mhz": 200,
+      "effective_external_gbps": 8,
+      "peak_gmac_s": 204.8,
+      "decode_optimistic_gmac_s": 7.994255307396291,
+      "prefill_optimistic_gmac_s": 204.8
+    }
+  ]
+}

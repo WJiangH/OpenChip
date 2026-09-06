@@ -1,0 +1,93 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1800" height="1100" viewBox="0 0 1800 1100" role="img">
+<title>OpenChip NPU | Compute and data movement</title>
+<desc>Functional organization | candidate INT8 MAC + INT32 accumulation | precision / sizing not frozen</desc>
+<rect width="100%" height="100%" fill="white"/>
+<style>text{font-family:Arial,Helvetica,sans-serif;fill:#182b3a} .edgeLabel{paint-order:stroke;stroke:white;stroke-width:7;stroke-linejoin:round}</style>
+<defs>
+<marker id="arrow-control" markerWidth="10" markerHeight="10" refX="9" refY="5" orient="auto-start-reverse" markerUnits="userSpaceOnUse"><path d="M0,0 L10,5 L0,10 Z" fill="#3468a0"/></marker>
+<marker id="arrow-data" markerWidth="10" markerHeight="10" refX="9" refY="5" orient="auto-start-reverse" markerUnits="userSpaceOnUse"><path d="M0,0 L10,5 L0,10 Z" fill="#28734e"/></marker>
+<marker id="arrow-security" markerWidth="10" markerHeight="10" refX="9" refY="5" orient="auto-start-reverse" markerUnits="userSpaceOnUse"><path d="M0,0 L10,5 L0,10 Z" fill="#785297"/></marker>
+<marker id="arrow-platform" markerWidth="10" markerHeight="10" refX="9" refY="5" orient="auto-start-reverse" markerUnits="userSpaceOnUse"><path d="M0,0 L10,5 L0,10 Z" fill="#a76a22"/></marker>
+<marker id="arrow-neutral" markerWidth="10" markerHeight="10" refX="9" refY="5" orient="auto-start-reverse" markerUnits="userSpaceOnUse"><path d="M0,0 L10,5 L0,10 Z" fill="#52606d"/></marker>
+</defs>
+<text x="50" y="52" font-size="31" font-weight="bold">OpenChip NPU | Compute and data movement</text>
+<text x="50" y="88" font-size="21">Functional organization | candidate INT8 MAC + INT32 accumulation | precision / sizing not frozen</text>
+<rect x="60" y="145" width="245" height="110" rx="3" fill="#edf3fb" stroke="#3468a0" stroke-width="2"/>
+<text x="182.5" y="181.0" text-anchor="middle" font-size="21" font-weight="bold">CPU runtime</text>
+<text x="182.5" y="207.0" text-anchor="middle" font-size="18" font-weight="normal">Addresses / descriptors</text>
+<text x="182.5" y="233.0" text-anchor="middle" font-size="18" font-weight="normal">Doorbell / completion</text>
+<rect x="395" y="145" width="340" height="110" rx="3" fill="#edf3fb" stroke="#3468a0" stroke-width="2"/>
+<text x="565.0" y="181.0" text-anchor="middle" font-size="21" font-weight="bold">CSR + command processor</text>
+<text x="565.0" y="207.0" text-anchor="middle" font-size="18" font-weight="normal">Descriptor validation / dependencies</text>
+<text x="565.0" y="233.0" text-anchor="middle" font-size="18" font-weight="normal">Tile scheduling / completion</text>
+<rect x="865" y="145" width="360" height="110" rx="3" fill="#edf3fb" stroke="#3468a0" stroke-width="2"/>
+<text x="1045.0" y="181.0" text-anchor="middle" font-size="21" font-weight="bold">Compute control / scoreboards</text>
+<text x="1045.0" y="207.0" text-anchor="middle" font-size="18" font-weight="normal">DMA overlap + buffer ownership</text>
+<text x="1045.0" y="233.0" text-anchor="middle" font-size="18" font-weight="normal">Fault and cancellation handling</text>
+<rect x="60" y="420" width="245" height="115" rx="3" fill="#eaf5ef" stroke="#28734e" stroke-width="2"/>
+<text x="182.5" y="458.5" text-anchor="middle" font-size="21" font-weight="bold">System AXI4 fabric</text>
+<text x="182.5" y="484.5" text-anchor="middle" font-size="18" font-weight="normal">SRAM / external DRAM</text>
+<text x="182.5" y="510.5" text-anchor="middle" font-size="18" font-weight="normal">Data + descriptor traffic</text>
+<rect x="395" y="420" width="340" height="115" rx="3" fill="#eaf5ef" stroke="#28734e" stroke-width="2"/>
+<text x="565.0" y="458.5" text-anchor="middle" font-size="21" font-weight="bold">Tensor DMA / layout engine</text>
+<text x="565.0" y="484.5" text-anchor="middle" font-size="18" font-weight="normal">Burst reads and writes</text>
+<text x="565.0" y="510.5" text-anchor="middle" font-size="18" font-weight="normal">Packing / strides / alignment</text>
+<rect x="865" y="385" width="790" height="150" rx="3" fill="#eaf5ef" stroke="#28734e" stroke-width="2"/>
+<text x="1260.0" y="441.0" text-anchor="middle" font-size="21" font-weight="bold">Banked local tensor SRAM</text>
+<text x="1260.0" y="467.0" text-anchor="middle" font-size="18" font-weight="normal">Weight banks | activation banks | intermediate buffers</text>
+<text x="1260.0" y="493.0" text-anchor="middle" font-size="18" font-weight="normal">Double buffering candidate; bank ports and capacity from DSE</text>
+<rect x="865" y="625" width="335" height="130" rx="3" fill="#eaf5ef" stroke="#28734e" stroke-width="2"/>
+<text x="1032.5" y="671.0" text-anchor="middle" font-size="21" font-weight="bold">Matrix MAC engine</text>
+<text x="1032.5" y="697.0" text-anchor="middle" font-size="18" font-weight="normal">Tiled GEMM / GEMV mapping</text>
+<text x="1032.5" y="723.0" text-anchor="middle" font-size="18" font-weight="normal">INT8 operands; array shape TBD</text>
+<rect x="1320" y="625" width="335" height="130" rx="3" fill="#eaf5ef" stroke="#28734e" stroke-width="2"/>
+<text x="1487.5" y="671.0" text-anchor="middle" font-size="21" font-weight="bold">Vector / reduction / SFU</text>
+<text x="1487.5" y="697.0" text-anchor="middle" font-size="18" font-weight="normal">Add / requant / activation</text>
+<text x="1487.5" y="723.0" text-anchor="middle" font-size="18" font-weight="normal">Norm / softmax: precision TBD</text>
+<rect x="865" y="860" width="335" height="110" rx="3" fill="#eaf5ef" stroke="#28734e" stroke-width="2"/>
+<text x="1032.5" y="896.0" text-anchor="middle" font-size="21" font-weight="bold">Accumulator storage</text>
+<text x="1032.5" y="922.0" text-anchor="middle" font-size="18" font-weight="normal">INT32 candidate</text>
+<text x="1032.5" y="948.0" text-anchor="middle" font-size="18" font-weight="normal">Overflow contract required</text>
+<rect x="395" y="860" width="340" height="110" rx="3" fill="#eaf5ef" stroke="#28734e" stroke-width="2"/>
+<text x="565.0" y="896.0" text-anchor="middle" font-size="21" font-weight="bold">Output / writeback</text>
+<text x="565.0" y="922.0" text-anchor="middle" font-size="18" font-weight="normal">Format conversion / packing</text>
+<text x="565.0" y="948.0" text-anchor="middle" font-size="18" font-weight="normal">Results and status</text>
+<rect x="60" y="860" width="245" height="110" rx="3" fill="#edf3fb" stroke="#3468a0" stroke-width="2"/>
+<text x="182.5" y="896.0" text-anchor="middle" font-size="21" font-weight="bold">Completion / fault IRQ</text>
+<text x="182.5" y="922.0" text-anchor="middle" font-size="18" font-weight="normal">Host observes actual results</text>
+<text x="182.5" y="948.0" text-anchor="middle" font-size="18" font-weight="normal">No internal state injection</text>
+<polyline points="305,200 395,200" fill="none" stroke="#3468a0" stroke-width="2.5" marker-start="url(#arrow-control)" marker-end="url(#arrow-control)"/>
+<text x="348" y="180" text-anchor="middle" font-size="18" class="edgeLabel">AXI4-Lite</text>
+<polyline points="735,200 865,200" fill="none" stroke="#3468a0" stroke-width="2.5" stroke-dasharray="8 5" marker-end="url(#arrow-control)"/>
+<text x="800" y="180" text-anchor="middle" font-size="18" class="edgeLabel">commands</text>
+<polyline points="550,255 550,420" fill="none" stroke="#3468a0" stroke-width="2.5" stroke-dasharray="8 5" marker-end="url(#arrow-control)"/>
+<text x="655" y="345" text-anchor="middle" font-size="18" class="edgeLabel">DMA descriptors</text>
+<polyline points="1000,255 1000,385" fill="none" stroke="#3468a0" stroke-width="2.5" stroke-dasharray="8 5" marker-end="url(#arrow-control)"/>
+<text x="1080" y="328" text-anchor="middle" font-size="18" class="edgeLabel">ownership</text>
+<polyline points="865,215 785,215 785,575 980,575 980,625" fill="none" stroke="#3468a0" stroke-width="2.5" stroke-dasharray="8 5" marker-start="url(#arrow-control)" marker-end="url(#arrow-control)"/>
+<text x="835" y="300" text-anchor="middle" font-size="18" class="edgeLabel">issue / done</text>
+<polyline points="1225,200 1710,200 1710,685 1655,685" fill="none" stroke="#3468a0" stroke-width="2.5" stroke-dasharray="8 5" marker-start="url(#arrow-control)" marker-end="url(#arrow-control)"/>
+<text x="1460" y="180" text-anchor="middle" font-size="18" class="edgeLabel">issue / done</text>
+<polyline points="305,478 395,478" fill="none" stroke="#28734e" stroke-width="2.5" marker-start="url(#arrow-data)" marker-end="url(#arrow-data)"/>
+<text x="350" y="458" text-anchor="middle" font-size="18" class="edgeLabel">AXI4</text>
+<polyline points="735,478 865,478" fill="none" stroke="#28734e" stroke-width="2.5" marker-start="url(#arrow-data)" marker-end="url(#arrow-data)"/>
+<text x="800" y="458" text-anchor="middle" font-size="18" class="edgeLabel">local fabric</text>
+<polyline points="1030,535 1030,625" fill="none" stroke="#28734e" stroke-width="2.5" marker-start="url(#arrow-data)" marker-end="url(#arrow-data)"/>
+<text x="1080" y="583" text-anchor="middle" font-size="18" class="edgeLabel">W + X</text>
+<polyline points="1480,535 1480,625" fill="none" stroke="#28734e" stroke-width="2.5" marker-start="url(#arrow-data)" marker-end="url(#arrow-data)"/>
+<text x="1530" y="583" text-anchor="middle" font-size="18" class="edgeLabel">vectors</text>
+<polyline points="1030,755 1030,860" fill="none" stroke="#28734e" stroke-width="2.5" marker-start="url(#arrow-data)" marker-end="url(#arrow-data)"/>
+<text x="1110" y="815" text-anchor="middle" font-size="18" class="edgeLabel">partial sums</text>
+<polyline points="1200,915 1480,915 1480,755" fill="none" stroke="#28734e" stroke-width="2.5" marker-start="url(#arrow-data)" marker-end="url(#arrow-data)"/>
+<text x="1360" y="904" text-anchor="middle" font-size="18" class="edgeLabel">postprocess</text>
+<polyline points="865,915 735,915" fill="none" stroke="#28734e" stroke-width="2.5" marker-end="url(#arrow-data)"/>
+<text x="800" y="897" text-anchor="middle" font-size="18" class="edgeLabel">results</text>
+<polyline points="910,535 810,535 810,800 620,800 620,860" fill="none" stroke="#28734e" stroke-width="2.5" marker-end="url(#arrow-data)"/>
+<text x="714" y="790" text-anchor="middle" font-size="18" class="edgeLabel">vector results</text>
+<polyline points="450,860 450,535" fill="none" stroke="#28734e" stroke-width="2.5" marker-end="url(#arrow-data)"/>
+<text x="550" y="695" text-anchor="middle" font-size="18" class="edgeLabel">writeback stream</text>
+<polyline points="395,915 305,915" fill="none" stroke="#3468a0" stroke-width="2.5" stroke-dasharray="8 5" marker-end="url(#arrow-control)"/>
+<text x="350" y="895" text-anchor="middle" font-size="18" class="edgeLabel">status</text>
+<text x="60" y="1040" font-size="19">Local data paths are SRAM/native or explicitly adapted streams; ready/valid alone does not claim AXI4-Stream compliance.</text>
+<text x="60" y="1070" font-size="19">GEMV utilization and non-MAC operators need separate measurement; theoretical MAC count is not application throughput.</text>
+</svg>

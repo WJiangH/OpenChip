@@ -1,0 +1,67 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1800" height="1040" viewBox="0 0 1800 1040" role="img">
+<title>OpenChip | Clock and reset connectivity</title>
+<desc>v0 candidate: one functional SoC clock; external-memory PHY is platform-dependent</desc>
+<rect width="100%" height="100%" fill="white"/>
+<style>text{font-family:Arial,Helvetica,sans-serif;fill:#182b3a} .edgeLabel{paint-order:stroke;stroke:white;stroke-width:7;stroke-linejoin:round}</style>
+<defs>
+<marker id="arrow-control" markerWidth="10" markerHeight="10" refX="9" refY="5" orient="auto-start-reverse" markerUnits="userSpaceOnUse"><path d="M0,0 L10,5 L0,10 Z" fill="#3468a0"/></marker>
+<marker id="arrow-data" markerWidth="10" markerHeight="10" refX="9" refY="5" orient="auto-start-reverse" markerUnits="userSpaceOnUse"><path d="M0,0 L10,5 L0,10 Z" fill="#28734e"/></marker>
+<marker id="arrow-security" markerWidth="10" markerHeight="10" refX="9" refY="5" orient="auto-start-reverse" markerUnits="userSpaceOnUse"><path d="M0,0 L10,5 L0,10 Z" fill="#785297"/></marker>
+<marker id="arrow-platform" markerWidth="10" markerHeight="10" refX="9" refY="5" orient="auto-start-reverse" markerUnits="userSpaceOnUse"><path d="M0,0 L10,5 L0,10 Z" fill="#a76a22"/></marker>
+<marker id="arrow-neutral" markerWidth="10" markerHeight="10" refX="9" refY="5" orient="auto-start-reverse" markerUnits="userSpaceOnUse"><path d="M0,0 L10,5 L0,10 Z" fill="#52606d"/></marker>
+</defs>
+<text x="50" y="52" font-size="31" font-weight="bold">OpenChip | Clock and reset connectivity</text>
+<text x="50" y="88" font-size="21">v0 candidate: one functional SoC clock; external-memory PHY is platform-dependent</text>
+<rect x="70" y="170" width="290" height="110" rx="3" fill="#fff4e5" stroke="#a76a22" stroke-width="2"/>
+<text x="215.0" y="206.0" text-anchor="middle" font-size="21" font-weight="bold">Reference clock / reset pads</text>
+<text x="215.0" y="232.0" text-anchor="middle" font-size="18" font-weight="normal">FPGA clock source or ASIC pads</text>
+<text x="215.0" y="258.0" text-anchor="middle" font-size="18" font-weight="normal">Input conditioning</text>
+<rect x="495" y="170" width="355" height="110" rx="3" fill="#fff4e5" stroke="#a76a22" stroke-width="2"/>
+<text x="672.5" y="206.0" text-anchor="middle" font-size="21" font-weight="bold">Clock platform adapter</text>
+<text x="672.5" y="232.0" text-anchor="middle" font-size="18" font-weight="normal">Generate / select soc_clk</text>
+<text x="672.5" y="258.0" text-anchor="middle" font-size="18" font-weight="normal">PLL choice and frequency TBD</text>
+<rect x="495" y="500" width="355" height="130" rx="3" fill="#fff4e5" stroke="#a76a22" stroke-width="2"/>
+<text x="672.5" y="546.0" text-anchor="middle" font-size="21" font-weight="bold">Reset / boot sequencer</text>
+<text x="672.5" y="572.0" text-anchor="middle" font-size="18" font-weight="normal">Condition external reset</text>
+<text x="672.5" y="598.0" text-anchor="middle" font-size="18" font-weight="normal">Coordinate warm / cold resets</text>
+<rect x="1050" y="120" width="480" height="120" rx="3" fill="#f4effa" stroke="#785297" stroke-width="2"/>
+<text x="1290.0" y="161.0" text-anchor="middle" font-size="21" font-weight="bold">Security subsystem</text>
+<text x="1290.0" y="187.0" text-anchor="middle" font-size="18" font-weight="normal">soc_clk + ordered reset / pwrgood</text>
+<text x="1290.0" y="213.0" text-anchor="middle" font-size="18" font-weight="normal">Upstream Caliptra release-specific rules</text>
+<rect x="1050" y="355" width="480" height="115" rx="3" fill="#edf3fb" stroke="#3468a0" stroke-width="2"/>
+<text x="1290.0" y="393.5" text-anchor="middle" font-size="21" font-weight="bold">Application CPU</text>
+<text x="1290.0" y="419.5" text-anchor="middle" font-size="18" font-weight="normal">soc_clk + cpu_rst</text>
+<text x="1290.0" y="445.5" text-anchor="middle" font-size="18" font-weight="normal">Release only after boot authorization</text>
+<rect x="1050" y="590" width="480" height="115" rx="3" fill="#eaf5ef" stroke="#28734e" stroke-width="2"/>
+<text x="1290.0" y="628.5" text-anchor="middle" font-size="21" font-weight="bold">NPU / DMA / AXI / SRAM / APB</text>
+<text x="1290.0" y="654.5" text-anchor="middle" font-size="18" font-weight="normal">soc_clk + coordinated resets</text>
+<text x="1290.0" y="680.5" text-anchor="middle" font-size="18" font-weight="normal">Drain or explicitly abort transactions</text>
+<rect x="1050" y="825" width="480" height="115" rx="3" fill="#fff4e5" stroke="#a76a22" stroke-width="2"/>
+<text x="1290.0" y="863.5" text-anchor="middle" font-size="21" font-weight="bold">Memory-controller / PHY adapter</text>
+<text x="1290.0" y="889.5" text-anchor="middle" font-size="18" font-weight="normal">soc_clk interface; mem_clk if required</text>
+<text x="1290.0" y="915.5" text-anchor="middle" font-size="18" font-weight="normal">CDC / reset crossings owned here</text>
+<polyline points="360,225 495,225" fill="none" stroke="#a76a22" stroke-width="2.5" marker-end="url(#arrow-platform)"/>
+<text x="425" y="205" text-anchor="middle" font-size="18" class="edgeLabel">reference clock</text>
+<polyline points="220,280 220,565 495,565" fill="none" stroke="#a76a22" stroke-width="2.5" stroke-dasharray="8 5" marker-end="url(#arrow-platform)"/>
+<text x="340" y="547" text-anchor="middle" font-size="18" class="edgeLabel">external reset</text>
+<polyline points="850,190 950,190 950,155 1050,155" fill="none" stroke="#a76a22" stroke-width="2.5" marker-end="url(#arrow-platform)"/>
+<text x="992" y="143" text-anchor="middle" font-size="18" class="edgeLabel">soc_clk</text>
+<polyline points="850,190 950,190 950,395 1050,395" fill="none" stroke="#a76a22" stroke-width="2.5" marker-end="url(#arrow-platform)"/>
+<text x="992" y="383" text-anchor="middle" font-size="18" class="edgeLabel">soc_clk</text>
+<polyline points="850,190 950,190 950,630 1050,630" fill="none" stroke="#a76a22" stroke-width="2.5" marker-end="url(#arrow-platform)"/>
+<text x="992" y="618" text-anchor="middle" font-size="18" class="edgeLabel">soc_clk</text>
+<polyline points="850,190 950,190 950,855 1050,855" fill="none" stroke="#a76a22" stroke-width="2.5" marker-end="url(#arrow-platform)"/>
+<text x="992" y="843" text-anchor="middle" font-size="18" class="edgeLabel">soc_clk</text>
+<polyline points="850,520 880,520 880,215 1050,215" fill="none" stroke="#3468a0" stroke-width="2.5" stroke-dasharray="8 5" marker-end="url(#arrow-control)"/>
+<text x="963" y="241" text-anchor="middle" font-size="18" class="edgeLabel">reset / pwrgood</text>
+<polyline points="850,550 900,550 900,445 1050,445" fill="none" stroke="#3468a0" stroke-width="2.5" stroke-dasharray="8 5" marker-end="url(#arrow-control)"/>
+<text x="988" y="468" text-anchor="middle" font-size="18" class="edgeLabel">cpu_rst</text>
+<polyline points="850,580 920,580 920,680 1050,680" fill="none" stroke="#3468a0" stroke-width="2.5" stroke-dasharray="8 5" marker-end="url(#arrow-control)"/>
+<text x="978" y="703" text-anchor="middle" font-size="18" class="edgeLabel">system resets</text>
+<polyline points="850,610 940,610 940,915 1050,915" fill="none" stroke="#3468a0" stroke-width="2.5" stroke-dasharray="8 5" marker-end="url(#arrow-control)"/>
+<text x="978" y="938" text-anchor="middle" font-size="18" class="edgeLabel">memory reset</text>
+<polyline points="1530,180 1630,180 1630,750 700,750 700,630" fill="none" stroke="#785297" stroke-width="2.5" stroke-dasharray="8 5" marker-end="url(#arrow-security)"/>
+<text x="1330" y="772" text-anchor="middle" font-size="18" class="edgeLabel">boot authorization / escalation</text>
+<text x="70" y="960" font-size="19">Clock lines share soc_clk; reset branches are separately controlled outputs. Physical clock-tree synthesis is not represented.</text>
+<text x="70" y="995" font-size="19">No independent power islands selected in v0. Low-power states, isolation, retention and DFT controls require separate implementation views.</text>
+</svg>

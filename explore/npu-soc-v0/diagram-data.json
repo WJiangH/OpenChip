@@ -1,0 +1,2157 @@
+[
+  {
+    "name": "01-soc",
+    "title": "OpenChip NPU SoC | Top-level block diagram",
+    "subtitle": "Architecture candidate v0.1 | logical connectivity, not floorplan | LOCAL DRAFT",
+    "width": 1800,
+    "height": 1140,
+    "nodes": [
+      {
+        "id": "chip",
+        "x": 30,
+        "y": 120,
+        "w": 1500,
+        "h": 955,
+        "lines": [
+          "SoC boundary"
+        ],
+        "kind": "neutral",
+        "group": true
+      },
+      {
+        "id": "cpu",
+        "x": 85,
+        "y": 180,
+        "w": 280,
+        "h": 130,
+        "lines": [
+          "RISC-V control CPU",
+          "RV32 core candidate",
+          "Firmware / dispatch / exceptions"
+        ],
+        "kind": "control",
+        "group": false
+      },
+      {
+        "id": "security",
+        "x": 445,
+        "y": 170,
+        "w": 430,
+        "h": 145,
+        "lines": [
+          "Security & boot domain",
+          "Caliptra subsystem candidate",
+          "RoT + management MCU + protected memory",
+          "Lifecycle / OTP / entropy integration"
+        ],
+        "kind": "security",
+        "group": false
+      },
+      {
+        "id": "crm",
+        "x": 1120,
+        "y": 255,
+        "w": 335,
+        "h": 90,
+        "lines": [
+          "Clock / reset / boot control",
+          "Boot: view 03 | clocks: view 04"
+        ],
+        "kind": "platform",
+        "group": false
+      },
+      {
+        "id": "fabric",
+        "x": 85,
+        "y": 410,
+        "w": 1370,
+        "h": 75,
+        "lines": [
+          "AXI4 system interconnect + access control",
+          "Request identity, region permissions, arbitration, error response"
+        ],
+        "kind": "data",
+        "group": false
+      },
+      {
+        "id": "rom",
+        "x": 85,
+        "y": 555,
+        "w": 245,
+        "h": 115,
+        "lines": [
+          "ROM / QSPI controller",
+          "Firmware image source",
+          "AXI target"
+        ],
+        "kind": "control",
+        "group": false
+      },
+      {
+        "id": "sram",
+        "x": 365,
+        "y": 555,
+        "w": 270,
+        "h": 115,
+        "lines": [
+          "Banked system SRAM",
+          "Code / queues / shared tensors",
+          "AXI target; capacity TBD"
+        ],
+        "kind": "data",
+        "group": false
+      },
+      {
+        "id": "memory",
+        "x": 735,
+        "y": 555,
+        "w": 290,
+        "h": 115,
+        "lines": [
+          "External-memory controller",
+          "DDR controller + PHY candidate",
+          "FPGA / ASIC platform adapter"
+        ],
+        "kind": "platform",
+        "group": false
+      },
+      {
+        "id": "apb",
+        "x": 1120,
+        "y": 555,
+        "w": 335,
+        "h": 95,
+        "lines": [
+          "AXI-to-APB bridge",
+          "Peripheral register access"
+        ],
+        "kind": "control",
+        "group": false
+      },
+      {
+        "id": "periph",
+        "x": 1120,
+        "y": 715,
+        "w": 335,
+        "h": 90,
+        "lines": [
+          "UART / GPIO / timer / watchdog",
+          "Low-bandwidth peripherals"
+        ],
+        "kind": "control",
+        "group": false
+      },
+      {
+        "id": "irq",
+        "x": 1120,
+        "y": 875,
+        "w": 335,
+        "h": 80,
+        "lines": [
+          "Interrupt aggregation",
+          "CPU interrupt delivery"
+        ],
+        "kind": "control",
+        "group": false
+      },
+      {
+        "id": "npu",
+        "x": 85,
+        "y": 765,
+        "w": 900,
+        "h": 230,
+        "lines": [
+          "NPU subsystem | project-owned compute"
+        ],
+        "kind": "data",
+        "group": true
+      },
+      {
+        "id": "npu_csr",
+        "x": 115,
+        "y": 825,
+        "w": 205,
+        "h": 100,
+        "lines": [
+          "Command / CSR",
+          "AXI4-Lite target",
+          "Validated descriptors"
+        ],
+        "kind": "control",
+        "group": false
+      },
+      {
+        "id": "npu_dma",
+        "x": 405,
+        "y": 825,
+        "w": 200,
+        "h": 100,
+        "lines": [
+          "Tensor DMA",
+          "AXI4 initiator",
+          "Data + command reads"
+        ],
+        "kind": "data",
+        "group": false
+      },
+      {
+        "id": "npu_core",
+        "x": 690,
+        "y": 825,
+        "w": 255,
+        "h": 100,
+        "lines": [
+          "Local SRAM + compute",
+          "Matrix MAC / vector / SFU",
+          "Detail: view 02"
+        ],
+        "kind": "data",
+        "group": false
+      },
+      {
+        "id": "recovery",
+        "x": 1570,
+        "y": 165,
+        "w": 195,
+        "h": 115,
+        "lines": [
+          "Recovery host",
+          "I3C / streaming boot",
+          "External test model"
+        ],
+        "kind": "security",
+        "group": false
+      },
+      {
+        "id": "dram",
+        "x": 1570,
+        "y": 550,
+        "w": 195,
+        "h": 125,
+        "lines": [
+          "External DRAM",
+          "Weights / tensors / KV",
+          "Board-specific part"
+        ],
+        "kind": "platform",
+        "group": false
+      }
+    ],
+    "edges": [
+      {
+        "id": "e0",
+        "source": "cpu",
+        "target": "fabric",
+        "points": [
+          [
+            225,
+            310
+          ],
+          [
+            225,
+            410
+          ]
+        ],
+        "label": "AXI4-Lite + adapter",
+        "kind": "control",
+        "dashed": false,
+        "both": true,
+        "label_at": [
+          325,
+          365
+        ]
+      },
+      {
+        "id": "e1",
+        "source": "security",
+        "target": "fabric",
+        "points": [
+          [
+            655,
+            315
+          ],
+          [
+            655,
+            410
+          ]
+        ],
+        "label": "AXI4 + trusted USER",
+        "kind": "security",
+        "dashed": false,
+        "both": true,
+        "label_at": [
+          820,
+          365
+        ]
+      },
+      {
+        "id": "e2",
+        "source": "security",
+        "target": "recovery",
+        "points": [
+          [
+            875,
+            205
+          ],
+          [
+            1570,
+            205
+          ]
+        ],
+        "label": "I3C",
+        "kind": "security",
+        "dashed": false,
+        "both": true,
+        "label_at": [
+          1220,
+          191
+        ]
+      },
+      {
+        "id": "e3",
+        "source": "crm",
+        "target": "fabric",
+        "points": [
+          [
+            1300,
+            345
+          ],
+          [
+            1300,
+            410
+          ]
+        ],
+        "label": "clk / rst",
+        "kind": "platform",
+        "dashed": true,
+        "both": false,
+        "label_at": [
+          1370,
+          380
+        ]
+      },
+      {
+        "id": "e4",
+        "source": "fabric",
+        "target": "rom",
+        "points": [
+          [
+            205,
+            485
+          ],
+          [
+            205,
+            555
+          ]
+        ],
+        "label": "AXI",
+        "kind": "control",
+        "dashed": false,
+        "both": true,
+        "label_at": [
+          240,
+          529
+        ]
+      },
+      {
+        "id": "e5",
+        "source": "fabric",
+        "target": "sram",
+        "points": [
+          [
+            505,
+            485
+          ],
+          [
+            505,
+            555
+          ]
+        ],
+        "label": "AXI4",
+        "kind": "data",
+        "dashed": false,
+        "both": true,
+        "label_at": [
+          553,
+          529
+        ]
+      },
+      {
+        "id": "e6",
+        "source": "fabric",
+        "target": "memory",
+        "points": [
+          [
+            880,
+            485
+          ],
+          [
+            880,
+            555
+          ]
+        ],
+        "label": "AXI4",
+        "kind": "data",
+        "dashed": false,
+        "both": true,
+        "label_at": [
+          932,
+          529
+        ]
+      },
+      {
+        "id": "e7",
+        "source": "memory",
+        "target": "dram",
+        "points": [
+          [
+            1025,
+            610
+          ],
+          [
+            1065,
+            610
+          ],
+          [
+            1065,
+            690
+          ],
+          [
+            1550,
+            690
+          ],
+          [
+            1550,
+            610
+          ],
+          [
+            1570,
+            610
+          ]
+        ],
+        "label": "Physical memory interface",
+        "kind": "platform",
+        "dashed": false,
+        "both": true,
+        "label_at": [
+          1300,
+          685
+        ]
+      },
+      {
+        "id": "e8",
+        "source": "fabric",
+        "target": "apb",
+        "points": [
+          [
+            1300,
+            485
+          ],
+          [
+            1300,
+            555
+          ]
+        ],
+        "label": "AXI4",
+        "kind": "control",
+        "dashed": false,
+        "both": true,
+        "label_at": [
+          1350,
+          529
+        ]
+      },
+      {
+        "id": "e9",
+        "source": "apb",
+        "target": "periph",
+        "points": [
+          [
+            1300,
+            650
+          ],
+          [
+            1300,
+            715
+          ]
+        ],
+        "label": "APB",
+        "kind": "control",
+        "dashed": false,
+        "both": true,
+        "label_at": [
+          1340,
+          704
+        ]
+      },
+      {
+        "id": "e10",
+        "source": "fabric",
+        "target": "npu_csr",
+        "points": [
+          [
+            105,
+            485
+          ],
+          [
+            60,
+            485
+          ],
+          [
+            60,
+            875
+          ],
+          [
+            115,
+            875
+          ]
+        ],
+        "label": "AXI4 to Lite",
+        "kind": "control",
+        "dashed": false,
+        "both": true,
+        "label_at": [
+          165,
+          719
+        ]
+      },
+      {
+        "id": "e11",
+        "source": "npu_dma",
+        "target": "fabric",
+        "points": [
+          [
+            505,
+            825
+          ],
+          [
+            505,
+            725
+          ],
+          [
+            680,
+            725
+          ],
+          [
+            680,
+            485
+          ]
+        ],
+        "label": "AXI4 bursts",
+        "kind": "data",
+        "dashed": false,
+        "both": true,
+        "label_at": [
+          602,
+          713
+        ]
+      },
+      {
+        "id": "e12",
+        "source": "npu_csr",
+        "target": "npu_dma",
+        "points": [
+          [
+            320,
+            875
+          ],
+          [
+            405,
+            875
+          ]
+        ],
+        "label": "dispatch",
+        "kind": "control",
+        "dashed": true,
+        "both": false,
+        "label_at": [
+          364,
+          854
+        ]
+      },
+      {
+        "id": "e13",
+        "source": "npu_dma",
+        "target": "npu_core",
+        "points": [
+          [
+            605,
+            875
+          ],
+          [
+            690,
+            875
+          ]
+        ],
+        "label": "local data",
+        "kind": "data",
+        "dashed": false,
+        "both": true,
+        "label_at": [
+          647,
+          854
+        ]
+      },
+      {
+        "id": "e14",
+        "source": "npu",
+        "target": "irq",
+        "points": [
+          [
+            985,
+            915
+          ],
+          [
+            1120,
+            915
+          ]
+        ],
+        "label": "done / fault",
+        "kind": "control",
+        "dashed": true,
+        "both": false,
+        "label_at": [
+          1052,
+          899
+        ]
+      },
+      {
+        "id": "e15",
+        "source": "periph",
+        "target": "irq",
+        "points": [
+          [
+            1360,
+            805
+          ],
+          [
+            1360,
+            875
+          ]
+        ],
+        "label": "IRQ",
+        "kind": "control",
+        "dashed": true,
+        "both": false,
+        "label_at": [
+          1410,
+          846
+        ]
+      },
+      {
+        "id": "e16",
+        "source": "irq",
+        "target": "cpu",
+        "points": [
+          [
+            1200,
+            955
+          ],
+          [
+            1200,
+            1030
+          ],
+          [
+            45,
+            1030
+          ],
+          [
+            45,
+            245
+          ],
+          [
+            85,
+            245
+          ]
+        ],
+        "label": "CPU IRQ",
+        "kind": "control",
+        "dashed": true,
+        "both": false,
+        "label_at": [
+          1030,
+          1022
+        ]
+      }
+    ],
+    "notes": [
+      {
+        "x": 85,
+        "y": 1056,
+        "text": "Security authorization / debug / reset sidebands are expanded in view 03, not implicit in AXI.",
+        "size": 19
+      },
+      {
+        "x": 50,
+        "y": 1115,
+        "text": "Solid arrows: interface traffic (double = bidirectional). Dashed: control / IRQ. Crossings without dots are not junctions.",
+        "size": 19
+      }
+    ]
+  },
+  {
+    "name": "02-npu",
+    "title": "OpenChip NPU | Compute and data movement",
+    "subtitle": "Functional organization | candidate INT8 MAC + INT32 accumulation | precision / sizing not frozen",
+    "width": 1800,
+    "height": 1100,
+    "nodes": [
+      {
+        "id": "host",
+        "x": 60,
+        "y": 145,
+        "w": 245,
+        "h": 110,
+        "lines": [
+          "CPU runtime",
+          "Addresses / descriptors",
+          "Doorbell / completion"
+        ],
+        "kind": "control",
+        "group": false
+      },
+      {
+        "id": "queue",
+        "x": 395,
+        "y": 145,
+        "w": 340,
+        "h": 110,
+        "lines": [
+          "CSR + command processor",
+          "Descriptor validation / dependencies",
+          "Tile scheduling / completion"
+        ],
+        "kind": "control",
+        "group": false
+      },
+      {
+        "id": "ctl",
+        "x": 865,
+        "y": 145,
+        "w": 360,
+        "h": 110,
+        "lines": [
+          "Compute control / scoreboards",
+          "DMA overlap + buffer ownership",
+          "Fault and cancellation handling"
+        ],
+        "kind": "control",
+        "group": false
+      },
+      {
+        "id": "axi",
+        "x": 60,
+        "y": 420,
+        "w": 245,
+        "h": 115,
+        "lines": [
+          "System AXI4 fabric",
+          "SRAM / external DRAM",
+          "Data + descriptor traffic"
+        ],
+        "kind": "data",
+        "group": false
+      },
+      {
+        "id": "dma",
+        "x": 395,
+        "y": 420,
+        "w": 340,
+        "h": 115,
+        "lines": [
+          "Tensor DMA / layout engine",
+          "Burst reads and writes",
+          "Packing / strides / alignment"
+        ],
+        "kind": "data",
+        "group": false
+      },
+      {
+        "id": "local",
+        "x": 865,
+        "y": 385,
+        "w": 790,
+        "h": 150,
+        "lines": [
+          "Banked local tensor SRAM",
+          "Weight banks | activation banks | intermediate buffers",
+          "Double buffering candidate; bank ports and capacity from DSE"
+        ],
+        "kind": "data",
+        "group": false
+      },
+      {
+        "id": "matrix",
+        "x": 865,
+        "y": 625,
+        "w": 335,
+        "h": 130,
+        "lines": [
+          "Matrix MAC engine",
+          "Tiled GEMM / GEMV mapping",
+          "INT8 operands; array shape TBD"
+        ],
+        "kind": "data",
+        "group": false
+      },
+      {
+        "id": "vector",
+        "x": 1320,
+        "y": 625,
+        "w": 335,
+        "h": 130,
+        "lines": [
+          "Vector / reduction / SFU",
+          "Add / requant / activation",
+          "Norm / softmax: precision TBD"
+        ],
+        "kind": "data",
+        "group": false
+      },
+      {
+        "id": "acc",
+        "x": 865,
+        "y": 860,
+        "w": 335,
+        "h": 110,
+        "lines": [
+          "Accumulator storage",
+          "INT32 candidate",
+          "Overflow contract required"
+        ],
+        "kind": "data",
+        "group": false
+      },
+      {
+        "id": "out",
+        "x": 395,
+        "y": 860,
+        "w": 340,
+        "h": 110,
+        "lines": [
+          "Output / writeback",
+          "Format conversion / packing",
+          "Results and status"
+        ],
+        "kind": "data",
+        "group": false
+      },
+      {
+        "id": "irq",
+        "x": 60,
+        "y": 860,
+        "w": 245,
+        "h": 110,
+        "lines": [
+          "Completion / fault IRQ",
+          "Host observes actual results",
+          "No internal state injection"
+        ],
+        "kind": "control",
+        "group": false
+      }
+    ],
+    "edges": [
+      {
+        "id": "e0",
+        "source": "host",
+        "target": "queue",
+        "points": [
+          [
+            305,
+            200
+          ],
+          [
+            395,
+            200
+          ]
+        ],
+        "label": "AXI4-Lite",
+        "kind": "control",
+        "dashed": false,
+        "both": true,
+        "label_at": [
+          348,
+          180
+        ]
+      },
+      {
+        "id": "e1",
+        "source": "queue",
+        "target": "ctl",
+        "points": [
+          [
+            735,
+            200
+          ],
+          [
+            865,
+            200
+          ]
+        ],
+        "label": "commands",
+        "kind": "control",
+        "dashed": true,
+        "both": false,
+        "label_at": [
+          800,
+          180
+        ]
+      },
+      {
+        "id": "e2",
+        "source": "queue",
+        "target": "dma",
+        "points": [
+          [
+            550,
+            255
+          ],
+          [
+            550,
+            420
+          ]
+        ],
+        "label": "DMA descriptors",
+        "kind": "control",
+        "dashed": true,
+        "both": false,
+        "label_at": [
+          655,
+          345
+        ]
+      },
+      {
+        "id": "e3",
+        "source": "ctl",
+        "target": "local",
+        "points": [
+          [
+            1000,
+            255
+          ],
+          [
+            1000,
+            385
+          ]
+        ],
+        "label": "ownership",
+        "kind": "control",
+        "dashed": true,
+        "both": false,
+        "label_at": [
+          1080,
+          328
+        ]
+      },
+      {
+        "id": "e4",
+        "source": "ctl",
+        "target": "matrix",
+        "points": [
+          [
+            865,
+            215
+          ],
+          [
+            785,
+            215
+          ],
+          [
+            785,
+            575
+          ],
+          [
+            980,
+            575
+          ],
+          [
+            980,
+            625
+          ]
+        ],
+        "label": "issue / done",
+        "kind": "control",
+        "dashed": true,
+        "both": true,
+        "label_at": [
+          835,
+          300
+        ]
+      },
+      {
+        "id": "e5",
+        "source": "ctl",
+        "target": "vector",
+        "points": [
+          [
+            1225,
+            200
+          ],
+          [
+            1710,
+            200
+          ],
+          [
+            1710,
+            685
+          ],
+          [
+            1655,
+            685
+          ]
+        ],
+        "label": "issue / done",
+        "kind": "control",
+        "dashed": true,
+        "both": true,
+        "label_at": [
+          1460,
+          180
+        ]
+      },
+      {
+        "id": "e6",
+        "source": "axi",
+        "target": "dma",
+        "points": [
+          [
+            305,
+            478
+          ],
+          [
+            395,
+            478
+          ]
+        ],
+        "label": "AXI4",
+        "kind": "data",
+        "dashed": false,
+        "both": true,
+        "label_at": [
+          350,
+          458
+        ]
+      },
+      {
+        "id": "e7",
+        "source": "dma",
+        "target": "local",
+        "points": [
+          [
+            735,
+            478
+          ],
+          [
+            865,
+            478
+          ]
+        ],
+        "label": "local fabric",
+        "kind": "data",
+        "dashed": false,
+        "both": true,
+        "label_at": [
+          800,
+          458
+        ]
+      },
+      {
+        "id": "e8",
+        "source": "local",
+        "target": "matrix",
+        "points": [
+          [
+            1030,
+            535
+          ],
+          [
+            1030,
+            625
+          ]
+        ],
+        "label": "W + X",
+        "kind": "data",
+        "dashed": false,
+        "both": true,
+        "label_at": [
+          1080,
+          583
+        ]
+      },
+      {
+        "id": "e9",
+        "source": "local",
+        "target": "vector",
+        "points": [
+          [
+            1480,
+            535
+          ],
+          [
+            1480,
+            625
+          ]
+        ],
+        "label": "vectors",
+        "kind": "data",
+        "dashed": false,
+        "both": true,
+        "label_at": [
+          1530,
+          583
+        ]
+      },
+      {
+        "id": "e10",
+        "source": "matrix",
+        "target": "acc",
+        "points": [
+          [
+            1030,
+            755
+          ],
+          [
+            1030,
+            860
+          ]
+        ],
+        "label": "partial sums",
+        "kind": "data",
+        "dashed": false,
+        "both": true,
+        "label_at": [
+          1110,
+          815
+        ]
+      },
+      {
+        "id": "e11",
+        "source": "acc",
+        "target": "vector",
+        "points": [
+          [
+            1200,
+            915
+          ],
+          [
+            1480,
+            915
+          ],
+          [
+            1480,
+            755
+          ]
+        ],
+        "label": "postprocess",
+        "kind": "data",
+        "dashed": false,
+        "both": true,
+        "label_at": [
+          1360,
+          904
+        ]
+      },
+      {
+        "id": "e12",
+        "source": "acc",
+        "target": "out",
+        "points": [
+          [
+            865,
+            915
+          ],
+          [
+            735,
+            915
+          ]
+        ],
+        "label": "results",
+        "kind": "data",
+        "dashed": false,
+        "both": false,
+        "label_at": [
+          800,
+          897
+        ]
+      },
+      {
+        "id": "e13",
+        "source": "local",
+        "target": "out",
+        "points": [
+          [
+            910,
+            535
+          ],
+          [
+            810,
+            535
+          ],
+          [
+            810,
+            800
+          ],
+          [
+            620,
+            800
+          ],
+          [
+            620,
+            860
+          ]
+        ],
+        "label": "vector results",
+        "kind": "data",
+        "dashed": false,
+        "both": false,
+        "label_at": [
+          714,
+          790
+        ]
+      },
+      {
+        "id": "e14",
+        "source": "out",
+        "target": "dma",
+        "points": [
+          [
+            450,
+            860
+          ],
+          [
+            450,
+            535
+          ]
+        ],
+        "label": "writeback stream",
+        "kind": "data",
+        "dashed": false,
+        "both": false,
+        "label_at": [
+          550,
+          695
+        ]
+      },
+      {
+        "id": "e15",
+        "source": "out",
+        "target": "irq",
+        "points": [
+          [
+            395,
+            915
+          ],
+          [
+            305,
+            915
+          ]
+        ],
+        "label": "status",
+        "kind": "control",
+        "dashed": true,
+        "both": false,
+        "label_at": [
+          350,
+          895
+        ]
+      }
+    ],
+    "notes": [
+      {
+        "x": 60,
+        "y": 1040,
+        "text": "Local data paths are SRAM/native or explicitly adapted streams; ready/valid alone does not claim AXI4-Stream compliance.",
+        "size": 19
+      },
+      {
+        "x": 60,
+        "y": 1070,
+        "text": "GEMV utilization and non-MAC operators need separate measurement; theoretical MAC count is not application throughput.",
+        "size": 19
+      }
+    ]
+  },
+  {
+    "name": "03-boot",
+    "title": "OpenChip | Reset, secure boot and execution authorization",
+    "subtitle": "Proposed security-enabled system flow | generic roles, not a Caliptra signal-level specification",
+    "width": 1800,
+    "height": 1040,
+    "nodes": [
+      {
+        "id": "por",
+        "x": 75,
+        "y": 160,
+        "w": 285,
+        "h": 115,
+        "lines": [
+          "Power / clock / reset",
+          "POR / clock stability",
+          "Board / process adaptation"
+        ],
+        "kind": "platform",
+        "group": false
+      },
+      {
+        "id": "seq",
+        "x": 485,
+        "y": 160,
+        "w": 345,
+        "h": 115,
+        "lines": [
+          "SoC reset / boot sequencer",
+          "Start immutable management ROM",
+          "Keep application CPU held"
+        ],
+        "kind": "platform",
+        "group": false
+      },
+      {
+        "id": "rot",
+        "x": 985,
+        "y": 160,
+        "w": 350,
+        "h": 115,
+        "lines": [
+          "Caliptra security domain",
+          "Initialize RoT / authenticate own FW",
+          "OTP / entropy / lifecycle inputs"
+        ],
+        "kind": "security",
+        "group": false
+      },
+      {
+        "id": "source",
+        "x": 75,
+        "y": 430,
+        "w": 285,
+        "h": 125,
+        "lines": [
+          "Firmware image source",
+          "QSPI flash / recovery host",
+          "Untrusted image bytes"
+        ],
+        "kind": "neutral",
+        "group": false
+      },
+      {
+        "id": "stage",
+        "x": 485,
+        "y": 430,
+        "w": 345,
+        "h": 125,
+        "lines": [
+          "Protected staging memory",
+          "Load application image / manifest",
+          "Prevent unauthorized mutation"
+        ],
+        "kind": "security",
+        "group": false
+      },
+      {
+        "id": "verify",
+        "x": 985,
+        "y": 430,
+        "w": 350,
+        "h": 125,
+        "lines": [
+          "Authorize application firmware",
+          "Signature / policy / version checks",
+          "Management ROM uses RoT services"
+        ],
+        "kind": "security",
+        "group": false
+      },
+      {
+        "id": "permit",
+        "x": 985,
+        "y": 715,
+        "w": 350,
+        "h": 135,
+        "lines": [
+          "Execution authorization",
+          "Lock verified executable bytes",
+          "Set bus / debug / DMA permissions"
+        ],
+        "kind": "security",
+        "group": false
+      },
+      {
+        "id": "run",
+        "x": 485,
+        "y": 715,
+        "w": 345,
+        "h": 135,
+        "lines": [
+          "Release application CPU",
+          "Run NPU firmware / application",
+          "DMA restricted to assigned buffers"
+        ],
+        "kind": "control",
+        "group": false
+      },
+      {
+        "id": "fail",
+        "x": 1435,
+        "y": 430,
+        "w": 300,
+        "h": 125,
+        "lines": [
+          "Reject / report / recover",
+          "Application remains held",
+          "No silent fallback to unsigned FW"
+        ],
+        "kind": "security",
+        "group": false
+      },
+      {
+        "id": "fault",
+        "x": 1435,
+        "y": 715,
+        "w": 300,
+        "h": 135,
+        "lines": [
+          "Runtime fault / watchdog",
+          "Quiesce transactions before reset",
+          "Escalation policy TBD"
+        ],
+        "kind": "platform",
+        "group": false
+      }
+    ],
+    "edges": [
+      {
+        "id": "e0",
+        "source": "por",
+        "target": "seq",
+        "points": [
+          [
+            360,
+            218
+          ],
+          [
+            485,
+            218
+          ]
+        ],
+        "label": "stable / reset",
+        "kind": "platform",
+        "dashed": true,
+        "both": false,
+        "label_at": [
+          422,
+          199
+        ]
+      },
+      {
+        "id": "e1",
+        "source": "seq",
+        "target": "rot",
+        "points": [
+          [
+            830,
+            218
+          ],
+          [
+            985,
+            218
+          ]
+        ],
+        "label": "ordered bring-up",
+        "kind": "platform",
+        "dashed": true,
+        "both": false,
+        "label_at": [
+          905,
+          197
+        ]
+      },
+      {
+        "id": "e2",
+        "source": "source",
+        "target": "stage",
+        "points": [
+          [
+            360,
+            493
+          ],
+          [
+            485,
+            493
+          ]
+        ],
+        "label": "image data",
+        "kind": "data",
+        "dashed": false,
+        "both": false,
+        "label_at": [
+          423,
+          473
+        ]
+      },
+      {
+        "id": "e3",
+        "source": "seq",
+        "target": "stage",
+        "points": [
+          [
+            660,
+            275
+          ],
+          [
+            660,
+            430
+          ]
+        ],
+        "label": "ROM load control",
+        "kind": "control",
+        "dashed": true,
+        "both": false,
+        "label_at": [
+          762,
+          367
+        ]
+      },
+      {
+        "id": "e4",
+        "source": "rot",
+        "target": "verify",
+        "points": [
+          [
+            1160,
+            275
+          ],
+          [
+            1160,
+            430
+          ]
+        ],
+        "label": "security services",
+        "kind": "security",
+        "dashed": true,
+        "both": false,
+        "label_at": [
+          1270,
+          367
+        ]
+      },
+      {
+        "id": "e5",
+        "source": "stage",
+        "target": "verify",
+        "points": [
+          [
+            830,
+            493
+          ],
+          [
+            985,
+            493
+          ]
+        ],
+        "label": "image / manifest",
+        "kind": "data",
+        "dashed": false,
+        "both": false,
+        "label_at": [
+          908,
+          473
+        ]
+      },
+      {
+        "id": "e6",
+        "source": "verify",
+        "target": "permit",
+        "points": [
+          [
+            1160,
+            555
+          ],
+          [
+            1160,
+            715
+          ]
+        ],
+        "label": "authorized",
+        "kind": "security",
+        "dashed": true,
+        "both": false,
+        "label_at": [
+          1235,
+          637
+        ]
+      },
+      {
+        "id": "e7",
+        "source": "verify",
+        "target": "fail",
+        "points": [
+          [
+            1335,
+            493
+          ],
+          [
+            1435,
+            493
+          ]
+        ],
+        "label": "rejected",
+        "kind": "security",
+        "dashed": true,
+        "both": false,
+        "label_at": [
+          1385,
+          473
+        ]
+      },
+      {
+        "id": "e8",
+        "source": "permit",
+        "target": "run",
+        "points": [
+          [
+            985,
+            783
+          ],
+          [
+            830,
+            783
+          ]
+        ],
+        "label": "release",
+        "kind": "security",
+        "dashed": true,
+        "both": false,
+        "label_at": [
+          908,
+          763
+        ]
+      },
+      {
+        "id": "e9",
+        "source": "run",
+        "target": "fault",
+        "points": [
+          [
+            660,
+            850
+          ],
+          [
+            660,
+            915
+          ],
+          [
+            1590,
+            915
+          ],
+          [
+            1590,
+            850
+          ]
+        ],
+        "label": "fault / watchdog",
+        "kind": "platform",
+        "dashed": true,
+        "both": false,
+        "label_at": [
+          1130,
+          902
+        ]
+      },
+      {
+        "id": "e10",
+        "source": "fault",
+        "target": "fail",
+        "points": [
+          [
+            1590,
+            715
+          ],
+          [
+            1590,
+            555
+          ]
+        ],
+        "label": "contain / recover",
+        "kind": "platform",
+        "dashed": true,
+        "both": false,
+        "label_at": [
+          1648,
+          640
+        ]
+      }
+    ],
+    "notes": [
+      {
+        "x": 75,
+        "y": 968,
+        "text": "Clock/reset implementation view: control, NPU and security are logical domains; independent clocks / power islands are not yet selected.",
+        "size": 19
+      },
+      {
+        "x": 75,
+        "y": 1003,
+        "text": "Functional bring-up is a separate non-security acceptance stage. FPGA OTP/entropy models do not prove production silicon security.",
+        "size": 19
+      }
+    ]
+  },
+  {
+    "name": "04-domains",
+    "title": "OpenChip | Clock and reset connectivity",
+    "subtitle": "v0 candidate: one functional SoC clock; external-memory PHY is platform-dependent",
+    "width": 1800,
+    "height": 1040,
+    "nodes": [
+      {
+        "id": "ref",
+        "x": 70,
+        "y": 170,
+        "w": 290,
+        "h": 110,
+        "lines": [
+          "Reference clock / reset pads",
+          "FPGA clock source or ASIC pads",
+          "Input conditioning"
+        ],
+        "kind": "platform",
+        "group": false
+      },
+      {
+        "id": "clk",
+        "x": 495,
+        "y": 170,
+        "w": 355,
+        "h": 110,
+        "lines": [
+          "Clock platform adapter",
+          "Generate / select soc_clk",
+          "PLL choice and frequency TBD"
+        ],
+        "kind": "platform",
+        "group": false
+      },
+      {
+        "id": "rst",
+        "x": 495,
+        "y": 500,
+        "w": 355,
+        "h": 130,
+        "lines": [
+          "Reset / boot sequencer",
+          "Condition external reset",
+          "Coordinate warm / cold resets"
+        ],
+        "kind": "platform",
+        "group": false
+      },
+      {
+        "id": "sec",
+        "x": 1050,
+        "y": 120,
+        "w": 480,
+        "h": 120,
+        "lines": [
+          "Security subsystem",
+          "soc_clk + ordered reset / pwrgood",
+          "Upstream Caliptra release-specific rules"
+        ],
+        "kind": "security",
+        "group": false
+      },
+      {
+        "id": "cpu",
+        "x": 1050,
+        "y": 355,
+        "w": 480,
+        "h": 115,
+        "lines": [
+          "Application CPU",
+          "soc_clk + cpu_rst",
+          "Release only after boot authorization"
+        ],
+        "kind": "control",
+        "group": false
+      },
+      {
+        "id": "npu",
+        "x": 1050,
+        "y": 590,
+        "w": 480,
+        "h": 115,
+        "lines": [
+          "NPU / DMA / AXI / SRAM / APB",
+          "soc_clk + coordinated resets",
+          "Drain or explicitly abort transactions"
+        ],
+        "kind": "data",
+        "group": false
+      },
+      {
+        "id": "mem",
+        "x": 1050,
+        "y": 825,
+        "w": 480,
+        "h": 115,
+        "lines": [
+          "Memory-controller / PHY adapter",
+          "soc_clk interface; mem_clk if required",
+          "CDC / reset crossings owned here"
+        ],
+        "kind": "platform",
+        "group": false
+      }
+    ],
+    "edges": [
+      {
+        "id": "e0",
+        "source": "ref",
+        "target": "clk",
+        "points": [
+          [
+            360,
+            225
+          ],
+          [
+            495,
+            225
+          ]
+        ],
+        "label": "reference clock",
+        "kind": "platform",
+        "dashed": false,
+        "both": false,
+        "label_at": [
+          425,
+          205
+        ]
+      },
+      {
+        "id": "e1",
+        "source": "ref",
+        "target": "rst",
+        "points": [
+          [
+            220,
+            280
+          ],
+          [
+            220,
+            565
+          ],
+          [
+            495,
+            565
+          ]
+        ],
+        "label": "external reset",
+        "kind": "platform",
+        "dashed": true,
+        "both": false,
+        "label_at": [
+          340,
+          547
+        ]
+      },
+      {
+        "id": "e2",
+        "source": "clk",
+        "target": "sec",
+        "points": [
+          [
+            850,
+            190
+          ],
+          [
+            950,
+            190
+          ],
+          [
+            950,
+            155
+          ],
+          [
+            1050,
+            155
+          ]
+        ],
+        "label": "soc_clk",
+        "kind": "platform",
+        "dashed": false,
+        "both": false,
+        "label_at": [
+          992,
+          143
+        ]
+      },
+      {
+        "id": "e3",
+        "source": "clk",
+        "target": "cpu",
+        "points": [
+          [
+            850,
+            190
+          ],
+          [
+            950,
+            190
+          ],
+          [
+            950,
+            395
+          ],
+          [
+            1050,
+            395
+          ]
+        ],
+        "label": "soc_clk",
+        "kind": "platform",
+        "dashed": false,
+        "both": false,
+        "label_at": [
+          992,
+          383
+        ]
+      },
+      {
+        "id": "e4",
+        "source": "clk",
+        "target": "npu",
+        "points": [
+          [
+            850,
+            190
+          ],
+          [
+            950,
+            190
+          ],
+          [
+            950,
+            630
+          ],
+          [
+            1050,
+            630
+          ]
+        ],
+        "label": "soc_clk",
+        "kind": "platform",
+        "dashed": false,
+        "both": false,
+        "label_at": [
+          992,
+          618
+        ]
+      },
+      {
+        "id": "e5",
+        "source": "clk",
+        "target": "mem",
+        "points": [
+          [
+            850,
+            190
+          ],
+          [
+            950,
+            190
+          ],
+          [
+            950,
+            855
+          ],
+          [
+            1050,
+            855
+          ]
+        ],
+        "label": "soc_clk",
+        "kind": "platform",
+        "dashed": false,
+        "both": false,
+        "label_at": [
+          992,
+          843
+        ]
+      },
+      {
+        "id": "e6",
+        "source": "rst",
+        "target": "sec",
+        "points": [
+          [
+            850,
+            520
+          ],
+          [
+            880,
+            520
+          ],
+          [
+            880,
+            215
+          ],
+          [
+            1050,
+            215
+          ]
+        ],
+        "label": "reset / pwrgood",
+        "kind": "control",
+        "dashed": true,
+        "both": false,
+        "label_at": [
+          963,
+          241
+        ]
+      },
+      {
+        "id": "e7",
+        "source": "rst",
+        "target": "cpu",
+        "points": [
+          [
+            850,
+            550
+          ],
+          [
+            900,
+            550
+          ],
+          [
+            900,
+            445
+          ],
+          [
+            1050,
+            445
+          ]
+        ],
+        "label": "cpu_rst",
+        "kind": "control",
+        "dashed": true,
+        "both": false,
+        "label_at": [
+          988,
+          468
+        ]
+      },
+      {
+        "id": "e8",
+        "source": "rst",
+        "target": "npu",
+        "points": [
+          [
+            850,
+            580
+          ],
+          [
+            920,
+            580
+          ],
+          [
+            920,
+            680
+          ],
+          [
+            1050,
+            680
+          ]
+        ],
+        "label": "system resets",
+        "kind": "control",
+        "dashed": true,
+        "both": false,
+        "label_at": [
+          978,
+          703
+        ]
+      },
+      {
+        "id": "e9",
+        "source": "rst",
+        "target": "mem",
+        "points": [
+          [
+            850,
+            610
+          ],
+          [
+            940,
+            610
+          ],
+          [
+            940,
+            915
+          ],
+          [
+            1050,
+            915
+          ]
+        ],
+        "label": "memory reset",
+        "kind": "control",
+        "dashed": true,
+        "both": false,
+        "label_at": [
+          978,
+          938
+        ]
+      },
+      {
+        "id": "e10",
+        "source": "sec",
+        "target": "rst",
+        "points": [
+          [
+            1530,
+            180
+          ],
+          [
+            1630,
+            180
+          ],
+          [
+            1630,
+            750
+          ],
+          [
+            700,
+            750
+          ],
+          [
+            700,
+            630
+          ]
+        ],
+        "label": "boot authorization / escalation",
+        "kind": "security",
+        "dashed": true,
+        "both": false,
+        "label_at": [
+          1330,
+          772
+        ]
+      }
+    ],
+    "notes": [
+      {
+        "x": 70,
+        "y": 960,
+        "text": "Clock lines share soc_clk; reset branches are separately controlled outputs. Physical clock-tree synthesis is not represented.",
+        "size": 19
+      },
+      {
+        "x": 70,
+        "y": 995,
+        "text": "No independent power islands selected in v0. Low-power states, isolation, retention and DFT controls require separate implementation views.",
+        "size": 19
+      }
+    ]
+  }
+]
