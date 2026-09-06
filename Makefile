@@ -16,6 +16,11 @@ MODULES  := $(sort $(notdir $(patsubst %/,%,$(dir $(wildcard hw/rtl/*/*.sv)))))
 IP_DIRS    := $(patsubst %/,%,$(wildcard hw/ip/*/))
 IP_INCS    := $(addprefix -I,$(IP_DIRS))
 IP_WAIVERS := $(wildcard hw/ip/*/*.vlt)
+# Module directories double as Verilator library/include dirs so an integration
+# top can resolve hw/rtl/<m>/<m>.sv and `include files without shim copies.
+RTL_DIRS   := $(sort $(patsubst %/,%,$(dir $(wildcard hw/rtl/*/*.sv))))
+RTL_LIBS   := $(addprefix -y ,$(RTL_DIRS))
+RTL_INCS   := $(addprefix -I,$(RTL_DIRS))
 SIM_MODS := $(notdir $(patsubst %/Makefile,%,$(wildcard hw/dv/*/Makefile)))
 SBY_MODS := $(notdir $(patsubst %.sby,%,$(wildcard hw/formal/*/*.sby)))
 MOD      ?=
@@ -44,7 +49,7 @@ ifeq ($(strip $(MODULES)),)
 else
 	@for m in $(LINT_MODS); do \
 		echo "== lint $$m"; \
-		PATH="$(TOOLPATH):$$PATH" verilator --lint-only -Wall --timing --timescale 1ns/1ps -Ihw/rtl -Ihw/rtl/$$m $(IP_INCS) $(IP_WAIVERS) hw/rtl/$$m/*.sv || exit 1; \
+		PATH="$(TOOLPATH):$$PATH" verilator --lint-only -Wall --timing --timescale 1ns/1ps -Ihw/rtl -Ihw/rtl/$$m $(RTL_INCS) $(RTL_LIBS) $(IP_INCS) $(IP_WAIVERS) hw/rtl/$$m/*.sv || exit 1; \
 	done
 	@echo "lint: PASS ($(LINT_MODS))"
 endif
@@ -84,8 +89,14 @@ compliance:
 	@echo "compliance: RISCOF flow lands in M2 (docs/ROADMAP.md)"; exit 1
 
 # --- Gate 6: full-SoC firmware sim (M3) -------------------------------------
+SOC_TOP ?= llm_soc_top
 soc-sim:
-	@echo "soc-sim: SoC testbench lands in M3 (docs/ROADMAP.md)"; exit 1
+	@test -f sw/rom/rom.bin || { echo "soc-sim: sw/rom/rom.bin missing — run 'make sw' first (SW-B1 owns the ROM image)"; exit 1; }
+	@test -f hw/rtl/rom/gen_rom.py || { echo "soc-sim: hw/rtl/rom/gen_rom.py missing (MEMORY item)"; exit 1; }
+	@python3 hw/rtl/rom/gen_rom.py -o hw/rtl/rom/rom_data.svh sw/rom/rom.bin
+	@echo "soc-sim: rom_data.svh regenerated from sw/rom/rom.bin ($$(shasum -a 256 sw/rom/rom.bin | cut -c1-16)…)"
+	@test -f hw/dv/$(SOC_TOP)/Makefile || { echo "soc-sim: hw/dv/$(SOC_TOP)/Makefile not delivered yet (V-B1, DV side) — not a pass"; exit 1; }
+	PATH="$(TOOLPATH):$$PATH" $(MAKE) -C hw/dv/$(SOC_TOP) $(if $(APP),APP=$(APP),)
 
 # --- Gate: RTL->GDSII (M0 tracer bullet / M4) -------------------------------
 gds:
