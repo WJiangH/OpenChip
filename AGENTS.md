@@ -75,6 +75,10 @@ make clean
 - One module per file; filename == module name; lowercase `snake_case` everywhere.
 - `` `default_nettype none `` at top of every file, `` `default_nettype wire `` at bottom.
 - Synchronous, active-low reset named `rst_n`; every flop resets. Clock named `clk`.
+  "Every flop resets" applies to control state. A storage array (memory inferred
+  from an unpacked array) whose every read within a reset epoch is preceded by a
+  write may omit reset; the module header must name the array and the spec clause
+  that guarantees write-before-read.
 - `always_ff` / `always_comb` only — no plain `always`, no latches, no `initial`
   (except in testbench/formal code), no delays, no tri-state on internal logic.
 - Stay inside the Yosys-supported SV subset: no classes, no interfaces in
@@ -84,6 +88,12 @@ make clean
   per ADR-0004 and `docs/spec/llm-soc-v1/axi.md` (prefixes `axi_` / `axil_`,
   signal names as the ICD lists them, lowercase). Never mix the two in one top.
 - Module I/O: `i_` inputs, `o_` outputs (bus ports keep their bus prefix instead).
+  Ports of internal ICD protocols are named `<i_|o_><protocol>_<field>` with the
+  field spelled as the machine contract lists it; AXI ports `<m_|s_>axi_<signal>`
+  / `<m_|s_>axil_<signal>` (numbered `s0_`, `m1_`… when several share a role); a
+  single-signal protocol whose field name is globally unique may drop the protocol
+  prefix. Clock and reset stay `clk` / `rst_n` (the contract's `i_clk`/`i_rst_n`
+  spelling is reconciled at the top-level port map, not by renaming modules).
 - Imported third-party IP lives under `hw/ip/<name>/` byte-identical to its pinned
   upstream commit, with `PROVENANCE.md` (URL, commit, sha256, license). The house
   style rules above do not apply inside `hw/ip/`; they apply in full to every
