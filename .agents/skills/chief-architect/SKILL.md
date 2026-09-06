@@ -36,4 +36,4 @@ status: frozen.
 
 ## References index
 Distilled from retros, integrator-gated. Load only what the task needs:
-- `references/spec-authoring-patterns.md` — shall-ID traceability, illegal-vs-unspecified rulings, parameter clauses
+- `references/spec-authoring-patterns.md` — shall-ID traceability, parameter clauses, numeric contracts and system integration
