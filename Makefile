@@ -16,6 +16,11 @@ MODULES  := $(sort $(notdir $(patsubst %/,%,$(dir $(wildcard hw/rtl/*/*.sv)))))
 IP_DIRS    := $(patsubst %/,%,$(wildcard hw/ip/*/))
 IP_INCS    := $(addprefix -I,$(IP_DIRS))
 IP_WAIVERS := $(wildcard hw/ip/*/*.vlt)
+# Module directories double as Verilator library/include dirs so an integration
+# top can resolve hw/rtl/<m>/<m>.sv and `include files without shim copies.
+RTL_DIRS   := $(sort $(patsubst %/,%,$(dir $(wildcard hw/rtl/*/*.sv))))
+RTL_LIBS   := $(addprefix -y ,$(RTL_DIRS))
+RTL_INCS   := $(addprefix -I,$(RTL_DIRS))
 SIM_MODS := $(notdir $(patsubst %/Makefile,%,$(wildcard hw/dv/*/Makefile)))
 SBY_MODS := $(notdir $(patsubst %.sby,%,$(wildcard hw/formal/*/*.sby)))
 MOD      ?=
@@ -44,7 +49,7 @@ ifeq ($(strip $(MODULES)),)
 else
 	@for m in $(LINT_MODS); do \
 		echo "== lint $$m"; \
-		PATH="$(TOOLPATH):$$PATH" verilator --lint-only -Wall --timing --timescale 1ns/1ps -Ihw/rtl -Ihw/rtl/$$m $(IP_INCS) $(IP_WAIVERS) hw/rtl/$$m/*.sv || exit 1; \
+		PATH="$(TOOLPATH):$$PATH" verilator --lint-only -Wall --timing --timescale 1ns/1ps -Ihw/rtl -Ihw/rtl/$$m $(RTL_INCS) $(RTL_LIBS) $(IP_INCS) $(IP_WAIVERS) hw/rtl/$$m/*.sv || exit 1; \
 	done
 	@echo "lint: PASS ($(LINT_MODS))"
 endif
