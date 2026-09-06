@@ -26,6 +26,13 @@ ISSUE-npu_dma-01 (partition port names) applies to this module too.
   opcode/tag/x_base/w_base/y_base/w_stride are explicitly sunk with a comment.
   K, N and G are used (group boundaries, ceil(K/G), command_last).
 
+**rc4 ruling** (CHANGE_ORDER_rc4.md, ISSUE-npu_local-01 row; disposition
+`spec-gap`, one clause): confirmed — npu_local consumes k, n and group; the
+other dispatch fields may be left unused, exactly as implemented here
+(npu.md NPU-09(a)). npu.md §4 now also states "W_STRIDE reaches local only
+implicitly, through the DMA's index/row tagging" (R4-10), matching this
+issue's own recommendation. No code change.
+
 ## ISSUE-npu_local-02 — reset of the 4096-byte activation store
 
 - spec_ref: system.md SYS-03: "Reset shall discard all command/IRQ/status
@@ -51,6 +58,17 @@ ISSUE-npu_dma-01 (partition port names) applies to this module too.
   `wfifo_row_q`, `wfifo_idx_q` have no reset; every pointer, counter, output
   register and descriptor field does. Yosys reports 33664 array flops vs 177
   control flops for this module.
+
+**rc4 ruling** (CHANGE_ORDER_rc4.md, ISSUE-npu_local-02 row; disposition
+`spec-gap`): confirmed — the storage arrays (activation store, weight
+transfer buffer, output write buffer in npu_dma) are not reset; all
+sequencing state is; DV shall not assume storage contents after reset
+(npu.md NPU-03, rc4). An AGENTS.md house-rule sentence is recommended to the
+orchestrator (CHANGE_ORDER_rc4.md §Rule-level item 2) but not yet landed;
+until it does, R4-09 requires the module header to name the array and cite
+NPU-03's exemption sentence verbatim — done in npu_local.sv's storage-array
+comment block (act_mem_q, wfifo_data_q, wfifo_row_q, wfifo_idx_q named
+individually). No logic change.
 
 ## ISSUE-npu_local-03 — how local recovers after an aborted command
 
@@ -78,3 +96,20 @@ ISSUE-npu_dma-01 (partition port names) applies to this module too.
   and the operand output register. Note npu_dot has no dispatch input at all,
   so a residual result held in npu_dot's output register cannot be flushed by
   this mechanism — that part is the npu_dot author's and npu_ctl's to answer.
+
+**rc4 ruling** (CHANGE_ORDER_rc4.md, ISSUE-npu_dot-01 + ISSUE-npu_local-03
+row; disposition `spec-gap`, F-01): the residual-result gap this issue flagged
+("npu_dot has no dispatch input... that part is the npu_dot author's and
+npu_ctl's to answer") is resolved by a new mechanism, not by this module: a
+new C34 `dot_lifecycle.flush` level from npu_ctl to npu_dot (reset value 1,
+set on the dma_terminal sampling edge T, cleared only on the C25 handshake
+edge, never on the C12 accept edge) makes npu_dot mask `group_result.valid`=0
+/ `dot_operands.ready`=1 while flush=1 and clear its own result/accumulator
+and discard operands on every edge at which flush=1, so no stale npu_dot
+result or accepted-under-flush operand ever reaches this module or beyond.
+This module's own re-arm choice (option 1 above: unconditional dispatch
+accept, clearing weight-buffer pointers/sub-word counter/operand register) is
+confirmed as-is — **no logic change to npu_local** (npu.md NPU-06,
+NPU-09(a)(b); contract.json protocols.dot_lifecycle/group_result/dispatch,
+C34, blocks[npu_dot]). The new C34 ports (`o_dot_lifecycle_flush` /
+`i_dot_lifecycle_flush`) are npu_ctl/npu_dot ports, not npu_local's.
