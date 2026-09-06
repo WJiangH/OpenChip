@@ -1,4 +1,4 @@
 `verilator_config
 // Imported IP: upstream style is not held to the house lint rules (AGENTS.md).
 // Strict -Wall result on this file is recorded in PROVENANCE.md (exit 1, 46 warnings).
-lint_off -file "*/hw/ip/picorv32/picorv32.v"
+lint_off -file "*picorv32.v"

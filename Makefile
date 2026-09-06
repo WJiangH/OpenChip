@@ -44,7 +44,7 @@ ifeq ($(strip $(MODULES)),)
 else
 	@for m in $(LINT_MODS); do \
 		echo "== lint $$m"; \
-		PATH="$(TOOLPATH):$$PATH" verilator --lint-only -Wall --timing -Ihw/rtl -Ihw/rtl/$$m $(IP_INCS) $(IP_WAIVERS) hw/rtl/$$m/*.sv || exit 1; \
+		PATH="$(TOOLPATH):$$PATH" verilator --lint-only -Wall --timing --timescale 1ns/1ps -Ihw/rtl -Ihw/rtl/$$m $(IP_INCS) $(IP_WAIVERS) hw/rtl/$$m/*.sv || exit 1; \
 	done
 	@echo "lint: PASS ($(LINT_MODS))"
 endif
