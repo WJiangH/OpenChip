@@ -1,0 +1,321 @@
+{
+  "version": "1.0-rc3",
+  "status": "review-candidate; independent rc3 closure pending; no hardware acceptance",
+  "role": "chief-architect",
+  "configuration": "SIM-L1",
+  "artifacts": [
+    {
+      "path": "docs/spec/llm-soc-v1/CHANGE_ORDER_rc2.md",
+      "bytes": 4019,
+      "sha256": "326d9b3bba088a62094cde3fe45b175383d825c3ecf6bcbf70daf4217862527f",
+      "kind": "architecture deliverable"
+    },
+    {
+      "path": "docs/spec/llm-soc-v1/CHANGE_ORDER_rc3.md",
+      "bytes": 2883,
+      "sha256": "036b4bb84f64e95242eb0cc196b602af8ca27a6aeaba0712fe9d596f6d7dabd6",
+      "kind": "architecture deliverable"
+    },
+    {
+      "path": "docs/spec/llm-soc-v1/INPUTS_READ.json",
+      "bytes": 8670,
+      "sha256": "9e55712a0b595c91862fe8d8081dd49f772617bb274ee85a8d797f173fd0950a",
+      "kind": "architecture deliverable"
+    },
+    {
+      "path": "docs/spec/llm-soc-v1/INPUTS_READ.md",
+      "bytes": 1448,
+      "sha256": "a49a9ae8ee098798d54affee0a2af1b84e65c34754cfe57fa525ef9791e5b9c0",
+      "kind": "architecture deliverable"
+    },
+    {
+      "path": "docs/spec/llm-soc-v1/MANIFEST.md",
+      "bytes": 2855,
+      "sha256": "e9517ed50847188dcb2c21897f7b37c8ca6e36df62a408ab051a116ce5c079a6",
+      "kind": "architecture deliverable"
+    },
+    {
+      "path": "docs/spec/llm-soc-v1/README.md",
+      "bytes": 2485,
+      "sha256": "436b61df2c1562cebc5a16c860456142d226779e8b191deaecc4eae300b93f65",
+      "kind": "architecture deliverable"
+    },
+    {
+      "path": "docs/spec/llm-soc-v1/axi.md",
+      "bytes": 9319,
+      "sha256": "1b105d39ee78cfcc65628b0f4ff425a756c09f70d54b07c50efea938dd3714f9",
+      "kind": "architecture deliverable"
+    },
+    {
+      "path": "docs/spec/llm-soc-v1/contract.json",
+      "bytes": 48482,
+      "sha256": "0ed7e395196901c6a1468ab3ac6b02ae4aef3f95bdcca9705875653ac2d7b957",
+      "kind": "architecture deliverable"
+    },
+    {
+      "path": "docs/spec/llm-soc-v1/dependencies.md",
+      "bytes": 5599,
+      "sha256": "846d69e98b68c89a6e6a186f98621bde978b464d0326bf4e225588608f446e0d",
+      "kind": "architecture deliverable"
+    },
+    {
+      "path": "docs/spec/llm-soc-v1/downstream.md",
+      "bytes": 4661,
+      "sha256": "cf7b989bb6bc3c8d0e1c62a7b48c6224e889cc8c60450de85399246f678a2706",
+      "kind": "architecture deliverable"
+    },
+    {
+      "path": "docs/spec/llm-soc-v1/intake/ip-ARTIFACT_SHA256SUMS",
+      "bytes": 8848,
+      "sha256": "918321f02f60f2640c0d95a8ee83689ce2c1ed087e6968b1e05c463f76908afc",
+      "kind": "imported reviewed evidence"
+    },
+    {
+      "path": "docs/spec/llm-soc-v1/intake/ip-MANIFEST.md",
+      "bytes": 1948,
+      "sha256": "5bd0aa7a1bdebd42e8d2f9b8a4320e34e32b8cb31801d1bb8bdcb9ebaef7f790",
+      "kind": "imported reviewed evidence"
+    },
+    {
+      "path": "docs/spec/llm-soc-v1/intake/ip-RECOMMENDATION.md",
+      "bytes": 15900,
+      "sha256": "de901e2bc40498822f8109c1ebd0248507363cf2571975978bfb5a564856da44",
+      "kind": "imported reviewed evidence"
+    },
+    {
+      "path": "docs/spec/llm-soc-v1/intake/ip-ip_matrix.json",
+      "bytes": 25812,
+      "sha256": "4546ed0c05eee695aaad6da9900ad8886726ce6b385bf814e0943214ea1a80d9",
+      "kind": "imported reviewed evidence"
+    },
+    {
+      "path": "docs/spec/llm-soc-v1/intake/ip-probe_results.json",
+      "bytes": 18248,
+      "sha256": "1aac908bb824b1527104caaebf24d0fa06c4cdbab3c7ebddfacc491b8c4ae0fe",
+      "kind": "imported reviewed evidence"
+    },
+    {
+      "path": "docs/spec/llm-soc-v1/intake/sw-ARTIFACTS.sha256",
+      "bytes": 7177,
+      "sha256": "89ce60ab11bf8e53c55f6f3e5712360a982c437c38dfef5e708d29e55de4d212",
+      "kind": "imported reviewed evidence"
+    },
+    {
+      "path": "docs/spec/llm-soc-v1/intake/sw-MANIFEST.json",
+      "bytes": 1672,
+      "sha256": "32cd2136842e13c0a023f5e6806957cf8e15c044dadb13c41a42bbd1be1c543f",
+      "kind": "imported reviewed evidence"
+    },
+    {
+      "path": "docs/spec/llm-soc-v1/intake/sw-README.md",
+      "bytes": 10820,
+      "sha256": "fdffbba4bd87ff39be99f78550084de08dc4323d2776194854bde325d0178d9f",
+      "kind": "imported reviewed evidence"
+    },
+    {
+      "path": "docs/spec/llm-soc-v1/intake/sw-REPORT.md",
+      "bytes": 5297,
+      "sha256": "820b07b151317c4ceda8667685c563bd5ed48457cacf63df23b55a4eda505fd2",
+      "kind": "imported reviewed evidence"
+    },
+    {
+      "path": "docs/spec/llm-soc-v1/intake/sw-fp32.json",
+      "bytes": 1250,
+      "sha256": "1ec9a300ac1f65cbc30adc277ab132088efb4e257426a2ff60f71338c3b009d8",
+      "kind": "imported reviewed evidence"
+    },
+    {
+      "path": "docs/spec/llm-soc-v1/intake/sw-group64.json",
+      "bytes": 1295,
+      "sha256": "36fd11b8860d3c205a9ae20a4400d0af89f2a2e11bd1df7b5ad6b9d9e94a4a8f",
+      "kind": "imported reviewed evidence"
+    },
+    {
+      "path": "docs/spec/llm-soc-v1/intake/sw-metrics.json",
+      "bytes": 52608,
+      "sha256": "3888e41b273a7f9a6765651b50befa8d2145b766fa3dba0b1c98f87cffd4dbf2",
+      "kind": "imported reviewed evidence"
+    },
+    {
+      "path": "docs/spec/llm-soc-v1/intake/sw-provenance.json",
+      "bytes": 2613,
+      "sha256": "6317053924459d9d9160ad90b23a6eb8bbe114633bc5cc120af88904d202b1df",
+      "kind": "imported reviewed evidence"
+    },
+    {
+      "path": "docs/spec/llm-soc-v1/intake/sw-upstream_tail_metrics.json",
+      "bytes": 1041,
+      "sha256": "bf89e9db4cbb7f5c9161210015f351d9bb182621a181cdffc5e515b060eb1081",
+      "kind": "imported reviewed evidence"
+    },
+    {
+      "path": "docs/spec/llm-soc-v1/npu.md",
+      "bytes": 10075,
+      "sha256": "9a87fe5fd1b988e2835355db1c006af0183ab56a6030d133b82e2a0895133abd",
+      "kind": "architecture deliverable"
+    },
+    {
+      "path": "docs/spec/llm-soc-v1/rc3-review-input-hashes.json",
+      "bytes": 2182,
+      "sha256": "0013a76df87a8cdb86ab640137e74e292133b545e899c9bfe8b42f6163012818",
+      "kind": "architecture deliverable"
+    },
+    {
+      "path": "docs/spec/llm-soc-v1/review02-input-hashes.json",
+      "bytes": 851,
+      "sha256": "d757a80f2989a61a6dc6b00651331f65b769f5fa98533d3d2d89bd35c64ed877",
+      "kind": "architecture deliverable"
+    },
+    {
+      "path": "docs/spec/llm-soc-v1/reviews/dv-review-02.md",
+      "bytes": 11985,
+      "sha256": "27f9e7bbb80168231473761e60f277c68cc0b85fd464bdea30681e5f208da8d2",
+      "kind": "imported reviewed evidence"
+    },
+    {
+      "path": "docs/spec/llm-soc-v1/reviews/dv-review-rc2.md",
+      "bytes": 9489,
+      "sha256": "5256845261c6ceb62d1f36bfd536116f9709bbdf85ffa92d706dcf98259fb1ef",
+      "kind": "imported reviewed evidence"
+    },
+    {
+      "path": "docs/spec/llm-soc-v1/reviews/rtl-review-02.md",
+      "bytes": 12753,
+      "sha256": "e993a9eeec1e08fd21863e0ba76a665e48768067fe8df7bd014ad612760e4ad3",
+      "kind": "imported reviewed evidence"
+    },
+    {
+      "path": "docs/spec/llm-soc-v1/reviews/rtl-review-rc2.md",
+      "bytes": 9407,
+      "sha256": "ac78e9ebcaeda527d0b5f4dcb6e21b26b909a6ce36c7f8f81664814552915c48",
+      "kind": "imported reviewed evidence"
+    },
+    {
+      "path": "docs/spec/llm-soc-v1/reviews/sw-review-rc2.md",
+      "bytes": 8192,
+      "sha256": "0f0f03cfc2f90743662d97fc7db7c5fb24489c6dec4800fccf86750cf881b3db",
+      "kind": "imported reviewed evidence"
+    },
+    {
+      "path": "docs/spec/llm-soc-v1/security.md",
+      "bytes": 5819,
+      "sha256": "201d28f26368065af935d319a7c6e21a62dd864614412d3e5d30873e12e63125",
+      "kind": "architecture deliverable"
+    },
+    {
+      "path": "docs/spec/llm-soc-v1/system.md",
+      "bytes": 13236,
+      "sha256": "48f49b2e0aa43c30fa57103daba65b2cf95afbe83826dcee85eda92556fdada3",
+      "kind": "architecture deliverable"
+    },
+    {
+      "path": "docs/spec/llm-soc-v1/traceability.md",
+      "bytes": 7025,
+      "sha256": "18b34c8388521467e0bafdd35dc81c39bf1b54d3244f4be8d34e13b9cb336e84",
+      "kind": "architecture deliverable"
+    },
+    {
+      "path": "docs/spec/llm-soc-v1/workload.md",
+      "bytes": 15877,
+      "sha256": "ad0b8d0c7fdf85f08ec497bc256c2803ce5aa26034e5dcee41886ec55de476a1",
+      "kind": "architecture deliverable"
+    },
+    {
+      "path": "explore/llm-soc-v1/AUDIT.json",
+      "bytes": 586,
+      "sha256": "c4f82aacd6153ccdd7435daf024b3b769f05081a44a0f7d1df55c8ae3dfeac2d",
+      "kind": "architecture deliverable"
+    },
+    {
+      "path": "explore/llm-soc-v1/AUDIT.txt",
+      "bytes": 430,
+      "sha256": "c1b7d8485e35c5bae54099e692416b2fe119a1c3fddcd94637c8375f37ff540e",
+      "kind": "architecture deliverable"
+    },
+    {
+      "path": "explore/llm-soc-v1/README.md",
+      "bytes": 7387,
+      "sha256": "53742a3a4b99e4aa949d705e6c855a0ec3a71aa948ce29d72b0cf3417f25f88f",
+      "kind": "architecture deliverable"
+    },
+    {
+      "path": "explore/llm-soc-v1/budget.json",
+      "bytes": 3334,
+      "sha256": "b5bfe6def27af1ef2b3283088f01d118a3dce2a3dd19ea90a5675e724e87acff",
+      "kind": "architecture deliverable"
+    },
+    {
+      "path": "explore/llm-soc-v1/budget.py",
+      "bytes": 2728,
+      "sha256": "5bb06c132cea107f2408e948d78ba2296df73f670cb6b07bf484a3e375faff96",
+      "kind": "architecture deliverable"
+    },
+    {
+      "path": "explore/llm-soc-v1/check_contract.py",
+      "bytes": 2678,
+      "sha256": "9ec099bafa3566e0b121681c86cd345cdf2a1e92c61dcb80e2f42f304c344657",
+      "kind": "architecture deliverable"
+    },
+    {
+      "path": "workloads/llm-soc-v1/README.md",
+      "bytes": 4396,
+      "sha256": "bc58343f3bc3c3d145fa55bd554c97066cbc78e4ccca357f0992194cec227d56",
+      "kind": "architecture deliverable"
+    },
+    {
+      "path": "workloads/llm-soc-v1/b1-fixtures.json",
+      "bytes": 1442,
+      "sha256": "b095b38dea5ed6d91c9bfbfd47a6bdb5f6b90e1b1694c64a0910bed3ef0e1115",
+      "kind": "architecture deliverable"
+    },
+    {
+      "path": "workloads/llm-soc-v1/profile.json",
+      "bytes": 4093,
+      "sha256": "376a48e89ad7de684af892ddb94f1a1bc2a931b3e0237bcbc9b8cee0aa1377d7",
+      "kind": "architecture deliverable"
+    },
+    {
+      "path": "docs/adr/0004-llm-soc-v1.md",
+      "bytes": 5087,
+      "sha256": "d0fda18ce97185693c338d5bae3f16a22feac8281c485325e84d30ac99da6339",
+      "kind": "architecture deliverable"
+    }
+  ],
+  "executed_checks": [
+    {
+      "command": "python3 explore/llm-soc-v1/budget.py",
+      "exit_code": 0,
+      "stdout": "BUDGET PASS: MAC/forward=259328 groups/forward=4152 payload=278752 KV512=655360 traffic_floor=278780\n",
+      "stderr": ""
+    },
+    {
+      "command": "python3 explore/llm-soc-v1/check_contract.py",
+      "exit_code": 0,
+      "stdout": "CONTRACT AUDIT PASS: blocks=16 connections=47 regions=14 CSR=33 requirements=45 Lite_signals=19; budget/profile consistent\nNOT RUN: firmware build, RTL lint/simulation/coverage/ISA/formal/synthesis/timing, S1, FPGA, physical signoff\n",
+      "stderr": ""
+    }
+  ],
+  "requirements": 45,
+  "implementation_scope": "B1/L1 contract; S1 integration plan and P1 budget distinct",
+  "not_run": [
+    "target firmware compile/link/run",
+    "RTL lint",
+    "simulation",
+    "coverage",
+    "ISA compliance",
+    "formal",
+    "synthesis/timing",
+    "S1 boot/security",
+    "FPGA",
+    "physical signoff"
+  ],
+  "not_modified": [
+    "existing product files",
+    "flow/gates",
+    "skills",
+    "RTL/DV/SW/models"
+  ],
+  "no_commit": true,
+  "no_push": true,
+  "no_remote_pr": true
+}

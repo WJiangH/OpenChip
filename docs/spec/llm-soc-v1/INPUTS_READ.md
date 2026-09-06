@@ -1,0 +1,7 @@
+# Inputs read /evidence boundary
+
+Machine ledger INPUTS_READ.json records exact hashes and purpose. Long legacy documents were read in relevant excerpts; no claim of full implementation audit. AGENTS/chief-architect method/reference and delivery draft were read before edits. Runtime/IP implementation source links were not followed: the architect consumed reviewed pure reports/JSON copied by root into intake/, plus independent review reports in reviews/. These copied files retain their original author/scope and are not architect-authored tests.
+
+Facts imported from the software owner: full-model host probe, independent grouped-integer/postscale checks, FP32 byte comparison and actual172tail defect. Facts imported from IP owner: pinned interface/configuration/license data and bounded lint/synthesis outcomes. Architect actual executed work: architecture resource arithmetic and document-schema consistency audit only. Root-reported fresh host replay is corroboration, not a tool run attributed to this role. Predictions/assumptions: CPU execution cost, P1 array/frequency/memory capacity/bandwidth and physical feasibility; all labelled in budget.
+
+No filesystem scan outside this repository for task context, no RTL/DV/SW/model source read/write, no downloaded product implementation, no commit/push/remote PR. Temporary authoring scripts only write the explicitly allowed new architecture directories and ADR. No memory files were used.

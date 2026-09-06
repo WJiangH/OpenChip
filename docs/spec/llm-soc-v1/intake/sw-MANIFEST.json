@@ -1,0 +1,54 @@
+{
+  "status": "host_software_candidate_complete",
+  "role": "sw-engineer",
+  "scope": "sw/llm_probe only",
+  "commands": [
+    "sh sw/llm_probe/run.sh"
+  ],
+  "spec_refs": [
+    "docs/spec/architecture-inputs/e2e.md W1, E2E-05, L1",
+    "docs/spec/architecture-inputs/llm-target.md LLMP-06"
+  ],
+  "artifacts": {
+    "report": "REPORT.md",
+    "details": "README.md",
+    "sources": "provenance.json",
+    "input_baseline": "INPUTS_READ.json",
+    "metrics": "metrics.json",
+    "upstream_issue": "upstream_tail_metrics.json",
+    "raw_logs": "logs/",
+    "raw_checkpoints": "artifacts/*.checkpoints.f32",
+    "integer_traces": "artifacts/*.matrix_trace.bin",
+    "quantized_weights": "artifacts/*.weights.q8 and *.scales.f32",
+    "reproduce": "run.sh",
+    "hashes": "ARTIFACTS.sha256"
+  },
+  "checks": {
+    "full_model_forward_count_each": 48,
+    "generated_tokens_each": 16,
+    "independent_group64_int32_dots": 199296,
+    "independent_perrow_int32_dots": 168576,
+    "upstream_fp32_byte_identical": 172032,
+    "upstream_tail_operator_defect_reproduced": true,
+    "finite_data": true
+  },
+  "not_run": [
+    "make sw / target firmware build",
+    "ISS/UART",
+    "RTL lint/sim/coverage",
+    "formal/compliance",
+    "synthesis/timing",
+    "FPGA/physical gates",
+    "perplexity/model quality evaluation"
+  ],
+  "open_items": [
+    "architect layout/numeric acceptance",
+    "target RV32IM software-float/libm and footprint/timing",
+    "driver/AXI/DMA/completion contract",
+    "independent nonlinear reference and cross-platform numerical tolerance",
+    "representative quality criteria"
+  ],
+  "no_commit": true,
+  "no_push": true,
+  "no_remote_pr": true
+}

@@ -1,0 +1,52 @@
+# NPU grouped signed-dot engine
+
+Version 1.0-rc3. This block is built under the new specification; the old Wishbone requantizer and weight-stream ABI do not apply.
+
+# §1 Command and arithmetic
+
+**NPU-01:** Opcode 1 (`GEMV_GROUP_I8`) shall compute `Y[n,g] = sum(X[k] * W[n,k])` for k from g*G to min(K,(g+1)*G)-1, n=0..N-1, g=0..ceil(K/G)-1. X and W are signed two's-complement INT8 (-128..127), each product exact signed INT16 and each independent group accumulator signed INT32 initialized to zero. 1<=K<=4096, 1<=N<=4096; G is a power of two in 1..4096. Group tail is valid, not rounded up mathematically. Maximum absolute sum <=4096*16384=67108864, so no valid command overflows INT32. No bias, requantization, rounding, saturation or scale multiplication occurs in this opcode. It shall output every group separately; summing all K then applying multiple scales is forbidden.
+
+**NPU-02:** Memory layout shall be X[k] at X_BASE+k, W[n,k] at W_BASE+n*W_STRIDE+k, and little-endian INT32 Y[n,g] at Y_BASE+4*(n*ceil(K/G)+g). X_BASE, W_BASE, Y_BASE and W_STRIDE are 4-aligned; W_STRIDE>=round_up(K,4) and <=65536. X allocation length round_up(K,4), W allocation length (N-1)*W_STRIDE+round_up(K,4), Y allocation 4*N*ceil(K/G). DMA may read padded bytes up to the aligned allocation length, but padded bytes contribute zero products. No assumption that W padding contains zero is allowed. X resides in scratch; W resides wholly in model or scratch; Y resides wholly in scratch. Y interval shall not overlap X or W allocation intervals, even if overlaps affect only padding. All endpoints calculated in unsigned 64-bit arithmetic before rejecting bounds/32-bit overflow. Software owns scale arrays; hardware never interprets them.
+
+**NPU-03:** A legal command shall fetch activation and weight bytes via its AXI initiator, perform actual arithmetic and write Y via AXI. Chosen SIM-L1 datapath is four parallel signed byte multipliers feeding a signed reduction and INT32 accumulation, a 4096-byte activation store and a minimum 64-byte weight transfer buffer. Implementation may use more cycles but not change results; there is no undocumented host/CSR activation injection. Observable arithmetic is structurally identical across every legal K,N,G, including G=1 and incomplete final groups. No cycle count per dot is an architectural correctness guarantee.
+
+# §2 Registers at 0x40001000
+
+**NPU-04:** The following register words shall obey SYS-08. Descriptor registers are shadow fields writable only while BUSY=0 and DONE=ERROR=0. A write during busy/uncleared terminal status returns SLVERR without modification. All reset zero except VERSION=0x00010000.
+
+| Offset | Register | Access | Fields |
+|---|---|---|---|
+| 0x00 | VERSION | RO | ABI version |
+| 0x04 | STATUS | RO | bit0 BUSY, bit1 DONE, bit2 ERROR; bits31:3 zero |
+| 0x08 | SUBMIT | WO | write1 only: validate and atomically snapshot descriptor |
+| 0x0c | CLEAR | WO | write1 only: clears DONE, ERROR, ERROR_CODE, COMPLETED_TAG; rejects while BUSY |
+| 0x10 | OPCODE | RW | value1 only at submit |
+| 0x14 | X_BASE | RW | byte address |
+| 0x18 | W_BASE | RW | byte address |
+| 0x1c | Y_BASE | RW | byte address |
+| 0x20 | K | RW | full word value |
+| 0x24 | N | RW | full word value |
+| 0x28 | GROUP | RW | full word G |
+| 0x2c | W_STRIDE | RW | bytes |
+| 0x30 | TAG | RW | arbitrary opaque u32 |
+| 0x34 | COMPLETED_TAG | RO | latched TAG on terminal transition |
+| 0x38 | ERROR_CODE | RO | 0 none, 1 opcode, 2 shape/group, 3 alignment/stride, 4 range/permission/overlap, 5 DMA read, 6 DMA write |
+| 0x3c | IRQ_ENABLE | RW | bit0 done, bit1 error; writable in any state; reset0 |
+| 0x40 | LAST_CYCLES | RO | u32 cycles from submit acceptance to terminal edge inclusive, stable until next completion |
+
+**NPU-05:** SUBMIT while BUSY or terminal status uncleared shall return SLVERR and leave the active command, status, tag and output unchanged. An idle SUBMIT with malformed descriptor returns OKAY at the CSR layer, sets ERROR with the priority code ordering 1,2,3,4 above, sets COMPLETED_TAG, leaves BUSY/DONE zero and issues no DMA. This distinction allows software to distinguish command refusal from descriptor failure. A valid SUBMIT sets BUSY=1 and neither terminal bit. Descriptor snapshot is immutable until terminal; reads return shadow words. No queue, chaining, descriptor-in-memory fetch or cancel is implemented.
+
+**NPU-06:** On success NPU shall set BUSY=0,DONE=1,ERROR=0 and COMPLETED_TAG only after all output B responses are OKAY. Every AW shall be issued only after all of that burst's W data is buffered locally; NPU shall assert AWVALID no later than the first WVALID for the same burst, without waiting for AWREADY; this ensures an unrelated read error cannot strand an accepted write. On first DMA non-OK response it shall stop offering new bursts, retain every already asserted ARVALID/AWVALID even if READY has not yet accepted it, then drain every offered transaction through its final R/B handshake. Same-cycle newly asserted VALID counts as offered. AXI-03 requires both DUT initiators to offer AW no later than their first W, so every offered W already belongs to an offered AW in this retained set even when W handshakes before AW. Existing WVALID/data remain stable; buffered W data completes every offered AW. Read data after error is discarded. Only after no offered/accepted transaction or unconsumed result remains shall it set BUSY=0,DONE=0,ERROR=1, ERROR_CODE5/6 and tag. If read and write error coincide, code5 wins. Output after any error is invalid in its entirety, including already committed partial bytes. It is safe to CLEAR and reuse only after terminal error; bus/protocol watchdog fatal requires full reset instead. DONE and ERROR are mutually exclusive sticky terminal indications. IRQ outputs are level `(DONE & IRQ_ENABLE[0])` and `(ERROR & IRQ_ENABLE[1])`.
+
+**NPU-07:** The command watchdog shall count cycles while BUSY; if no terminal transition by 2^28 cycles from acceptance it latches global fatal(reason5), prohibits new DMA issue and requires coordinated reset. LAST_CYCLES is meaningful only on nonfatal completion. The driver additionally times out at 2^28+65536 cycles using the system counter and reports failure if CPU can still execute. These are debugging bounds; a legal maximum-shape command may be slow but must fit this bound with baseline memory and no forced CPU starvation. Stress runs deliberately holding a channel too long must fail, not pass as a slow successful run.
+
+# §3 Driver sequence and test observables
+
+**NPU-08:** The CPU driver shall own a command exclusively: CLEAR previous terminal state; write immutable X/W bytes; compiler barrier; program all shadow fields; SUBMIT; wait on STATUS or IRQ; require DONE&&!ERROR and matching COMPLETED_TAG; compiler barrier; load every output word. It shall never consume Y before DONE, reuse/overwrite X/W or Y while BUSY, or treat IRQ alone as proof of successful DMA. Readback of the submitted descriptor is optional; intermediate arithmetic checks compare actual Y with an independently generated grouped-dot reference.
+
+B1 requires one polling and one interrupt-driven command with distinct nonzero X/W, signed extrema, non-divisible K/G and nonzero Y sentinel. Exact expected INT32 group words reside in the CPU-only expected region. Functional cases also cover G1, K1, negative products, zero groups, N tails, busy rejection, invalid bounds, bus read/write errors, reset mid-command, stalled R/B and terminal reuse. These are requirement obligations, not an architect-authored DV implementation.
+
+
+# §4 Internal partition interface semantics
+
+The following internal interfaces are architectural partition contracts if NPU is delivered as separate modules; a monolithic NPU may inline them without changing external behavior. All use clk/rst_n, no combinational VALID dependence on READY; payload remains stable when stalled. CPU submission is atomic before dispatch. npu_csr→npu_ctl and npu_ctl→npu_dma carry the snapshotted dispatch fields listed in contract.json. The controller broadcasts the snapshotted dispatch separately to DMA and local, holds each valid until its own ready, and issues no memory request until both handshakes finish; each recipient sees the command once. Exactly one command is live. DMA→local transfers32-bit fetched words with kind0=activation,1=weight, index=first byte coordinate k, row=n (0for activation), and valid-byte `keep`; lane b maps to k=index+b, with index4-aligned and keep[b]=1 only for k<K. Padded fetched lanes have keep0. There are no group markers on this fetched-word interface; local derives all group boundaries from its descriptor. Activation load of all round_up(K,4) bytes precedes weight computation. Local→dot transfers four INT8 X bytes and four INT8 W bytes, keep bits select valid products, row/group_index identify the destination. group_first clears the accumulator before that beat's products; group_last causes one INT32 result. Local additionally drives command_last=1 exactly when group_last=1, row=N-1 and group_index=ceil(K/G)-1; command_last=0 on every other operand beat. Dot retains this marker with the accumulated result and forwards it as group_result.last, including under result backpressure. No group interleaving is allowed. Local knows K,N,G,W_STRIDE from its dispatch: for G=1or2, one fetched word spans multiple groups, so local reuses its held word for multiple operand transfers with disjoint keep masks. Products from different groups never share an accumulator update. Invalid lanes contribute zero and cannot change group_first/group_last boundaries. dot→DMA returns data,row,group_index,last (last group of final row); result address is computed from the immutable descriptor, never supplied by software midway. DMA emits done only after output B responses; error feeds controller as code5/6. Controller updates NPU CSR terminal status and IRQ through a terminal valid/ready record carrying tag,error_code,cycles. Each terminal record transfers once, and IRQ reflects latched CSR state.

@@ -1,0 +1,23 @@
+{
+  "real_workload": "group64 candidate first-token layer0 SwiGLU output, real stories260K w2",
+  "runtime_source": "vendor/runq.c",
+  "source_lines": {
+    "quantize": "145-170",
+    "matmul": "317-341",
+    "export_dimension_backoff": "vendor/export.py:193-195"
+  },
+  "group_size": 64,
+  "K": 172,
+  "complete_groups": 2,
+  "tail_elements": 44,
+  "nonzero_tail_input": 44,
+  "nonzero_tail_quantized": 0,
+  "observed_tail_activation_scale": 0.0,
+  "upstream_vs_fp32_max_abs": 0.3216322660446167,
+  "upstream_vs_fp32_rmse": 0.10724958777427673,
+  "fp32_omitted_tail_contribution_max_abs": 0.294181227684021,
+  "fp32_omitted_tail_contribution_l2": 0.7829923033714294,
+  "independent_reconstruction_exact": true,
+  "additional_layout_issue": "flattened weight groups cross rows when K=172, but runq uses one scale per 64-wide row-local dot; many dots straddle two weight groups",
+  "scope": "Actual upstream operator execution on real-model data; not a full upstream quantized model run; not the candidate row-local quantization contract."
+}

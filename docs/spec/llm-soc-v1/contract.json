@@ -1,0 +1,2144 @@
+{
+  "version": "1.0-rc3",
+  "status": "release-candidate-not-hardware-accepted",
+  "configuration": "SIM-L1",
+  "clock_hz": 50000000,
+  "blocks": [
+    {
+      "id": "cpu",
+      "disposition": "integrate",
+      "purpose": "RV32IM PicoRV32 native"
+    },
+    {
+      "id": "cpu_bridge",
+      "disposition": "build",
+      "purpose": "error-aware native to AXI"
+    },
+    {
+      "id": "fabric",
+      "disposition": "build",
+      "purpose": "serialized dual-channel AXI routing / firewall"
+    },
+    {
+      "id": "rom",
+      "disposition": "build",
+      "purpose": "64 KiB instruction ROM"
+    },
+    {
+      "id": "sram",
+      "disposition": "build",
+      "purpose": "256 KiB on-chip simulation SRAM"
+    },
+    {
+      "id": "extmem",
+      "disposition": "model",
+      "purpose": "16 MiB external AXI target; controller/PHY excluded"
+    },
+    {
+      "id": "lite_bridge",
+      "disposition": "build",
+      "purpose": "AXI4 to four AXI4-Lite targets"
+    },
+    {
+      "id": "sys",
+      "disposition": "build",
+      "purpose": "reset/counters/fatal/result"
+    },
+    {
+      "id": "irq",
+      "disposition": "build",
+      "purpose": "level IRQ source/mask"
+    },
+    {
+      "id": "uart",
+      "disposition": "build",
+      "purpose": "TX serial only"
+    },
+    {
+      "id": "npu_csr",
+      "disposition": "build",
+      "purpose": "single command shadow registers"
+    },
+    {
+      "id": "npu_ctl",
+      "disposition": "build",
+      "purpose": "command / error controller"
+    },
+    {
+      "id": "npu_dma",
+      "disposition": "build",
+      "purpose": "read and write DMA"
+    },
+    {
+      "id": "npu_local",
+      "disposition": "build",
+      "purpose": "activation and weight/write buffers"
+    },
+    {
+      "id": "npu_dot",
+      "disposition": "build",
+      "purpose": "four signed-byte products, grouped INT32 sum"
+    },
+    {
+      "id": "caliptra",
+      "disposition": "integrate-S1-only",
+      "purpose": "passive core; separate unreleased S1 port supplement"
+    }
+  ],
+  "protocols": {
+    "axi4": {
+      "address_width": 32,
+      "data_width": 32,
+      "id_width": 2,
+      "user_width": 0,
+      "signals": {
+        "AWVALID": {
+          "width": 1,
+          "driver": "initiator"
+        },
+        "AWREADY": {
+          "width": 1,
+          "driver": "target"
+        },
+        "AWADDR": {
+          "width": 32,
+          "driver": "initiator"
+        },
+        "AWID": {
+          "width": 2,
+          "driver": "initiator"
+        },
+        "AWLEN": {
+          "width": 8,
+          "driver": "initiator"
+        },
+        "AWSIZE": {
+          "width": 3,
+          "driver": "initiator"
+        },
+        "AWBURST": {
+          "width": 2,
+          "driver": "initiator"
+        },
+        "AWLOCK": {
+          "width": 1,
+          "driver": "initiator"
+        },
+        "AWCACHE": {
+          "width": 4,
+          "driver": "initiator"
+        },
+        "AWPROT": {
+          "width": 3,
+          "driver": "initiator"
+        },
+        "AWQOS": {
+          "width": 4,
+          "driver": "initiator"
+        },
+        "ARVALID": {
+          "width": 1,
+          "driver": "initiator"
+        },
+        "ARREADY": {
+          "width": 1,
+          "driver": "target"
+        },
+        "ARADDR": {
+          "width": 32,
+          "driver": "initiator"
+        },
+        "ARID": {
+          "width": 2,
+          "driver": "initiator"
+        },
+        "ARLEN": {
+          "width": 8,
+          "driver": "initiator"
+        },
+        "ARSIZE": {
+          "width": 3,
+          "driver": "initiator"
+        },
+        "ARBURST": {
+          "width": 2,
+          "driver": "initiator"
+        },
+        "ARLOCK": {
+          "width": 1,
+          "driver": "initiator"
+        },
+        "ARCACHE": {
+          "width": 4,
+          "driver": "initiator"
+        },
+        "ARPROT": {
+          "width": 3,
+          "driver": "initiator"
+        },
+        "ARQOS": {
+          "width": 4,
+          "driver": "initiator"
+        },
+        "WVALID": {
+          "width": 1,
+          "driver": "initiator"
+        },
+        "WREADY": {
+          "width": 1,
+          "driver": "target"
+        },
+        "WDATA": {
+          "width": 32,
+          "driver": "initiator"
+        },
+        "WSTRB": {
+          "width": 4,
+          "driver": "initiator"
+        },
+        "WLAST": {
+          "width": 1,
+          "driver": "initiator"
+        },
+        "BVALID": {
+          "width": 1,
+          "driver": "target"
+        },
+        "BREADY": {
+          "width": 1,
+          "driver": "initiator"
+        },
+        "BRESP": {
+          "width": 2,
+          "driver": "target"
+        },
+        "BID": {
+          "width": 2,
+          "driver": "target"
+        },
+        "RVALID": {
+          "width": 1,
+          "driver": "target"
+        },
+        "RREADY": {
+          "width": 1,
+          "driver": "initiator"
+        },
+        "RDATA": {
+          "width": 32,
+          "driver": "target"
+        },
+        "RRESP": {
+          "width": 2,
+          "driver": "target"
+        },
+        "RID": {
+          "width": 2,
+          "driver": "target"
+        },
+        "RLAST": {
+          "width": 1,
+          "driver": "target"
+        }
+      },
+      "dut_initiator_offer_order": "CPU and NPU AWVALID offered no later than first WVALID of same transaction, independently of AWREADY; target still tolerates W handshake before AW"
+    },
+    "axi4_lite": {
+      "address_width": 32,
+      "data_width": 32,
+      "id_width": 0,
+      "user_width": 0,
+      "signals": {
+        "AWVALID": {
+          "width": 1,
+          "driver": "initiator"
+        },
+        "AWREADY": {
+          "width": 1,
+          "driver": "target"
+        },
+        "AWADDR": {
+          "width": 32,
+          "driver": "initiator"
+        },
+        "AWPROT": {
+          "width": 3,
+          "driver": "initiator"
+        },
+        "ARVALID": {
+          "width": 1,
+          "driver": "initiator"
+        },
+        "ARREADY": {
+          "width": 1,
+          "driver": "target"
+        },
+        "ARADDR": {
+          "width": 32,
+          "driver": "initiator"
+        },
+        "ARPROT": {
+          "width": 3,
+          "driver": "initiator"
+        },
+        "WVALID": {
+          "width": 1,
+          "driver": "initiator"
+        },
+        "WREADY": {
+          "width": 1,
+          "driver": "target"
+        },
+        "WDATA": {
+          "width": 32,
+          "driver": "initiator"
+        },
+        "WSTRB": {
+          "width": 4,
+          "driver": "initiator"
+        },
+        "BVALID": {
+          "width": 1,
+          "driver": "target"
+        },
+        "BREADY": {
+          "width": 1,
+          "driver": "initiator"
+        },
+        "BRESP": {
+          "width": 2,
+          "driver": "target"
+        },
+        "RVALID": {
+          "width": 1,
+          "driver": "target"
+        },
+        "RREADY": {
+          "width": 1,
+          "driver": "initiator"
+        },
+        "RDATA": {
+          "width": 32,
+          "driver": "target"
+        },
+        "RRESP": {
+          "width": 2,
+          "driver": "target"
+        }
+      }
+    },
+    "native": {
+      "signals": {
+        "mem_valid": 1,
+        "mem_instr": 1,
+        "mem_ready": 1,
+        "mem_addr": 32,
+        "mem_wdata": 32,
+        "mem_wstrb": 4,
+        "mem_rdata": 32
+      }
+    },
+    "dispatch": {
+      "signals": {
+        "valid": 1,
+        "ready": 1,
+        "opcode": 32,
+        "x_base": 32,
+        "w_base": 32,
+        "y_base": 32,
+        "k": 32,
+        "n": 32,
+        "group": 32,
+        "w_stride": 32,
+        "tag": 32
+      }
+    },
+    "local_bytes": {
+      "signals": {
+        "valid": 1,
+        "ready": 1,
+        "data": 32,
+        "keep": 4,
+        "kind": 2,
+        "index": 12,
+        "row": 12
+      }
+    },
+    "group_result": {
+      "signals": {
+        "valid": 1,
+        "ready": 1,
+        "data": 32,
+        "row": 12,
+        "group_index": 12,
+        "last": 1
+      }
+    },
+    "irq_level": {
+      "signals": {
+        "level": 1
+      }
+    },
+    "clock_reset": {
+      "signals": {
+        "clk": 1,
+        "rst_n": 1
+      }
+    },
+    "dot_operands": {
+      "signals": {
+        "valid": 1,
+        "ready": 1,
+        "x_data": 32,
+        "w_data": 32,
+        "keep": 4,
+        "group_first": 1,
+        "group_last": 1,
+        "row": 12,
+        "group_index": 12,
+        "command_last": 1
+      },
+      "semantics": "command_last iff group_last and final descriptor row/group; forwarded to group_result.last"
+    },
+    "terminal": {
+      "signals": {
+        "valid": 1,
+        "ready": 1,
+        "tag": 32,
+        "error_code": 3,
+        "cycles": 32
+      }
+    },
+    "dma_terminal": {
+      "signals": {
+        "done": 1,
+        "error": 1,
+        "error_code": 3
+      }
+    },
+    "fault_event": {
+      "signals": {
+        "fault_valid": 1,
+        "fault_reason": 3,
+        "fault_addr": 32
+      },
+      "semantics": "sticky until common reset; no READY; earliest edge then lowest reason",
+      "unknown_address": 0,
+      "known_address": "aligned matching AR/AW address retained once offered or accepted"
+    },
+    "stop_issue": {
+      "signals": {
+        "stop_new_transactions": 1
+      },
+      "semantics": "sticky; preserve all previously offered VALID and their associated W/R/B work"
+    },
+    "cpu_clock_reset": {
+      "signals": {
+        "clk": 1,
+        "cpu_local_rst_n": 1,
+        "rst_n": 1
+      },
+      "semantics": "wrapper sticky fault metadata resets only by common rst_n; PicoRV32 core resets by cpu_local_rst_n; bridge unaffected by local reset"
+    }
+  },
+  "connections": [
+    {
+      "id": "C01",
+      "source": "cpu",
+      "target": "cpu_bridge",
+      "source_role": "initiator",
+      "target_role": "target",
+      "protocol": "native",
+      "scope": "SIM-L1"
+    },
+    {
+      "id": "C02",
+      "source": "cpu_bridge",
+      "target": "fabric",
+      "source_role": "initiator",
+      "target_role": "target",
+      "protocol": "axi4",
+      "scope": "SIM-L1",
+      "fixed_id": 0
+    },
+    {
+      "id": "C03",
+      "source": "npu_dma",
+      "target": "fabric",
+      "source_role": "initiator",
+      "target_role": "target",
+      "protocol": "axi4",
+      "scope": "SIM-L1",
+      "fixed_id": 1
+    },
+    {
+      "id": "C04",
+      "source": "fabric",
+      "target": "rom",
+      "source_role": "initiator",
+      "target_role": "target",
+      "protocol": "axi4",
+      "scope": "SIM-L1"
+    },
+    {
+      "id": "C05",
+      "source": "fabric",
+      "target": "sram",
+      "source_role": "initiator",
+      "target_role": "target",
+      "protocol": "axi4",
+      "scope": "SIM-L1"
+    },
+    {
+      "id": "C06",
+      "source": "fabric",
+      "target": "extmem",
+      "source_role": "initiator",
+      "target_role": "target",
+      "protocol": "axi4",
+      "scope": "SIM-L1"
+    },
+    {
+      "id": "C07",
+      "source": "fabric",
+      "target": "lite_bridge",
+      "source_role": "initiator",
+      "target_role": "target",
+      "protocol": "axi4",
+      "scope": "SIM-L1"
+    },
+    {
+      "id": "C08",
+      "source": "lite_bridge",
+      "target": "sys",
+      "source_role": "initiator",
+      "target_role": "target",
+      "protocol": "axi4_lite",
+      "scope": "SIM-L1"
+    },
+    {
+      "id": "C09",
+      "source": "lite_bridge",
+      "target": "npu_csr",
+      "source_role": "initiator",
+      "target_role": "target",
+      "protocol": "axi4_lite",
+      "scope": "SIM-L1"
+    },
+    {
+      "id": "C10",
+      "source": "lite_bridge",
+      "target": "irq",
+      "source_role": "initiator",
+      "target_role": "target",
+      "protocol": "axi4_lite",
+      "scope": "SIM-L1"
+    },
+    {
+      "id": "C11",
+      "source": "lite_bridge",
+      "target": "uart",
+      "source_role": "initiator",
+      "target_role": "target",
+      "protocol": "axi4_lite",
+      "scope": "SIM-L1"
+    },
+    {
+      "id": "C12",
+      "source": "npu_csr",
+      "target": "npu_ctl",
+      "source_role": "producer",
+      "target_role": "consumer",
+      "protocol": "dispatch",
+      "scope": "SIM-L1"
+    },
+    {
+      "id": "C13",
+      "source": "npu_ctl",
+      "target": "npu_dma",
+      "source_role": "producer",
+      "target_role": "consumer",
+      "protocol": "dispatch",
+      "scope": "SIM-L1"
+    },
+    {
+      "id": "C14",
+      "source": "npu_dma",
+      "target": "npu_local",
+      "source_role": "producer",
+      "target_role": "consumer",
+      "protocol": "local_bytes",
+      "scope": "SIM-L1"
+    },
+    {
+      "id": "C15",
+      "source": "npu_local",
+      "target": "npu_dot",
+      "source_role": "producer",
+      "target_role": "consumer",
+      "protocol": "dot_operands",
+      "scope": "SIM-L1"
+    },
+    {
+      "id": "C16",
+      "source": "npu_dot",
+      "target": "npu_dma",
+      "source_role": "producer",
+      "target_role": "consumer",
+      "protocol": "group_result",
+      "scope": "SIM-L1"
+    },
+    {
+      "id": "C17",
+      "source": "npu_csr",
+      "target": "irq",
+      "source_role": "producer",
+      "target_role": "consumer",
+      "protocol": "irq_level",
+      "scope": "SIM-L1",
+      "source_signal": "done_irq",
+      "cpu_bit": 4
+    },
+    {
+      "id": "C18",
+      "source": "npu_csr",
+      "target": "irq",
+      "source_role": "producer",
+      "target_role": "consumer",
+      "protocol": "irq_level",
+      "scope": "SIM-L1",
+      "source_signal": "error_irq",
+      "cpu_bit": 5
+    },
+    {
+      "id": "C19",
+      "source": "uart",
+      "target": "irq",
+      "source_role": "producer",
+      "target_role": "consumer",
+      "protocol": "irq_level",
+      "scope": "SIM-L1",
+      "source_signal": "tx_empty",
+      "cpu_bit": 6
+    },
+    {
+      "id": "C20",
+      "source": "irq",
+      "target": "cpu",
+      "source_role": "producer",
+      "target_role": "consumer",
+      "protocol": "irq_level",
+      "scope": "SIM-L1",
+      "cpu_bit": 4
+    },
+    {
+      "id": "C21",
+      "source": "irq",
+      "target": "cpu",
+      "source_role": "producer",
+      "target_role": "consumer",
+      "protocol": "irq_level",
+      "scope": "SIM-L1",
+      "cpu_bit": 5
+    },
+    {
+      "id": "C22",
+      "source": "irq",
+      "target": "cpu",
+      "source_role": "producer",
+      "target_role": "consumer",
+      "protocol": "irq_level",
+      "scope": "SIM-L1",
+      "cpu_bit": 6
+    },
+    {
+      "id": "CR00",
+      "source": "sys",
+      "target": "cpu",
+      "source_role": "producer",
+      "target_role": "consumer",
+      "protocol": "cpu_clock_reset",
+      "scope": "SIM-L1"
+    },
+    {
+      "id": "CR01",
+      "source": "sys",
+      "target": "cpu_bridge",
+      "source_role": "producer",
+      "target_role": "consumer",
+      "protocol": "clock_reset",
+      "scope": "SIM-L1"
+    },
+    {
+      "id": "CR02",
+      "source": "sys",
+      "target": "fabric",
+      "source_role": "producer",
+      "target_role": "consumer",
+      "protocol": "clock_reset",
+      "scope": "SIM-L1"
+    },
+    {
+      "id": "CR03",
+      "source": "sys",
+      "target": "rom",
+      "source_role": "producer",
+      "target_role": "consumer",
+      "protocol": "clock_reset",
+      "scope": "SIM-L1"
+    },
+    {
+      "id": "CR04",
+      "source": "sys",
+      "target": "sram",
+      "source_role": "producer",
+      "target_role": "consumer",
+      "protocol": "clock_reset",
+      "scope": "SIM-L1"
+    },
+    {
+      "id": "CR05",
+      "source": "sys",
+      "target": "extmem",
+      "source_role": "producer",
+      "target_role": "consumer",
+      "protocol": "clock_reset",
+      "scope": "SIM-L1"
+    },
+    {
+      "id": "CR06",
+      "source": "sys",
+      "target": "lite_bridge",
+      "source_role": "producer",
+      "target_role": "consumer",
+      "protocol": "clock_reset",
+      "scope": "SIM-L1"
+    },
+    {
+      "id": "CR08",
+      "source": "sys",
+      "target": "irq",
+      "source_role": "producer",
+      "target_role": "consumer",
+      "protocol": "clock_reset",
+      "scope": "SIM-L1"
+    },
+    {
+      "id": "CR09",
+      "source": "sys",
+      "target": "uart",
+      "source_role": "producer",
+      "target_role": "consumer",
+      "protocol": "clock_reset",
+      "scope": "SIM-L1"
+    },
+    {
+      "id": "CR10",
+      "source": "sys",
+      "target": "npu_csr",
+      "source_role": "producer",
+      "target_role": "consumer",
+      "protocol": "clock_reset",
+      "scope": "SIM-L1"
+    },
+    {
+      "id": "CR11",
+      "source": "sys",
+      "target": "npu_ctl",
+      "source_role": "producer",
+      "target_role": "consumer",
+      "protocol": "clock_reset",
+      "scope": "SIM-L1"
+    },
+    {
+      "id": "CR12",
+      "source": "sys",
+      "target": "npu_dma",
+      "source_role": "producer",
+      "target_role": "consumer",
+      "protocol": "clock_reset",
+      "scope": "SIM-L1"
+    },
+    {
+      "id": "CR13",
+      "source": "sys",
+      "target": "npu_local",
+      "source_role": "producer",
+      "target_role": "consumer",
+      "protocol": "clock_reset",
+      "scope": "SIM-L1"
+    },
+    {
+      "id": "CR14",
+      "source": "sys",
+      "target": "npu_dot",
+      "source_role": "producer",
+      "target_role": "consumer",
+      "protocol": "clock_reset",
+      "scope": "SIM-L1"
+    },
+    {
+      "id": "C23",
+      "source": "npu_dma",
+      "target": "npu_ctl",
+      "source_role": "producer",
+      "target_role": "consumer",
+      "protocol": "dma_terminal",
+      "scope": "SIM-L1"
+    },
+    {
+      "id": "C24",
+      "source": "npu_ctl",
+      "target": "npu_csr",
+      "source_role": "producer",
+      "target_role": "consumer",
+      "protocol": "terminal",
+      "scope": "SIM-L1"
+    },
+    {
+      "id": "C25",
+      "source": "npu_ctl",
+      "target": "npu_local",
+      "source_role": "producer",
+      "target_role": "consumer",
+      "protocol": "dispatch",
+      "scope": "SIM-L1"
+    },
+    {
+      "id": "C26",
+      "source": "cpu",
+      "target": "sys",
+      "source_role": "producer",
+      "target_role": "consumer",
+      "protocol": "fault_event",
+      "scope": "SIM-L1"
+    },
+    {
+      "id": "C27",
+      "source": "cpu_bridge",
+      "target": "sys",
+      "source_role": "producer",
+      "target_role": "consumer",
+      "protocol": "fault_event",
+      "scope": "SIM-L1"
+    },
+    {
+      "id": "C28",
+      "source": "fabric",
+      "target": "sys",
+      "source_role": "producer",
+      "target_role": "consumer",
+      "protocol": "fault_event",
+      "scope": "SIM-L1"
+    },
+    {
+      "id": "C29",
+      "source": "npu_ctl",
+      "target": "sys",
+      "source_role": "producer",
+      "target_role": "consumer",
+      "protocol": "fault_event",
+      "scope": "SIM-L1"
+    },
+    {
+      "id": "C30",
+      "source": "sys",
+      "target": "cpu_bridge",
+      "source_role": "producer",
+      "target_role": "consumer",
+      "protocol": "stop_issue",
+      "scope": "SIM-L1"
+    },
+    {
+      "id": "C31",
+      "source": "sys",
+      "target": "npu_ctl",
+      "source_role": "producer",
+      "target_role": "consumer",
+      "protocol": "stop_issue",
+      "scope": "SIM-L1"
+    },
+    {
+      "id": "C32",
+      "source": "sys",
+      "target": "npu_dma",
+      "source_role": "producer",
+      "target_role": "consumer",
+      "protocol": "stop_issue",
+      "scope": "SIM-L1"
+    },
+    {
+      "id": "C33",
+      "source": "sys",
+      "target": "fabric",
+      "source_role": "producer",
+      "target_role": "consumer",
+      "protocol": "stop_issue",
+      "scope": "SIM-L1"
+    }
+  ],
+  "address_regions": [
+    {
+      "id": "rom",
+      "base": 0,
+      "size": 65536,
+      "end_exclusive": 65536,
+      "target": "rom",
+      "cpu_permission": "RX",
+      "npu_permission": "none"
+    },
+    {
+      "id": "sram",
+      "base": 268435456,
+      "size": 262144,
+      "end_exclusive": 268697600,
+      "target": "sram",
+      "cpu_permission": "RWX",
+      "npu_permission": "none"
+    },
+    {
+      "id": "sys",
+      "base": 1073741824,
+      "size": 4096,
+      "end_exclusive": 1073745920,
+      "target": "sys",
+      "cpu_permission": "RW",
+      "npu_permission": "none"
+    },
+    {
+      "id": "npu_csr",
+      "base": 1073745920,
+      "size": 4096,
+      "end_exclusive": 1073750016,
+      "target": "npu_csr",
+      "cpu_permission": "RW",
+      "npu_permission": "none"
+    },
+    {
+      "id": "irq",
+      "base": 1073750016,
+      "size": 4096,
+      "end_exclusive": 1073754112,
+      "target": "irq",
+      "cpu_permission": "RW",
+      "npu_permission": "none"
+    },
+    {
+      "id": "uart",
+      "base": 1073754112,
+      "size": 4096,
+      "end_exclusive": 1073758208,
+      "target": "uart",
+      "cpu_permission": "RW",
+      "npu_permission": "none"
+    },
+    {
+      "id": "security_reserved",
+      "base": 1073807360,
+      "size": 65536,
+      "end_exclusive": 1073872896,
+      "target": "caliptra",
+      "cpu_permission": "none",
+      "npu_permission": "none"
+    },
+    {
+      "id": "boot_image",
+      "base": 2147483648,
+      "size": 1048576,
+      "end_exclusive": 2148532224,
+      "target": "extmem",
+      "cpu_permission": "R",
+      "npu_permission": "none"
+    },
+    {
+      "id": "model",
+      "base": 2148532224,
+      "size": 4194304,
+      "end_exclusive": 2152726528,
+      "target": "extmem",
+      "cpu_permission": "R",
+      "npu_permission": "R"
+    },
+    {
+      "id": "kv",
+      "base": 2152726528,
+      "size": 1048576,
+      "end_exclusive": 2153775104,
+      "target": "extmem",
+      "cpu_permission": "RW",
+      "npu_permission": "none"
+    },
+    {
+      "id": "scratch",
+      "base": 2153775104,
+      "size": 1048576,
+      "end_exclusive": 2154823680,
+      "target": "extmem",
+      "cpu_permission": "RW",
+      "npu_permission": "RW"
+    },
+    {
+      "id": "expected",
+      "base": 2154823680,
+      "size": 1048576,
+      "end_exclusive": 2155872256,
+      "target": "extmem",
+      "cpu_permission": "R",
+      "npu_permission": "none"
+    },
+    {
+      "id": "io",
+      "base": 2155872256,
+      "size": 65536,
+      "end_exclusive": 2155937792,
+      "target": "extmem",
+      "cpu_permission": "RW",
+      "npu_permission": "none"
+    },
+    {
+      "id": "external_reserved",
+      "base": 2155937792,
+      "size": 8323072,
+      "end_exclusive": 2164260864,
+      "target": "extmem",
+      "cpu_permission": "none",
+      "npu_permission": "none"
+    }
+  ],
+  "irqs": [
+    {
+      "id": "IRQ4",
+      "source": "npu_done",
+      "source_bit": 0,
+      "cpu_bit": 4,
+      "trigger": "level",
+      "reset_enable": 0,
+      "source_expression": "NPU.STATUS.DONE & NPU.IRQ_ENABLE.done",
+      "cpu_expression": "source_level & IRQ.ENABLE[source_bit]"
+    },
+    {
+      "id": "IRQ5",
+      "source": "npu_error",
+      "source_bit": 1,
+      "cpu_bit": 5,
+      "trigger": "level",
+      "reset_enable": 0,
+      "source_expression": "NPU.STATUS.ERROR & NPU.IRQ_ENABLE.error",
+      "cpu_expression": "source_level & IRQ.ENABLE[source_bit]"
+    },
+    {
+      "id": "IRQ6",
+      "source": "uart_tx_empty",
+      "source_bit": 2,
+      "cpu_bit": 6,
+      "trigger": "level",
+      "reset_enable": 0,
+      "cpu_expression": "source_level & IRQ.ENABLE[source_bit]"
+    }
+  ],
+  "csr_registers": [
+    {
+      "block": "sys",
+      "name": "ID",
+      "offset": 0,
+      "address": 1073741824,
+      "access": "RO",
+      "reset": 1280068913,
+      "fields": [
+        {
+          "name": "value",
+          "msb": 31,
+          "lsb": 0
+        }
+      ]
+    },
+    {
+      "block": "sys",
+      "name": "VERSION",
+      "offset": 4,
+      "address": 1073741828,
+      "access": "RO",
+      "reset": 65536,
+      "fields": [
+        {
+          "name": "major",
+          "msb": 31,
+          "lsb": 16
+        },
+        {
+          "name": "minor",
+          "msb": 15,
+          "lsb": 0
+        }
+      ]
+    },
+    {
+      "block": "sys",
+      "name": "BOOT_STAGE",
+      "offset": 8,
+      "address": 1073741832,
+      "access": "RW",
+      "reset": 0,
+      "fields": [
+        {
+          "name": "stage",
+          "msb": 31,
+          "lsb": 0
+        }
+      ]
+    },
+    {
+      "block": "sys",
+      "name": "FATAL",
+      "offset": 12,
+      "address": 1073741836,
+      "access": "RO",
+      "reset": 0,
+      "fields": [
+        {
+          "name": "fatal",
+          "msb": 0,
+          "lsb": 0
+        },
+        {
+          "name": "reason",
+          "msb": 15,
+          "lsb": 8
+        }
+      ]
+    },
+    {
+      "block": "sys",
+      "name": "FAULT_ADDR",
+      "offset": 16,
+      "address": 1073741840,
+      "access": "RO",
+      "reset": 0,
+      "fields": [
+        {
+          "name": "address",
+          "msb": 31,
+          "lsb": 0
+        }
+      ]
+    },
+    {
+      "block": "sys",
+      "name": "RESULT_CODE",
+      "offset": 20,
+      "address": 1073741844,
+      "access": "RW",
+      "reset": 0,
+      "fields": [
+        {
+          "name": "code",
+          "msb": 31,
+          "lsb": 0
+        }
+      ]
+    },
+    {
+      "block": "sys",
+      "name": "RESULT_COMMIT",
+      "offset": 24,
+      "address": 1073741848,
+      "access": "WO",
+      "reset": 0,
+      "fields": [
+        {
+          "name": "commit",
+          "msb": 0,
+          "lsb": 0
+        }
+      ]
+    },
+    {
+      "block": "sys",
+      "name": "CYCLE_LO",
+      "offset": 28,
+      "address": 1073741852,
+      "access": "RO",
+      "reset": 0,
+      "fields": [
+        {
+          "name": "value",
+          "msb": 31,
+          "lsb": 0
+        }
+      ]
+    },
+    {
+      "block": "sys",
+      "name": "CYCLE_HI",
+      "offset": 32,
+      "address": 1073741856,
+      "access": "RO",
+      "reset": 0,
+      "fields": [
+        {
+          "name": "value",
+          "msb": 31,
+          "lsb": 0
+        }
+      ]
+    },
+    {
+      "block": "sys",
+      "name": "BUILD_CONFIG",
+      "offset": 36,
+      "address": 1073741860,
+      "access": "RO",
+      "reset": 1,
+      "fields": [
+        {
+          "name": "config",
+          "msb": 31,
+          "lsb": 0
+        }
+      ]
+    },
+    {
+      "block": "npu_csr",
+      "name": "VERSION",
+      "offset": 0,
+      "address": 1073745920,
+      "access": "RO",
+      "reset": 65536,
+      "fields": [
+        {
+          "name": "value",
+          "msb": 31,
+          "lsb": 0
+        }
+      ]
+    },
+    {
+      "block": "npu_csr",
+      "name": "STATUS",
+      "offset": 4,
+      "address": 1073745924,
+      "access": "RO",
+      "reset": 0,
+      "fields": [
+        {
+          "name": "busy",
+          "msb": 0,
+          "lsb": 0
+        },
+        {
+          "name": "done",
+          "msb": 1,
+          "lsb": 1
+        },
+        {
+          "name": "error",
+          "msb": 2,
+          "lsb": 2
+        }
+      ]
+    },
+    {
+      "block": "npu_csr",
+      "name": "SUBMIT",
+      "offset": 8,
+      "address": 1073745928,
+      "access": "WO",
+      "reset": 0,
+      "fields": [
+        {
+          "name": "submit",
+          "msb": 0,
+          "lsb": 0
+        }
+      ]
+    },
+    {
+      "block": "npu_csr",
+      "name": "CLEAR",
+      "offset": 12,
+      "address": 1073745932,
+      "access": "WO",
+      "reset": 0,
+      "fields": [
+        {
+          "name": "clear",
+          "msb": 0,
+          "lsb": 0
+        }
+      ]
+    },
+    {
+      "block": "npu_csr",
+      "name": "OPCODE",
+      "offset": 16,
+      "address": 1073745936,
+      "access": "RW",
+      "reset": 0,
+      "fields": [
+        {
+          "name": "value",
+          "msb": 31,
+          "lsb": 0
+        }
+      ]
+    },
+    {
+      "block": "npu_csr",
+      "name": "X_BASE",
+      "offset": 20,
+      "address": 1073745940,
+      "access": "RW",
+      "reset": 0,
+      "fields": [
+        {
+          "name": "value",
+          "msb": 31,
+          "lsb": 0
+        }
+      ]
+    },
+    {
+      "block": "npu_csr",
+      "name": "W_BASE",
+      "offset": 24,
+      "address": 1073745944,
+      "access": "RW",
+      "reset": 0,
+      "fields": [
+        {
+          "name": "value",
+          "msb": 31,
+          "lsb": 0
+        }
+      ]
+    },
+    {
+      "block": "npu_csr",
+      "name": "Y_BASE",
+      "offset": 28,
+      "address": 1073745948,
+      "access": "RW",
+      "reset": 0,
+      "fields": [
+        {
+          "name": "value",
+          "msb": 31,
+          "lsb": 0
+        }
+      ]
+    },
+    {
+      "block": "npu_csr",
+      "name": "K",
+      "offset": 32,
+      "address": 1073745952,
+      "access": "RW",
+      "reset": 0,
+      "fields": [
+        {
+          "name": "value",
+          "msb": 31,
+          "lsb": 0
+        }
+      ]
+    },
+    {
+      "block": "npu_csr",
+      "name": "N",
+      "offset": 36,
+      "address": 1073745956,
+      "access": "RW",
+      "reset": 0,
+      "fields": [
+        {
+          "name": "value",
+          "msb": 31,
+          "lsb": 0
+        }
+      ]
+    },
+    {
+      "block": "npu_csr",
+      "name": "GROUP",
+      "offset": 40,
+      "address": 1073745960,
+      "access": "RW",
+      "reset": 0,
+      "fields": [
+        {
+          "name": "value",
+          "msb": 31,
+          "lsb": 0
+        }
+      ]
+    },
+    {
+      "block": "npu_csr",
+      "name": "W_STRIDE",
+      "offset": 44,
+      "address": 1073745964,
+      "access": "RW",
+      "reset": 0,
+      "fields": [
+        {
+          "name": "value",
+          "msb": 31,
+          "lsb": 0
+        }
+      ]
+    },
+    {
+      "block": "npu_csr",
+      "name": "TAG",
+      "offset": 48,
+      "address": 1073745968,
+      "access": "RW",
+      "reset": 0,
+      "fields": [
+        {
+          "name": "value",
+          "msb": 31,
+          "lsb": 0
+        }
+      ]
+    },
+    {
+      "block": "npu_csr",
+      "name": "COMPLETED_TAG",
+      "offset": 52,
+      "address": 1073745972,
+      "access": "RO",
+      "reset": 0,
+      "fields": [
+        {
+          "name": "tag",
+          "msb": 31,
+          "lsb": 0
+        }
+      ]
+    },
+    {
+      "block": "npu_csr",
+      "name": "ERROR_CODE",
+      "offset": 56,
+      "address": 1073745976,
+      "access": "RO",
+      "reset": 0,
+      "fields": [
+        {
+          "name": "code",
+          "msb": 31,
+          "lsb": 0
+        }
+      ]
+    },
+    {
+      "block": "npu_csr",
+      "name": "IRQ_ENABLE",
+      "offset": 60,
+      "address": 1073745980,
+      "access": "RW",
+      "reset": 0,
+      "fields": [
+        {
+          "name": "done",
+          "msb": 0,
+          "lsb": 0
+        },
+        {
+          "name": "error",
+          "msb": 1,
+          "lsb": 1
+        }
+      ]
+    },
+    {
+      "block": "npu_csr",
+      "name": "LAST_CYCLES",
+      "offset": 64,
+      "address": 1073745984,
+      "access": "RO",
+      "reset": 0,
+      "fields": [
+        {
+          "name": "cycles",
+          "msb": 31,
+          "lsb": 0
+        }
+      ]
+    },
+    {
+      "block": "irq",
+      "name": "PENDING",
+      "offset": 0,
+      "address": 1073750016,
+      "access": "RO",
+      "reset": 4,
+      "fields": [
+        {
+          "name": "done",
+          "msb": 0,
+          "lsb": 0
+        },
+        {
+          "name": "error",
+          "msb": 1,
+          "lsb": 1
+        },
+        {
+          "name": "tx_empty",
+          "msb": 2,
+          "lsb": 2
+        }
+      ],
+      "derived_live": true,
+      "derived_expression": "(NPU.DONE & NPU.IRQ_ENABLE[0]) | ((NPU.ERROR & NPU.IRQ_ENABLE[1])<<1) | (UART.READY<<2)"
+    },
+    {
+      "block": "irq",
+      "name": "ENABLE",
+      "offset": 4,
+      "address": 1073750020,
+      "access": "RW",
+      "reset": 0,
+      "fields": [
+        {
+          "name": "done",
+          "msb": 0,
+          "lsb": 0
+        },
+        {
+          "name": "error",
+          "msb": 1,
+          "lsb": 1
+        },
+        {
+          "name": "tx_empty",
+          "msb": 2,
+          "lsb": 2
+        }
+      ]
+    },
+    {
+      "block": "irq",
+      "name": "ACTIVE",
+      "offset": 8,
+      "address": 1073750024,
+      "access": "RO",
+      "reset": 0,
+      "fields": [
+        {
+          "name": "done",
+          "msb": 0,
+          "lsb": 0
+        },
+        {
+          "name": "error",
+          "msb": 1,
+          "lsb": 1
+        },
+        {
+          "name": "tx_empty",
+          "msb": 2,
+          "lsb": 2
+        }
+      ]
+    },
+    {
+      "block": "uart",
+      "name": "TX_DATA",
+      "offset": 0,
+      "address": 1073754112,
+      "access": "WO",
+      "reset": 0,
+      "fields": [
+        {
+          "name": "byte",
+          "msb": 7,
+          "lsb": 0
+        }
+      ]
+    },
+    {
+      "block": "uart",
+      "name": "STATUS",
+      "offset": 4,
+      "address": 1073754116,
+      "access": "RO",
+      "reset": 1,
+      "fields": [
+        {
+          "name": "ready",
+          "msb": 0,
+          "lsb": 0
+        },
+        {
+          "name": "busy",
+          "msb": 1,
+          "lsb": 1
+        }
+      ]
+    },
+    {
+      "block": "uart",
+      "name": "DIVISOR",
+      "offset": 8,
+      "address": 1073754120,
+      "access": "RW",
+      "reset": 16,
+      "fields": [
+        {
+          "name": "divisor",
+          "msb": 15,
+          "lsb": 0
+        }
+      ]
+    }
+  ],
+  "requirements": [
+    {
+      "id": "AXI-01",
+      "document": "axi.md",
+      "scope": "SIM-L1",
+      "owner_modules": [
+        "fabric",
+        "cpu_bridge",
+        "lite_bridge",
+        "extmem"
+      ],
+      "verification_obligation": "Independent channel protocol/order/backpressure/error/timeout checks and assertions",
+      "status": "not-run"
+    },
+    {
+      "id": "AXI-02",
+      "document": "axi.md",
+      "scope": "SIM-L1",
+      "owner_modules": [
+        "fabric",
+        "cpu_bridge",
+        "lite_bridge",
+        "extmem"
+      ],
+      "verification_obligation": "Independent channel protocol/order/backpressure/error/timeout checks and assertions",
+      "status": "not-run"
+    },
+    {
+      "id": "AXI-03",
+      "document": "axi.md",
+      "scope": "SIM-L1",
+      "owner_modules": [
+        "fabric",
+        "cpu_bridge",
+        "lite_bridge",
+        "extmem"
+      ],
+      "verification_obligation": "Independent CPU/NPU AW-offer ordering without AWREADY dependence, target early-W handshake and stalled payload checks",
+      "status": "not-run"
+    },
+    {
+      "id": "AXI-04",
+      "document": "axi.md",
+      "scope": "SIM-L1",
+      "owner_modules": [
+        "fabric",
+        "cpu_bridge",
+        "lite_bridge",
+        "extmem"
+      ],
+      "verification_obligation": "Independent channel protocol/order/backpressure/error/timeout checks and assertions",
+      "status": "not-run"
+    },
+    {
+      "id": "AXI-05",
+      "document": "axi.md",
+      "scope": "SIM-L1",
+      "owner_modules": [
+        "fabric",
+        "cpu_bridge",
+        "lite_bridge",
+        "extmem"
+      ],
+      "verification_obligation": "Independent channel protocol/order/backpressure/error/timeout checks and assertions",
+      "status": "not-run"
+    },
+    {
+      "id": "AXI-06",
+      "document": "axi.md",
+      "scope": "SIM-L1",
+      "owner_modules": [
+        "fabric",
+        "cpu_bridge",
+        "lite_bridge",
+        "extmem"
+      ],
+      "verification_obligation": "Independent channel protocol/order/backpressure/error/timeout checks and assertions",
+      "status": "not-run"
+    },
+    {
+      "id": "AXI-07",
+      "document": "axi.md",
+      "scope": "SIM-L1",
+      "owner_modules": [
+        "fabric",
+        "cpu_bridge",
+        "lite_bridge",
+        "extmem"
+      ],
+      "verification_obligation": "Independent per-obligation timer and early-W unknown-address timeout checks",
+      "status": "not-run"
+    },
+    {
+      "id": "AXI-08",
+      "document": "axi.md",
+      "scope": "SIM-L1",
+      "owner_modules": [
+        "fabric",
+        "cpu_bridge",
+        "lite_bridge",
+        "extmem"
+      ],
+      "verification_obligation": "Independent channel protocol/order/backpressure/error/timeout checks and assertions",
+      "status": "not-run"
+    },
+    {
+      "id": "AXI-09",
+      "document": "axi.md",
+      "scope": "SIM-L1",
+      "owner_modules": [
+        "fabric",
+        "cpu_bridge",
+        "lite_bridge",
+        "extmem"
+      ],
+      "verification_obligation": "Independent channel protocol/order/backpressure/error/timeout checks and assertions",
+      "status": "not-run"
+    },
+    {
+      "id": "AXI-10",
+      "document": "axi.md",
+      "scope": "SIM-L1",
+      "owner_modules": [
+        "fabric",
+        "cpu_bridge",
+        "lite_bridge",
+        "extmem"
+      ],
+      "verification_obligation": "Independent channel protocol/order/backpressure/error/timeout checks and assertions",
+      "status": "not-run"
+    },
+    {
+      "id": "NPU-01",
+      "document": "npu.md",
+      "scope": "SIM-L1",
+      "owner_modules": [
+        "npu_csr",
+        "npu_ctl",
+        "npu_dma",
+        "npu_dot"
+      ],
+      "verification_obligation": "Independent grouped integer reference, command state/error/reset tests and arithmetic formal",
+      "status": "not-run"
+    },
+    {
+      "id": "NPU-02",
+      "document": "npu.md",
+      "scope": "SIM-L1",
+      "owner_modules": [
+        "npu_csr",
+        "npu_ctl",
+        "npu_dma",
+        "npu_dot"
+      ],
+      "verification_obligation": "Independent grouped integer reference, command state/error/reset tests and arithmetic formal",
+      "status": "not-run"
+    },
+    {
+      "id": "NPU-03",
+      "document": "npu.md",
+      "scope": "SIM-L1",
+      "owner_modules": [
+        "npu_csr",
+        "npu_ctl",
+        "npu_dma",
+        "npu_dot"
+      ],
+      "verification_obligation": "Independent grouped integer reference, command state/error/reset tests and arithmetic formal",
+      "status": "not-run"
+    },
+    {
+      "id": "NPU-04",
+      "document": "npu.md",
+      "scope": "SIM-L1",
+      "owner_modules": [
+        "npu_csr",
+        "npu_ctl",
+        "npu_dma",
+        "npu_dot"
+      ],
+      "verification_obligation": "Independent grouped integer reference, command state/error/reset tests and arithmetic formal",
+      "status": "not-run"
+    },
+    {
+      "id": "NPU-05",
+      "document": "npu.md",
+      "scope": "SIM-L1",
+      "owner_modules": [
+        "npu_csr",
+        "npu_ctl",
+        "npu_dma",
+        "npu_dot"
+      ],
+      "verification_obligation": "Independent grouped integer reference, command state/error/reset tests and arithmetic formal",
+      "status": "not-run"
+    },
+    {
+      "id": "NPU-06",
+      "document": "npu.md",
+      "scope": "SIM-L1",
+      "owner_modules": [
+        "npu_csr",
+        "npu_ctl",
+        "npu_dma",
+        "npu_dot"
+      ],
+      "verification_obligation": "Independent grouped integer reference, command state/error/reset tests and arithmetic formal",
+      "status": "not-run"
+    },
+    {
+      "id": "NPU-07",
+      "document": "npu.md",
+      "scope": "SIM-L1",
+      "owner_modules": [
+        "npu_csr",
+        "npu_ctl",
+        "npu_dma",
+        "npu_dot"
+      ],
+      "verification_obligation": "Independent grouped integer reference, command state/error/reset tests and arithmetic formal",
+      "status": "not-run"
+    },
+    {
+      "id": "NPU-08",
+      "document": "npu.md",
+      "scope": "SIM-L1",
+      "owner_modules": [
+        "npu_csr",
+        "npu_ctl",
+        "npu_dma",
+        "npu_dot"
+      ],
+      "verification_obligation": "Independent grouped integer reference, command state/error/reset tests and arithmetic formal",
+      "status": "not-run"
+    },
+    {
+      "id": "SEC-01",
+      "document": "security.md",
+      "scope": "S1",
+      "owner_modules": [
+        "caliptra",
+        "security-controller"
+      ],
+      "verification_obligation": "Independent authenticated boot negative tests and access-control formal",
+      "status": "not-run"
+    },
+    {
+      "id": "SEC-02",
+      "document": "security.md",
+      "scope": "S1",
+      "owner_modules": [
+        "caliptra",
+        "security-controller"
+      ],
+      "verification_obligation": "Independent authenticated boot negative tests and access-control formal",
+      "status": "not-run"
+    },
+    {
+      "id": "SEC-03",
+      "document": "security.md",
+      "scope": "S1",
+      "owner_modules": [
+        "caliptra",
+        "security-controller"
+      ],
+      "verification_obligation": "Independent authenticated boot negative tests and access-control formal",
+      "status": "not-run"
+    },
+    {
+      "id": "SYS-01",
+      "document": "system.md",
+      "scope": "SIM-L1",
+      "owner_modules": [
+        "sys",
+        "cpu_bridge",
+        "irq",
+        "uart"
+      ],
+      "verification_obligation": "Independent boot/reset/CSR/permission/IRQ firmware simulation and applicable formal properties",
+      "status": "not-run"
+    },
+    {
+      "id": "SYS-02",
+      "document": "system.md",
+      "scope": "SIM-L1",
+      "owner_modules": [
+        "sys",
+        "cpu_bridge",
+        "irq",
+        "uart"
+      ],
+      "verification_obligation": "Independent boot/reset/CSR/permission/IRQ firmware simulation and applicable formal properties",
+      "status": "not-run"
+    },
+    {
+      "id": "SYS-03",
+      "document": "system.md",
+      "scope": "SIM-L1",
+      "owner_modules": [
+        "sys",
+        "cpu_bridge",
+        "irq",
+        "uart"
+      ],
+      "verification_obligation": "Independent boot/reset/CSR/permission/IRQ firmware simulation and applicable formal properties",
+      "status": "not-run"
+    },
+    {
+      "id": "SYS-04",
+      "document": "system.md",
+      "scope": "SIM-L1",
+      "owner_modules": [
+        "sys",
+        "cpu_bridge",
+        "irq",
+        "uart"
+      ],
+      "verification_obligation": "Independent boot/reset/CSR/permission/IRQ firmware simulation and applicable formal properties",
+      "status": "not-run"
+    },
+    {
+      "id": "SYS-05",
+      "document": "system.md",
+      "scope": "SIM-L1",
+      "owner_modules": [
+        "sys",
+        "cpu_bridge",
+        "irq",
+        "uart"
+      ],
+      "verification_obligation": "Independent boot/reset/CSR/permission/IRQ firmware simulation and applicable formal properties",
+      "status": "not-run"
+    },
+    {
+      "id": "SYS-06",
+      "document": "system.md",
+      "scope": "SIM-L1",
+      "owner_modules": [
+        "sys",
+        "cpu_bridge",
+        "irq",
+        "uart"
+      ],
+      "verification_obligation": "Independent boot/reset/CSR/permission/IRQ firmware simulation and applicable formal properties",
+      "status": "not-run"
+    },
+    {
+      "id": "SYS-07",
+      "document": "system.md",
+      "scope": "SIM-L1",
+      "owner_modules": [
+        "sys",
+        "cpu_bridge",
+        "irq",
+        "uart"
+      ],
+      "verification_obligation": "Independent boot/reset/CSR/permission/IRQ firmware simulation and applicable formal properties",
+      "status": "not-run"
+    },
+    {
+      "id": "SYS-08",
+      "document": "system.md",
+      "scope": "SIM-L1",
+      "owner_modules": [
+        "sys",
+        "cpu_bridge",
+        "irq",
+        "uart"
+      ],
+      "verification_obligation": "Independent boot/reset/CSR/permission/IRQ firmware simulation and applicable formal properties",
+      "status": "not-run"
+    },
+    {
+      "id": "SYS-09",
+      "document": "system.md",
+      "scope": "SIM-L1",
+      "owner_modules": [
+        "sys",
+        "cpu_bridge",
+        "irq",
+        "uart"
+      ],
+      "verification_obligation": "Independent boot/reset/CSR/permission/IRQ firmware simulation and applicable formal properties",
+      "status": "not-run"
+    },
+    {
+      "id": "SYS-10",
+      "document": "system.md",
+      "scope": "SIM-L1",
+      "owner_modules": [
+        "sys",
+        "cpu_bridge",
+        "irq",
+        "uart"
+      ],
+      "verification_obligation": "Independent boot/reset/CSR/permission/IRQ firmware simulation and applicable formal properties",
+      "status": "not-run"
+    },
+    {
+      "id": "SYS-11",
+      "document": "system.md",
+      "scope": "SIM-L1",
+      "owner_modules": [
+        "sys",
+        "cpu_bridge",
+        "irq",
+        "uart"
+      ],
+      "verification_obligation": "Independent boot/reset/CSR/permission/IRQ firmware simulation and applicable formal properties",
+      "status": "not-run"
+    },
+    {
+      "id": "LLM-01",
+      "document": "workload.md",
+      "scope": "SIM-L1",
+      "owner_modules": [
+        "software-runtime"
+      ],
+      "verification_obligation": "Independent full-model reference and real firmware checkpoints; no RTL-derived expected values",
+      "status": "not-run"
+    },
+    {
+      "id": "LLM-02",
+      "document": "workload.md",
+      "scope": "SIM-L1",
+      "owner_modules": [
+        "software-runtime"
+      ],
+      "verification_obligation": "Independent full-model reference and real firmware checkpoints; no RTL-derived expected values",
+      "status": "not-run"
+    },
+    {
+      "id": "LLM-03",
+      "document": "workload.md",
+      "scope": "SIM-L1",
+      "owner_modules": [
+        "software-runtime"
+      ],
+      "verification_obligation": "Independent full-model reference and real firmware checkpoints; no RTL-derived expected values",
+      "status": "not-run"
+    },
+    {
+      "id": "LLM-04",
+      "document": "workload.md",
+      "scope": "SIM-L1",
+      "owner_modules": [
+        "software-runtime"
+      ],
+      "verification_obligation": "Independent scalar FP32 sequence including reciprocal-then-multiply SiLU",
+      "status": "not-run"
+    },
+    {
+      "id": "LLM-05",
+      "document": "workload.md",
+      "scope": "SIM-L1",
+      "owner_modules": [
+        "software-runtime"
+      ],
+      "verification_obligation": "Independent full-model reference and real firmware checkpoints; no RTL-derived expected values",
+      "status": "not-run"
+    },
+    {
+      "id": "LLM-06",
+      "document": "workload.md",
+      "scope": "SIM-L1",
+      "owner_modules": [
+        "software-runtime"
+      ],
+      "verification_obligation": "Independent fixed tensor shape/data_bytes/scale-region bounds and authoritative model CRC interval checks",
+      "status": "not-run"
+    },
+    {
+      "id": "LLM-07",
+      "document": "workload.md",
+      "scope": "SIM-L1",
+      "owner_modules": [
+        "software-runtime"
+      ],
+      "verification_obligation": "Independent full-model reference and real firmware checkpoints; no RTL-derived expected values",
+      "status": "not-run"
+    },
+    {
+      "id": "LLM-08",
+      "document": "workload.md",
+      "scope": "SIM-L1",
+      "owner_modules": [
+        "software-runtime"
+      ],
+      "verification_obligation": "Independent runtime input-header authority and expected_bytes equality checks",
+      "status": "not-run"
+    },
+    {
+      "id": "LLM-09",
+      "document": "workload.md",
+      "scope": "SIM-L1",
+      "owner_modules": [
+        "software-runtime"
+      ],
+      "verification_obligation": "Independent full-model reference and real firmware checkpoints; no RTL-derived expected values",
+      "status": "not-run"
+    },
+    {
+      "id": "LLM-10",
+      "document": "workload.md",
+      "scope": "SIM-L1",
+      "owner_modules": [
+        "software-runtime"
+      ],
+      "verification_obligation": "Independent full-model reference and real firmware checkpoints; no RTL-derived expected values",
+      "status": "not-run"
+    },
+    {
+      "id": "LLM-11",
+      "document": "workload.md",
+      "scope": "SIM-L1",
+      "owner_modules": [
+        "software-runtime"
+      ],
+      "verification_obligation": "Independent expectation bounds and exact header/directory/data CRC interval checks",
+      "status": "not-run"
+    },
+    {
+      "id": "SYS-12",
+      "document": "system.md",
+      "scope": "SIM-L1",
+      "owner_modules": [
+        "sys",
+        "cpu_bridge",
+        "fabric",
+        "npu_ctl",
+        "npu_dma"
+      ],
+      "verification_obligation": "Independent fault priority/known-or-zero address, wrapper common reset, core local reset, and retained offered-write stop checks",
+      "status": "not-run"
+    },
+    {
+      "id": "LLM-12",
+      "document": "workload.md",
+      "scope": "SIM-L1",
+      "owner_modules": [
+        "software-runtime"
+      ],
+      "verification_obligation": "Independent forward graph including gate/up, both residual sources, GQA, RoPE and head concatenation",
+      "status": "not-run"
+    }
+  ]
+}

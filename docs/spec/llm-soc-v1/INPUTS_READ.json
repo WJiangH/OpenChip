@@ -1,0 +1,188 @@
+{
+  "role": "chief-architect",
+  "source_scope": "Only allowed spec/ADR/explore/workload, pure reviewed intake/review documents and official protocol search; no RTL/DV/SW/model implementations",
+  "inputs": [
+    {
+      "path": "AGENTS.md",
+      "sha256": "c0602b4a38fd508d85e1c8b1cd303224d2a0f8ed407b2b6aa56fb0bc18c14e2a",
+      "use": "full repository role/independence/gate instructions"
+    },
+    {
+      "path": ".agents/skills/chief-architect/SKILL.md",
+      "sha256": "2c7085e89c2833cf0012284013b921ad4ea3f7441627f4580d5fd77d80ca0463",
+      "use": "full architecture method"
+    },
+    {
+      "path": ".agents/skills/chief-architect/references/spec-authoring-patterns.md",
+      "sha256": "5e4c2f3bcffc27a07098d2b8f45e6444c0b9e076e7dd0625a96ea4eda2ea7c25",
+      "use": "full requirement/edge/parameter method"
+    },
+    {
+      "path": "docs/spec/llm_e2e_delivery_draft.md",
+      "sha256": "94ebf084664475aaa4891e4f4c63238fb06e180eaf6d1652734fd6b8c3ef2ef4",
+      "use": "full system-delivery scope"
+    },
+    {
+      "path": "explore/llm-target-v0/README.md",
+      "sha256": "56628d94698e1cd2233968094ecfacdcd83051ffe628b5b20d04274db2e7aa53",
+      "use": "product budget/candidate limitations"
+    },
+    {
+      "path": "explore/llm-target-v0/estimates.json",
+      "sha256": "550600e84bd70b32816e6962b33b33783ec33afe24745a230875ad0229711084",
+      "use": "complete parsed numerical inputs for reused1.7B row"
+    },
+    {
+      "path": "explore/llm-target-v0/estimates.md",
+      "sha256": "1af3662a731b8f27d1c445e0e9c4b063b10eb91822a238d1891acdeca765f3ab",
+      "use": "analytical formulas and assumptions"
+    },
+    {
+      "path": "docs/adr/0001-core-stack.md",
+      "sha256": "16798b232bdd3f1d53e391265d7f6fae984be024b17538b1325482e7f24e0703",
+      "use": "legacy conventions"
+    },
+    {
+      "path": "docs/adr/0002-npu-architecture.md",
+      "sha256": "1e9e73a7219d20a283487d139cfd30aa96a898160bbc571c4274e496f9265d92",
+      "use": "legacy excerpted decision, shape and limitations"
+    },
+    {
+      "path": "docs/adr/0003-cpu-core-selection.md",
+      "sha256": "3101c841377f710c1a94db96b3132b591e0cb4761ab1b0e9afd3b164c3aadfe9",
+      "use": "legacy CPU decision and limitations"
+    },
+    {
+      "path": "docs/spec/soc_1.md",
+      "sha256": "526570ce0d27dca5035d0129d86c274727b59ac1a3320271a4c6f61613340e1a",
+      "use": "legacy excerpts: address,boot,weight-stream migration scope"
+    },
+    {
+      "path": "docs/spec/npu.md",
+      "sha256": "bf30ee13a865a839be6c1402b78683fc561e176adb00a2c933c4461db59e5fa8",
+      "use": "legacy excerpts: arithmetic/control migration scope"
+    },
+    {
+      "path": "workloads/tinystories/profile.md",
+      "sha256": "4f1e067c79207c7d2ff6673270720379cbc076ced638755d2d43609791eba32b",
+      "use": "configuration header/shape and analytical-scope excerpts"
+    },
+    {
+      "path": "explore/npu-soc-v0/review-v0.2/interface-register.md",
+      "sha256": "93fcd1a87fed2d38abd455618e22ef1d4c2a7831cd7058d46e25863f9da58297",
+      "use": "candidate interface role/TBD inventory"
+    },
+    {
+      "path": "explore/npu-soc-v0/review-v0.2/README.md",
+      "sha256": "cde00cfb00faa77733358b2549b7d11004cd6a42187d0d311c9c722977c206a1",
+      "use": "diagram/status evidence"
+    },
+    {
+      "path": "docs/spec/llm-soc-v1/intake/ip-ARTIFACT_SHA256SUMS",
+      "sha256": "918321f02f60f2640c0d95a8ee83689ce2c1ed087e6968b1e05c463f76908afc",
+      "use": "reviewed pure report/JSON/provenance; source implementation links not followed"
+    },
+    {
+      "path": "docs/spec/llm-soc-v1/intake/ip-MANIFEST.md",
+      "sha256": "5bd0aa7a1bdebd42e8d2f9b8a4320e34e32b8cb31801d1bb8bdcb9ebaef7f790",
+      "use": "reviewed pure report/JSON/provenance; source implementation links not followed"
+    },
+    {
+      "path": "docs/spec/llm-soc-v1/intake/ip-RECOMMENDATION.md",
+      "sha256": "de901e2bc40498822f8109c1ebd0248507363cf2571975978bfb5a564856da44",
+      "use": "reviewed pure report/JSON/provenance; source implementation links not followed"
+    },
+    {
+      "path": "docs/spec/llm-soc-v1/intake/ip-ip_matrix.json",
+      "sha256": "4546ed0c05eee695aaad6da9900ad8886726ce6b385bf814e0943214ea1a80d9",
+      "use": "reviewed pure report/JSON/provenance; source implementation links not followed"
+    },
+    {
+      "path": "docs/spec/llm-soc-v1/intake/ip-probe_results.json",
+      "sha256": "1aac908bb824b1527104caaebf24d0fa06c4cdbab3c7ebddfacc491b8c4ae0fe",
+      "use": "reviewed pure report/JSON/provenance; source implementation links not followed"
+    },
+    {
+      "path": "docs/spec/llm-soc-v1/intake/sw-ARTIFACTS.sha256",
+      "sha256": "89ce60ab11bf8e53c55f6f3e5712360a982c437c38dfef5e708d29e55de4d212",
+      "use": "reviewed pure report/JSON/provenance; source implementation links not followed"
+    },
+    {
+      "path": "docs/spec/llm-soc-v1/intake/sw-MANIFEST.json",
+      "sha256": "32cd2136842e13c0a023f5e6806957cf8e15c044dadb13c41a42bbd1be1c543f",
+      "use": "reviewed pure report/JSON/provenance; source implementation links not followed"
+    },
+    {
+      "path": "docs/spec/llm-soc-v1/intake/sw-README.md",
+      "sha256": "fdffbba4bd87ff39be99f78550084de08dc4323d2776194854bde325d0178d9f",
+      "use": "reviewed pure report/JSON/provenance; source implementation links not followed"
+    },
+    {
+      "path": "docs/spec/llm-soc-v1/intake/sw-REPORT.md",
+      "sha256": "820b07b151317c4ceda8667685c563bd5ed48457cacf63df23b55a4eda505fd2",
+      "use": "reviewed pure report/JSON/provenance; source implementation links not followed"
+    },
+    {
+      "path": "docs/spec/llm-soc-v1/intake/sw-fp32.json",
+      "sha256": "1ec9a300ac1f65cbc30adc277ab132088efb4e257426a2ff60f71338c3b009d8",
+      "use": "reviewed pure report/JSON/provenance; source implementation links not followed"
+    },
+    {
+      "path": "docs/spec/llm-soc-v1/intake/sw-group64.json",
+      "sha256": "36fd11b8860d3c205a9ae20a4400d0af89f2a2e11bd1df7b5ad6b9d9e94a4a8f",
+      "use": "reviewed pure report/JSON/provenance; source implementation links not followed"
+    },
+    {
+      "path": "docs/spec/llm-soc-v1/intake/sw-metrics.json",
+      "sha256": "3888e41b273a7f9a6765651b50befa8d2145b766fa3dba0b1c98f87cffd4dbf2",
+      "use": "reviewed pure report/JSON/provenance; source implementation links not followed"
+    },
+    {
+      "path": "docs/spec/llm-soc-v1/intake/sw-provenance.json",
+      "sha256": "6317053924459d9d9160ad90b23a6eb8bbe114633bc5cc120af88904d202b1df",
+      "use": "reviewed pure report/JSON/provenance; source implementation links not followed"
+    },
+    {
+      "path": "docs/spec/llm-soc-v1/intake/sw-upstream_tail_metrics.json",
+      "sha256": "bf89e9db4cbb7f5c9161210015f351d9bb182621a181cdffc5e515b060eb1081",
+      "use": "reviewed pure report/JSON/provenance; source implementation links not followed"
+    },
+    {
+      "path": "docs/spec/llm-soc-v1/reviews/dv-review-02.md",
+      "sha256": "27f9e7bbb80168231473761e60f277c68cc0b85fd464bdea30681e5f208da8d2",
+      "use": "independent spec-only review report; no implementation read"
+    },
+    {
+      "path": "docs/spec/llm-soc-v1/reviews/rtl-review-02.md",
+      "sha256": "e993a9eeec1e08fd21863e0ba76a665e48768067fe8df7bd014ad612760e4ad3",
+      "use": "independent spec-only review report; no implementation read"
+    },
+    {
+      "path": "docs/spec/llm-soc-v1/reviews/rtl-review-rc2.md",
+      "sha256": "ac78e9ebcaeda527d0b5f4dcb6e21b26b909a6ce36c7f8f81664814552915c48",
+      "use": "full independent rc2 pure report read for seven scoped spec corrections; no implementation links followed"
+    },
+    {
+      "path": "docs/spec/llm-soc-v1/reviews/dv-review-rc2.md",
+      "sha256": "5256845261c6ceb62d1f36bfd536116f9709bbdf85ffa92d706dcf98259fb1ef",
+      "use": "full independent rc2 pure report read for seven scoped spec corrections; no implementation links followed"
+    },
+    {
+      "path": "docs/spec/llm-soc-v1/reviews/sw-review-rc2.md",
+      "sha256": "0f0f03cfc2f90743662d97fc7db7c5fb24489c6dec4800fccf86750cf881b3db",
+      "use": "full independent rc2 pure report read for seven scoped spec corrections; no implementation links followed"
+    }
+  ],
+  "external_search": [
+    {
+      "source": "Arm IHI0022H official AXI specification",
+      "url": "https://developer.arm.com/-/media/Arm%20Developer%20Community/PDF/IHI0022H_amba_axi_protocol_spec.pdf",
+      "use": "primary-source protocol identification; v1 restrictions authored as explicit contract choices"
+    },
+    {
+      "source": "PicoRV32 official README search",
+      "url": "https://github.com/YosysHQ/picorv32",
+      "use": "early API corroboration; final facts use pinned reviewed IP intake"
+    }
+  ]
+}

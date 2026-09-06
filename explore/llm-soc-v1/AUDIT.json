@@ -1,0 +1,14 @@
+[
+  {
+    "command": "python3 explore/llm-soc-v1/budget.py",
+    "exit_code": 0,
+    "stdout": "BUDGET PASS: MAC/forward=259328 groups/forward=4152 payload=278752 KV512=655360 traffic_floor=278780\n",
+    "stderr": ""
+  },
+  {
+    "command": "python3 explore/llm-soc-v1/check_contract.py",
+    "exit_code": 0,
+    "stdout": "CONTRACT AUDIT PASS: blocks=16 connections=47 regions=14 CSR=33 requirements=45 Lite_signals=19; budget/profile consistent\nNOT RUN: firmware build, RTL lint/simulation/coverage/ISA/formal/synthesis/timing, S1, FPGA, physical signoff\n",
+    "stderr": ""
+  }
+]

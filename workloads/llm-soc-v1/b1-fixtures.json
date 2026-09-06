@@ -1,0 +1,98 @@
+{
+  "version": "1.0-rc3",
+  "kind": "normative examples, independent DV must derive expectations from NPU-01",
+  "x_base": "0x80600000",
+  "w_base": "0x80620000",
+  "y_base": "0x80601000",
+  "output_sentinel_u32": "0x5a5aa5a5",
+  "padding_byte": "0x7f",
+  "fixtures": [
+    {
+      "id": "B1-POLL",
+      "k": 5,
+      "n": 2,
+      "group": 4,
+      "w_stride": 8,
+      "x": [
+        -128,
+        -3,
+        2,
+        127,
+        5
+      ],
+      "weights": [
+        [
+          127,
+          4,
+          -5,
+          -128,
+          7
+        ],
+        [
+          1,
+          -1,
+          2,
+          -2,
+          3
+        ]
+      ],
+      "expected_group_i32": [
+        [
+          -32534,
+          35
+        ],
+        [
+          -375,
+          15
+        ]
+      ],
+      "tag": 2969567233,
+      "irq": false
+    },
+    {
+      "id": "B1-IRQ",
+      "k": 3,
+      "n": 3,
+      "group": 2,
+      "w_stride": 4,
+      "x": [
+        4,
+        -5,
+        7
+      ],
+      "weights": [
+        [
+          3,
+          2,
+          -1
+        ],
+        [
+          -2,
+          -3,
+          4
+        ],
+        [
+          127,
+          -128,
+          0
+        ]
+      ],
+      "expected_group_i32": [
+        [
+          2,
+          -7
+        ],
+        [
+          7,
+          28
+        ],
+        [
+          1148,
+          0
+        ]
+      ],
+      "tag": 2969567234,
+      "irq": true
+    }
+  ]
+}

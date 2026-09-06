@@ -1,0 +1,25 @@
+{
+  "review_reports": {
+    "docs/spec/llm-soc-v1/reviews/rtl-review-rc2.md": "ac78e9ebcaeda527d0b5f4dcb6e21b26b909a6ce36c7f8f81664814552915c48",
+    "docs/spec/llm-soc-v1/reviews/dv-review-rc2.md": "5256845261c6ceb62d1f36bfd536116f9709bbdf85ffa92d706dcf98259fb1ef",
+    "docs/spec/llm-soc-v1/reviews/sw-review-rc2.md": "0f0f03cfc2f90743662d97fc7db7c5fb24489c6dec4800fccf86750cf881b3db"
+  },
+  "rc2_package_inputs": {
+    "docs/spec/llm-soc-v1/CHANGE_ORDER_rc2.md": "326d9b3bba088a62094cde3fe45b175383d825c3ecf6bcbf70daf4217862527f",
+    "docs/spec/llm-soc-v1/downstream.md": "9a8706b00f0440ac3c105f0f2e0d74362c07cdeafbab625aab9575c55f6af0cb",
+    "docs/spec/llm-soc-v1/dependencies.md": "846d69e98b68c89a6e6a186f98621bde978b464d0326bf4e225588608f446e0d",
+    "docs/spec/llm-soc-v1/INPUTS_READ.json": "6aa3a6cce8f1194ac7b1085075ba0bba37229f4161e4acf84850d304f40de622",
+    "docs/spec/llm-soc-v1/traceability.md": "9b20f70bab584083b49c2d8a1ba74b6f8fa7059084b2b02dc643d9529be57b5f",
+    "docs/spec/llm-soc-v1/README.md": "31533f34f5b41d0815f7a594666f796df8817c73364e09242acae6dc1f3c3350",
+    "docs/spec/llm-soc-v1/MANIFEST.md": "fb5b13bb4cb4a8a9fcd8b564f75459288e0cbf462dae377d29981f1a37d0bde8",
+    "docs/spec/llm-soc-v1/INPUTS_READ.md": "a49a9ae8ee098798d54affee0a2af1b84e65c34754cfe57fa525ef9791e5b9c0",
+    "docs/spec/llm-soc-v1/MANIFEST.json": "67430491d8c78f37389c95acffdd726e9ace1aee59a8e9349fe31608b5b7c777",
+    "docs/spec/llm-soc-v1/system.md": "1289d4132e0e28ddaed9fcd10b86a7fb60b6b42da61468ed0594d6d09ff61fd7",
+    "docs/spec/llm-soc-v1/workload.md": "4061bf9073d7c51d21d1536289996ab59c0a8146ce0712913e008d745df222c7",
+    "docs/spec/llm-soc-v1/review02-input-hashes.json": "d757a80f2989a61a6dc6b00651331f65b769f5fa98533d3d2d89bd35c64ed877",
+    "docs/spec/llm-soc-v1/npu.md": "6e4d29850afab1345ecab67d310cc73df7837c31e116186f8ae5cf26f1d58f31",
+    "docs/spec/llm-soc-v1/axi.md": "2116c5baacc86107029bc34b40842813ca80eeac7c35517d97702d32cebc93dc",
+    "docs/spec/llm-soc-v1/contract.json": "97e475198523e59c95948f0ee90a168f59f2564cb457d01d2719956a506b9d2d",
+    "docs/spec/llm-soc-v1/security.md": "8b788a0890bad91ef0c1fec92db45072a4e1fe03d00d2eceb4e36cc05d8a739a"
+  }
+}

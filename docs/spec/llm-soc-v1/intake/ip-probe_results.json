@@ -1,0 +1,212 @@
+[
+  {
+    "name": "picorv32_axi-lint",
+    "command": [
+      "/Users/wjhuang/tools/oss-cad-suite/bin/verilator",
+      "--lint-only",
+      "-Wall",
+      "--top-module",
+      "picorv32_axi",
+      "-GENABLE_MUL=1",
+      "-GENABLE_DIV=1",
+      "-GENABLE_IRQ=1",
+      "-GENABLE_IRQ_QREGS=1",
+      "-GCOMPRESSED_ISA=0",
+      "-GPROGADDR_RESET=0",
+      "-GPROGADDR_IRQ=256",
+      "-GSTACKADDR=268697600",
+      "/Users/wjhuang/Desktop/GitHub_OpenSource/open-chip/.local-designs/agent-lab/run002/ip-intake/hw/rtl/llm_ip_intake/sources/picorv32/picorv32.v"
+    ],
+    "exit_code": 1,
+    "seconds": 0.117
+  },
+  {
+    "name": "picorv32_axi-synth",
+    "command": [
+      "/Users/wjhuang/tools/oss-cad-suite/bin/yosys",
+      "-p",
+      "read_verilog /Users/wjhuang/Desktop/GitHub_OpenSource/open-chip/.local-designs/agent-lab/run002/ip-intake/hw/rtl/llm_ip_intake/sources/picorv32/picorv32.v; chparam -set ENABLE_MUL 1 -set ENABLE_DIV 1 -set ENABLE_IRQ 1 -set ENABLE_IRQ_QREGS 1 -set COMPRESSED_ISA 0 -set PROGADDR_RESET 0 -set PROGADDR_IRQ 256 -set STACKADDR 268697600 picorv32_axi; synth -top picorv32_axi; check -assert; stat"
+    ],
+    "exit_code": 0,
+    "seconds": 1.844
+  },
+  {
+    "name": "picorv32-lint",
+    "command": [
+      "/Users/wjhuang/tools/oss-cad-suite/bin/verilator",
+      "--lint-only",
+      "-Wall",
+      "--top-module",
+      "picorv32",
+      "-GENABLE_MUL=1",
+      "-GENABLE_DIV=1",
+      "-GENABLE_IRQ=1",
+      "-GENABLE_IRQ_QREGS=1",
+      "-GCOMPRESSED_ISA=0",
+      "-GPROGADDR_RESET=0",
+      "-GPROGADDR_IRQ=256",
+      "-GSTACKADDR=268697600",
+      "/Users/wjhuang/Desktop/GitHub_OpenSource/open-chip/.local-designs/agent-lab/run002/ip-intake/hw/rtl/llm_ip_intake/sources/picorv32/picorv32.v"
+    ],
+    "exit_code": 1,
+    "seconds": 0.086
+  },
+  {
+    "name": "picorv32-synth",
+    "command": [
+      "/Users/wjhuang/tools/oss-cad-suite/bin/yosys",
+      "-p",
+      "read_verilog /Users/wjhuang/Desktop/GitHub_OpenSource/open-chip/.local-designs/agent-lab/run002/ip-intake/hw/rtl/llm_ip_intake/sources/picorv32/picorv32.v; chparam -set ENABLE_MUL 1 -set ENABLE_DIV 1 -set ENABLE_IRQ 1 -set ENABLE_IRQ_QREGS 1 -set COMPRESSED_ISA 0 -set PROGADDR_RESET 0 -set PROGADDR_IRQ 256 -set STACKADDR 268697600 picorv32; synth -top picorv32; check -assert; stat"
+    ],
+    "exit_code": 0,
+    "seconds": 1.732
+  },
+  {
+    "name": "axi_crossbar-lint",
+    "command": [
+      "/Users/wjhuang/tools/oss-cad-suite/bin/verilator",
+      "--lint-only",
+      "-Wall",
+      "--top-module",
+      "axi_crossbar",
+      "/Users/wjhuang/Desktop/GitHub_OpenSource/open-chip/.local-designs/agent-lab/run002/ip-intake/hw/rtl/llm_ip_intake/sources/verilog-axi/rtl/axi_axil_adapter.v",
+      "/Users/wjhuang/Desktop/GitHub_OpenSource/open-chip/.local-designs/agent-lab/run002/ip-intake/hw/rtl/llm_ip_intake/sources/verilog-axi/rtl/axi_register_wr.v",
+      "/Users/wjhuang/Desktop/GitHub_OpenSource/open-chip/.local-designs/agent-lab/run002/ip-intake/hw/rtl/llm_ip_intake/sources/verilog-axi/rtl/priority_encoder.v",
+      "/Users/wjhuang/Desktop/GitHub_OpenSource/open-chip/.local-designs/agent-lab/run002/ip-intake/hw/rtl/llm_ip_intake/sources/verilog-axi/rtl/axi_register_rd.v",
+      "/Users/wjhuang/Desktop/GitHub_OpenSource/open-chip/.local-designs/agent-lab/run002/ip-intake/hw/rtl/llm_ip_intake/sources/verilog-axi/rtl/axi_crossbar_rd.v",
+      "/Users/wjhuang/Desktop/GitHub_OpenSource/open-chip/.local-designs/agent-lab/run002/ip-intake/hw/rtl/llm_ip_intake/sources/verilog-axi/rtl/axil_adapter_rd.v",
+      "/Users/wjhuang/Desktop/GitHub_OpenSource/open-chip/.local-designs/agent-lab/run002/ip-intake/hw/rtl/llm_ip_intake/sources/verilog-axi/rtl/axi_crossbar_wr.v",
+      "/Users/wjhuang/Desktop/GitHub_OpenSource/open-chip/.local-designs/agent-lab/run002/ip-intake/hw/rtl/llm_ip_intake/sources/verilog-axi/rtl/axi_crossbar.v",
+      "/Users/wjhuang/Desktop/GitHub_OpenSource/open-chip/.local-designs/agent-lab/run002/ip-intake/hw/rtl/llm_ip_intake/sources/verilog-axi/rtl/axil_adapter_wr.v",
+      "/Users/wjhuang/Desktop/GitHub_OpenSource/open-chip/.local-designs/agent-lab/run002/ip-intake/hw/rtl/llm_ip_intake/sources/verilog-axi/rtl/axil_adapter.v",
+      "/Users/wjhuang/Desktop/GitHub_OpenSource/open-chip/.local-designs/agent-lab/run002/ip-intake/hw/rtl/llm_ip_intake/sources/verilog-axi/rtl/axi_crossbar_addr.v",
+      "/Users/wjhuang/Desktop/GitHub_OpenSource/open-chip/.local-designs/agent-lab/run002/ip-intake/hw/rtl/llm_ip_intake/sources/verilog-axi/rtl/arbiter.v",
+      "/Users/wjhuang/Desktop/GitHub_OpenSource/open-chip/.local-designs/agent-lab/run002/ip-intake/hw/rtl/llm_ip_intake/sources/verilog-axi/rtl/axi_axil_adapter_rd.v",
+      "/Users/wjhuang/Desktop/GitHub_OpenSource/open-chip/.local-designs/agent-lab/run002/ip-intake/hw/rtl/llm_ip_intake/sources/verilog-axi/rtl/axi_axil_adapter_wr.v"
+    ],
+    "exit_code": 1,
+    "seconds": 0.201
+  },
+  {
+    "name": "axi_crossbar-synth",
+    "command": [
+      "/Users/wjhuang/tools/oss-cad-suite/bin/yosys",
+      "-p",
+      "read_verilog /Users/wjhuang/Desktop/GitHub_OpenSource/open-chip/.local-designs/agent-lab/run002/ip-intake/hw/rtl/llm_ip_intake/sources/verilog-axi/rtl/axi_axil_adapter.v /Users/wjhuang/Desktop/GitHub_OpenSource/open-chip/.local-designs/agent-lab/run002/ip-intake/hw/rtl/llm_ip_intake/sources/verilog-axi/rtl/axi_register_wr.v /Users/wjhuang/Desktop/GitHub_OpenSource/open-chip/.local-designs/agent-lab/run002/ip-intake/hw/rtl/llm_ip_intake/sources/verilog-axi/rtl/priority_encoder.v /Users/wjhuang/Desktop/GitHub_OpenSource/open-chip/.local-designs/agent-lab/run002/ip-intake/hw/rtl/llm_ip_intake/sources/verilog-axi/rtl/axi_register_rd.v /Users/wjhuang/Desktop/GitHub_OpenSource/open-chip/.local-designs/agent-lab/run002/ip-intake/hw/rtl/llm_ip_intake/sources/verilog-axi/rtl/axi_crossbar_rd.v /Users/wjhuang/Desktop/GitHub_OpenSource/open-chip/.local-designs/agent-lab/run002/ip-intake/hw/rtl/llm_ip_intake/sources/verilog-axi/rtl/axil_adapter_rd.v /Users/wjhuang/Desktop/GitHub_OpenSource/open-chip/.local-designs/agent-lab/run002/ip-intake/hw/rtl/llm_ip_intake/sources/verilog-axi/rtl/axi_crossbar_wr.v /Users/wjhuang/Desktop/GitHub_OpenSource/open-chip/.local-designs/agent-lab/run002/ip-intake/hw/rtl/llm_ip_intake/sources/verilog-axi/rtl/axi_crossbar.v /Users/wjhuang/Desktop/GitHub_OpenSource/open-chip/.local-designs/agent-lab/run002/ip-intake/hw/rtl/llm_ip_intake/sources/verilog-axi/rtl/axil_adapter_wr.v /Users/wjhuang/Desktop/GitHub_OpenSource/open-chip/.local-designs/agent-lab/run002/ip-intake/hw/rtl/llm_ip_intake/sources/verilog-axi/rtl/axil_adapter.v /Users/wjhuang/Desktop/GitHub_OpenSource/open-chip/.local-designs/agent-lab/run002/ip-intake/hw/rtl/llm_ip_intake/sources/verilog-axi/rtl/axi_crossbar_addr.v /Users/wjhuang/Desktop/GitHub_OpenSource/open-chip/.local-designs/agent-lab/run002/ip-intake/hw/rtl/llm_ip_intake/sources/verilog-axi/rtl/arbiter.v /Users/wjhuang/Desktop/GitHub_OpenSource/open-chip/.local-designs/agent-lab/run002/ip-intake/hw/rtl/llm_ip_intake/sources/verilog-axi/rtl/axi_axil_adapter_rd.v /Users/wjhuang/Desktop/GitHub_OpenSource/open-chip/.local-designs/agent-lab/run002/ip-intake/hw/rtl/llm_ip_intake/sources/verilog-axi/rtl/axi_axil_adapter_wr.v; synth -top axi_crossbar; check -assert; stat"
+    ],
+    "exit_code": 0,
+    "seconds": 2.124
+  },
+  {
+    "name": "axi_axil_adapter-lint",
+    "command": [
+      "/Users/wjhuang/tools/oss-cad-suite/bin/verilator",
+      "--lint-only",
+      "-Wall",
+      "--top-module",
+      "axi_axil_adapter",
+      "/Users/wjhuang/Desktop/GitHub_OpenSource/open-chip/.local-designs/agent-lab/run002/ip-intake/hw/rtl/llm_ip_intake/sources/verilog-axi/rtl/axi_axil_adapter.v",
+      "/Users/wjhuang/Desktop/GitHub_OpenSource/open-chip/.local-designs/agent-lab/run002/ip-intake/hw/rtl/llm_ip_intake/sources/verilog-axi/rtl/axi_register_wr.v",
+      "/Users/wjhuang/Desktop/GitHub_OpenSource/open-chip/.local-designs/agent-lab/run002/ip-intake/hw/rtl/llm_ip_intake/sources/verilog-axi/rtl/priority_encoder.v",
+      "/Users/wjhuang/Desktop/GitHub_OpenSource/open-chip/.local-designs/agent-lab/run002/ip-intake/hw/rtl/llm_ip_intake/sources/verilog-axi/rtl/axi_register_rd.v",
+      "/Users/wjhuang/Desktop/GitHub_OpenSource/open-chip/.local-designs/agent-lab/run002/ip-intake/hw/rtl/llm_ip_intake/sources/verilog-axi/rtl/axi_crossbar_rd.v",
+      "/Users/wjhuang/Desktop/GitHub_OpenSource/open-chip/.local-designs/agent-lab/run002/ip-intake/hw/rtl/llm_ip_intake/sources/verilog-axi/rtl/axil_adapter_rd.v",
+      "/Users/wjhuang/Desktop/GitHub_OpenSource/open-chip/.local-designs/agent-lab/run002/ip-intake/hw/rtl/llm_ip_intake/sources/verilog-axi/rtl/axi_crossbar_wr.v",
+      "/Users/wjhuang/Desktop/GitHub_OpenSource/open-chip/.local-designs/agent-lab/run002/ip-intake/hw/rtl/llm_ip_intake/sources/verilog-axi/rtl/axi_crossbar.v",
+      "/Users/wjhuang/Desktop/GitHub_OpenSource/open-chip/.local-designs/agent-lab/run002/ip-intake/hw/rtl/llm_ip_intake/sources/verilog-axi/rtl/axil_adapter_wr.v",
+      "/Users/wjhuang/Desktop/GitHub_OpenSource/open-chip/.local-designs/agent-lab/run002/ip-intake/hw/rtl/llm_ip_intake/sources/verilog-axi/rtl/axil_adapter.v",
+      "/Users/wjhuang/Desktop/GitHub_OpenSource/open-chip/.local-designs/agent-lab/run002/ip-intake/hw/rtl/llm_ip_intake/sources/verilog-axi/rtl/axi_crossbar_addr.v",
+      "/Users/wjhuang/Desktop/GitHub_OpenSource/open-chip/.local-designs/agent-lab/run002/ip-intake/hw/rtl/llm_ip_intake/sources/verilog-axi/rtl/arbiter.v",
+      "/Users/wjhuang/Desktop/GitHub_OpenSource/open-chip/.local-designs/agent-lab/run002/ip-intake/hw/rtl/llm_ip_intake/sources/verilog-axi/rtl/axi_axil_adapter_rd.v",
+      "/Users/wjhuang/Desktop/GitHub_OpenSource/open-chip/.local-designs/agent-lab/run002/ip-intake/hw/rtl/llm_ip_intake/sources/verilog-axi/rtl/axi_axil_adapter_wr.v"
+    ],
+    "exit_code": 1,
+    "seconds": 0.074
+  },
+  {
+    "name": "axi_axil_adapter-synth",
+    "command": [
+      "/Users/wjhuang/tools/oss-cad-suite/bin/yosys",
+      "-p",
+      "read_verilog /Users/wjhuang/Desktop/GitHub_OpenSource/open-chip/.local-designs/agent-lab/run002/ip-intake/hw/rtl/llm_ip_intake/sources/verilog-axi/rtl/axi_axil_adapter.v /Users/wjhuang/Desktop/GitHub_OpenSource/open-chip/.local-designs/agent-lab/run002/ip-intake/hw/rtl/llm_ip_intake/sources/verilog-axi/rtl/axi_register_wr.v /Users/wjhuang/Desktop/GitHub_OpenSource/open-chip/.local-designs/agent-lab/run002/ip-intake/hw/rtl/llm_ip_intake/sources/verilog-axi/rtl/priority_encoder.v /Users/wjhuang/Desktop/GitHub_OpenSource/open-chip/.local-designs/agent-lab/run002/ip-intake/hw/rtl/llm_ip_intake/sources/verilog-axi/rtl/axi_register_rd.v /Users/wjhuang/Desktop/GitHub_OpenSource/open-chip/.local-designs/agent-lab/run002/ip-intake/hw/rtl/llm_ip_intake/sources/verilog-axi/rtl/axi_crossbar_rd.v /Users/wjhuang/Desktop/GitHub_OpenSource/open-chip/.local-designs/agent-lab/run002/ip-intake/hw/rtl/llm_ip_intake/sources/verilog-axi/rtl/axil_adapter_rd.v /Users/wjhuang/Desktop/GitHub_OpenSource/open-chip/.local-designs/agent-lab/run002/ip-intake/hw/rtl/llm_ip_intake/sources/verilog-axi/rtl/axi_crossbar_wr.v /Users/wjhuang/Desktop/GitHub_OpenSource/open-chip/.local-designs/agent-lab/run002/ip-intake/hw/rtl/llm_ip_intake/sources/verilog-axi/rtl/axi_crossbar.v /Users/wjhuang/Desktop/GitHub_OpenSource/open-chip/.local-designs/agent-lab/run002/ip-intake/hw/rtl/llm_ip_intake/sources/verilog-axi/rtl/axil_adapter_wr.v /Users/wjhuang/Desktop/GitHub_OpenSource/open-chip/.local-designs/agent-lab/run002/ip-intake/hw/rtl/llm_ip_intake/sources/verilog-axi/rtl/axil_adapter.v /Users/wjhuang/Desktop/GitHub_OpenSource/open-chip/.local-designs/agent-lab/run002/ip-intake/hw/rtl/llm_ip_intake/sources/verilog-axi/rtl/axi_crossbar_addr.v /Users/wjhuang/Desktop/GitHub_OpenSource/open-chip/.local-designs/agent-lab/run002/ip-intake/hw/rtl/llm_ip_intake/sources/verilog-axi/rtl/arbiter.v /Users/wjhuang/Desktop/GitHub_OpenSource/open-chip/.local-designs/agent-lab/run002/ip-intake/hw/rtl/llm_ip_intake/sources/verilog-axi/rtl/axi_axil_adapter_rd.v /Users/wjhuang/Desktop/GitHub_OpenSource/open-chip/.local-designs/agent-lab/run002/ip-intake/hw/rtl/llm_ip_intake/sources/verilog-axi/rtl/axi_axil_adapter_wr.v; synth -top axi_axil_adapter; check -assert; stat"
+    ],
+    "exit_code": 0,
+    "seconds": 0.274
+  },
+  {
+    "name": "axil_adapter-lint",
+    "command": [
+      "/Users/wjhuang/tools/oss-cad-suite/bin/verilator",
+      "--lint-only",
+      "-Wall",
+      "--top-module",
+      "axil_adapter",
+      "/Users/wjhuang/Desktop/GitHub_OpenSource/open-chip/.local-designs/agent-lab/run002/ip-intake/hw/rtl/llm_ip_intake/sources/verilog-axi/rtl/axi_axil_adapter.v",
+      "/Users/wjhuang/Desktop/GitHub_OpenSource/open-chip/.local-designs/agent-lab/run002/ip-intake/hw/rtl/llm_ip_intake/sources/verilog-axi/rtl/axi_register_wr.v",
+      "/Users/wjhuang/Desktop/GitHub_OpenSource/open-chip/.local-designs/agent-lab/run002/ip-intake/hw/rtl/llm_ip_intake/sources/verilog-axi/rtl/priority_encoder.v",
+      "/Users/wjhuang/Desktop/GitHub_OpenSource/open-chip/.local-designs/agent-lab/run002/ip-intake/hw/rtl/llm_ip_intake/sources/verilog-axi/rtl/axi_register_rd.v",
+      "/Users/wjhuang/Desktop/GitHub_OpenSource/open-chip/.local-designs/agent-lab/run002/ip-intake/hw/rtl/llm_ip_intake/sources/verilog-axi/rtl/axi_crossbar_rd.v",
+      "/Users/wjhuang/Desktop/GitHub_OpenSource/open-chip/.local-designs/agent-lab/run002/ip-intake/hw/rtl/llm_ip_intake/sources/verilog-axi/rtl/axil_adapter_rd.v",
+      "/Users/wjhuang/Desktop/GitHub_OpenSource/open-chip/.local-designs/agent-lab/run002/ip-intake/hw/rtl/llm_ip_intake/sources/verilog-axi/rtl/axi_crossbar_wr.v",
+      "/Users/wjhuang/Desktop/GitHub_OpenSource/open-chip/.local-designs/agent-lab/run002/ip-intake/hw/rtl/llm_ip_intake/sources/verilog-axi/rtl/axi_crossbar.v",
+      "/Users/wjhuang/Desktop/GitHub_OpenSource/open-chip/.local-designs/agent-lab/run002/ip-intake/hw/rtl/llm_ip_intake/sources/verilog-axi/rtl/axil_adapter_wr.v",
+      "/Users/wjhuang/Desktop/GitHub_OpenSource/open-chip/.local-designs/agent-lab/run002/ip-intake/hw/rtl/llm_ip_intake/sources/verilog-axi/rtl/axil_adapter.v",
+      "/Users/wjhuang/Desktop/GitHub_OpenSource/open-chip/.local-designs/agent-lab/run002/ip-intake/hw/rtl/llm_ip_intake/sources/verilog-axi/rtl/axi_crossbar_addr.v",
+      "/Users/wjhuang/Desktop/GitHub_OpenSource/open-chip/.local-designs/agent-lab/run002/ip-intake/hw/rtl/llm_ip_intake/sources/verilog-axi/rtl/arbiter.v",
+      "/Users/wjhuang/Desktop/GitHub_OpenSource/open-chip/.local-designs/agent-lab/run002/ip-intake/hw/rtl/llm_ip_intake/sources/verilog-axi/rtl/axi_axil_adapter_rd.v",
+      "/Users/wjhuang/Desktop/GitHub_OpenSource/open-chip/.local-designs/agent-lab/run002/ip-intake/hw/rtl/llm_ip_intake/sources/verilog-axi/rtl/axi_axil_adapter_wr.v"
+    ],
+    "exit_code": 1,
+    "seconds": 0.07
+  },
+  {
+    "name": "axil_adapter-synth",
+    "command": [
+      "/Users/wjhuang/tools/oss-cad-suite/bin/yosys",
+      "-p",
+      "read_verilog /Users/wjhuang/Desktop/GitHub_OpenSource/open-chip/.local-designs/agent-lab/run002/ip-intake/hw/rtl/llm_ip_intake/sources/verilog-axi/rtl/axi_axil_adapter.v /Users/wjhuang/Desktop/GitHub_OpenSource/open-chip/.local-designs/agent-lab/run002/ip-intake/hw/rtl/llm_ip_intake/sources/verilog-axi/rtl/axi_register_wr.v /Users/wjhuang/Desktop/GitHub_OpenSource/open-chip/.local-designs/agent-lab/run002/ip-intake/hw/rtl/llm_ip_intake/sources/verilog-axi/rtl/priority_encoder.v /Users/wjhuang/Desktop/GitHub_OpenSource/open-chip/.local-designs/agent-lab/run002/ip-intake/hw/rtl/llm_ip_intake/sources/verilog-axi/rtl/axi_register_rd.v /Users/wjhuang/Desktop/GitHub_OpenSource/open-chip/.local-designs/agent-lab/run002/ip-intake/hw/rtl/llm_ip_intake/sources/verilog-axi/rtl/axi_crossbar_rd.v /Users/wjhuang/Desktop/GitHub_OpenSource/open-chip/.local-designs/agent-lab/run002/ip-intake/hw/rtl/llm_ip_intake/sources/verilog-axi/rtl/axil_adapter_rd.v /Users/wjhuang/Desktop/GitHub_OpenSource/open-chip/.local-designs/agent-lab/run002/ip-intake/hw/rtl/llm_ip_intake/sources/verilog-axi/rtl/axi_crossbar_wr.v /Users/wjhuang/Desktop/GitHub_OpenSource/open-chip/.local-designs/agent-lab/run002/ip-intake/hw/rtl/llm_ip_intake/sources/verilog-axi/rtl/axi_crossbar.v /Users/wjhuang/Desktop/GitHub_OpenSource/open-chip/.local-designs/agent-lab/run002/ip-intake/hw/rtl/llm_ip_intake/sources/verilog-axi/rtl/axil_adapter_wr.v /Users/wjhuang/Desktop/GitHub_OpenSource/open-chip/.local-designs/agent-lab/run002/ip-intake/hw/rtl/llm_ip_intake/sources/verilog-axi/rtl/axil_adapter.v /Users/wjhuang/Desktop/GitHub_OpenSource/open-chip/.local-designs/agent-lab/run002/ip-intake/hw/rtl/llm_ip_intake/sources/verilog-axi/rtl/axi_crossbar_addr.v /Users/wjhuang/Desktop/GitHub_OpenSource/open-chip/.local-designs/agent-lab/run002/ip-intake/hw/rtl/llm_ip_intake/sources/verilog-axi/rtl/arbiter.v /Users/wjhuang/Desktop/GitHub_OpenSource/open-chip/.local-designs/agent-lab/run002/ip-intake/hw/rtl/llm_ip_intake/sources/verilog-axi/rtl/axi_axil_adapter_rd.v /Users/wjhuang/Desktop/GitHub_OpenSource/open-chip/.local-designs/agent-lab/run002/ip-intake/hw/rtl/llm_ip_intake/sources/verilog-axi/rtl/axi_axil_adapter_wr.v; synth -top axil_adapter; check -assert; stat"
+    ],
+    "exit_code": 0,
+    "seconds": 0.179
+  },
+  {
+    "name": "caliptra-axi-interface-lint",
+    "command": [
+      "/Users/wjhuang/tools/oss-cad-suite/bin/verilator",
+      "--lint-only",
+      "-Wall",
+      "--top-module",
+      "axi_if",
+      "hw/rtl/llm_ip_intake/sources/caliptra-rtl/src/axi/rtl/axi_pkg.sv",
+      "hw/rtl/llm_ip_intake/sources/caliptra-rtl/src/axi/rtl/axi_if.sv"
+    ],
+    "exit_code": 1
+  },
+  {
+    "name": "caliptra-axi-interface-yosys",
+    "command": [
+      "/Users/wjhuang/tools/oss-cad-suite/bin/yosys",
+      "-p",
+      "read_verilog -sv hw/rtl/llm_ip_intake/sources/caliptra-rtl/src/axi/rtl/axi_pkg.sv hw/rtl/llm_ip_intake/sources/caliptra-rtl/src/axi/rtl/axi_if.sv"
+    ],
+    "exit_code": 1
+  },
+  {
+    "name": "make-lint",
+    "command": [
+      "make",
+      "lint",
+      "MOD=llm_ip_intake"
+    ],
+    "exit_code": 0
+  },
+  {
+    "name": "make-synth",
+    "command": [
+      "make",
+      "synth",
+      "MOD=llm_ip_intake"
+    ],
+    "exit_code": 2
+  }
+]

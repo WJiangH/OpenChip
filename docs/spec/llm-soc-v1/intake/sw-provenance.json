@@ -1,0 +1,60 @@
+{
+  "runtime_revision": "350e04fe35433e6d2941dce5a1f53308f87058eb",
+  "model_revision": "0bd21da7698eaf29a0d7de3992de8a46ef624add",
+  "files": [
+    {
+      "path": "vendor/run.c",
+      "url": "https://raw.githubusercontent.com/karpathy/llama2.c/350e04fe35433e6d2941dce5a1f53308f87058eb/run.c",
+      "size": 38545,
+      "sha256": "9c4f2d5c6ae01b71726d1cc37530d71e60bff0ec7cc012565f16a43c1ca658bd"
+    },
+    {
+      "path": "vendor/runq.c",
+      "url": "https://raw.githubusercontent.com/karpathy/llama2.c/350e04fe35433e6d2941dce5a1f53308f87058eb/runq.c",
+      "size": 43357,
+      "sha256": "ba9cc681afca79f994f815dfeffc4a61c5b3ca8c5d4d4dcb75c8d375856ba548"
+    },
+    {
+      "path": "vendor/export.py",
+      "url": "https://raw.githubusercontent.com/karpathy/llama2.c/350e04fe35433e6d2941dce5a1f53308f87058eb/export.py",
+      "size": 24513,
+      "sha256": "aba8d36ee881478bf59e13f63224e37a00b51a18cacbc38d0def52cc3c0cb475"
+    },
+    {
+      "path": "vendor/LICENSE",
+      "url": "https://raw.githubusercontent.com/karpathy/llama2.c/350e04fe35433e6d2941dce5a1f53308f87058eb/LICENSE",
+      "size": 1063,
+      "sha256": "e87b912002f04cdfa837eaf7f70548ab79b9cb62a285495edf575f3da875aec4"
+    },
+    {
+      "path": "vendor/README.md",
+      "url": "https://raw.githubusercontent.com/karpathy/llama2.c/350e04fe35433e6d2941dce5a1f53308f87058eb/README.md",
+      "size": 35271,
+      "sha256": "9fe4d94f4774397868a65e2d3068b499b16788d7387bc06d439af97dfbaf1367"
+    },
+    {
+      "path": "vendor/stories260K.bin",
+      "url": "https://huggingface.co/karpathy/tinyllamas/resolve/0bd21da7698eaf29a0d7de3992de8a46ef624add/stories260K/stories260K.bin",
+      "size": 1056540,
+      "sha256": "b0a507e7ad0f626624f17112325e66691f9076d622e1d3274d103d00299f2696"
+    },
+    {
+      "path": "vendor/tok512.bin",
+      "url": "https://huggingface.co/karpathy/tinyllamas/resolve/0bd21da7698eaf29a0d7de3992de8a46ef624add/stories260K/tok512.bin",
+      "size": 6227,
+      "sha256": "037cb335abb25d1fa9e8ecae30ed2a3a8ace9302862ebcdc05d51a6bbb10c312"
+    },
+    {
+      "path": "vendor/tok512.model",
+      "url": "https://huggingface.co/karpathy/tinyllamas/resolve/0bd21da7698eaf29a0d7de3992de8a46ef624add/stories260K/tok512.model",
+      "size": 7645,
+      "sha256": "dfff07d929db979913f166ec94a6f5ecad4c70cfed8eb5c9cbe7e464455e46f5"
+    },
+    {
+      "path": "vendor/MODEL_README.md",
+      "url": "https://huggingface.co/karpathy/tinyllamas/raw/0bd21da7698eaf29a0d7de3992de8a46ef624add/README.md",
+      "size": 183,
+      "sha256": "f5d36081d79fc18b2b8ee80fbf05f307c30ea8d6f3ce605c3f393be29f7d8863"
+    }
+  ]
+}

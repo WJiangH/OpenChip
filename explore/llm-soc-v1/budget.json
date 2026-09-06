@@ -1,0 +1,116 @@
+{
+  "status": "analytical-resource-and-lower-bounds-not-measured-DUT-performance",
+  "profile": {
+    "dim": 64,
+    "hidden": 172,
+    "layers": 5,
+    "qheads": 8,
+    "kvheads": 4,
+    "vocab": 512,
+    "group": 64,
+    "context_capacity": 512,
+    "forwards": 48
+  },
+  "macs_per_forward": 259328,
+  "groups_per_forward": 4152,
+  "weight_i8_bytes": 259328,
+  "scale_fp32_bytes": 16608,
+  "norm_fp32_bytes": 2816,
+  "model_payload_bytes": 278752,
+  "model_blob_bytes_before_any_optional_extra_alignment": 280320,
+  "model_blob_header_directory_bytes": 1568,
+  "kv_capacity_bytes": 655360,
+  "kv_new_bytes_per_forward": 1280,
+  "kv_populated_48_bytes": 61440,
+  "host_original_nonkv_scratch_bytes": 20832,
+  "npu_group_output_bytes_per_forward": 16608,
+  "npu_x_reads_per_forward_bytes": 2844,
+  "npu_traffic_floor_per_forward_bytes": 278780,
+  "axi_read_bytes_per_forward": 262172,
+  "axi_write_bytes_per_forward": 16608,
+  "ideal_parallel_read_write_cycles_floor": 65543,
+  "ideal_serialized_read_write_cycles_floor": 69695,
+  "full_run_macs": 12447744,
+  "full_run_group_words": 199296,
+  "full_run_npu_traffic_floor_bytes": 13381440,
+  "array_sweep": [
+    {
+      "mac_lanes": 1,
+      "ideal_compute_cycles_per_forward": 259328,
+      "ideal_clock_hz": 50000000,
+      "raw_axi_bytes_per_cycle": 4
+    },
+    {
+      "mac_lanes": 4,
+      "ideal_compute_cycles_per_forward": 64832,
+      "ideal_clock_hz": 50000000,
+      "raw_axi_bytes_per_cycle": 4
+    },
+    {
+      "mac_lanes": 8,
+      "ideal_compute_cycles_per_forward": 32576,
+      "ideal_clock_hz": 50000000,
+      "raw_axi_bytes_per_cycle": 4
+    }
+  ],
+  "sim_wallclock_sensitivity": [
+    {
+      "dut_cycles_assumption": 100000000,
+      "simulator_cycles_per_second_assumption": 100000,
+      "wall_seconds": 1000.0
+    },
+    {
+      "dut_cycles_assumption": 100000000,
+      "simulator_cycles_per_second_assumption": 1000000,
+      "wall_seconds": 100.0
+    },
+    {
+      "dut_cycles_assumption": 100000000,
+      "simulator_cycles_per_second_assumption": 10000000,
+      "wall_seconds": 10.0
+    },
+    {
+      "dut_cycles_assumption": 1000000000,
+      "simulator_cycles_per_second_assumption": 100000,
+      "wall_seconds": 10000.0
+    },
+    {
+      "dut_cycles_assumption": 1000000000,
+      "simulator_cycles_per_second_assumption": 1000000,
+      "wall_seconds": 1000.0
+    },
+    {
+      "dut_cycles_assumption": 1000000000,
+      "simulator_cycles_per_second_assumption": 10000000,
+      "wall_seconds": 100.0
+    },
+    {
+      "dut_cycles_assumption": 10000000000,
+      "simulator_cycles_per_second_assumption": 100000,
+      "wall_seconds": 100000.0
+    },
+    {
+      "dut_cycles_assumption": 10000000000,
+      "simulator_cycles_per_second_assumption": 1000000,
+      "wall_seconds": 10000.0
+    },
+    {
+      "dut_cycles_assumption": 10000000000,
+      "simulator_cycles_per_second_assumption": 10000000,
+      "wall_seconds": 1000.0
+    }
+  ],
+  "product_1_7b_w4_context2048_prior_analytic": {
+    "model": "Qwen3-1.7B",
+    "context": 2048,
+    "weight_bits": 4,
+    "params": 1720574976,
+    "weight_bytes": 887355392,
+    "kv_bytes": 234881024,
+    "resident_floor_bytes": 1122236416,
+    "decode_bytes": 1122355200,
+    "decode_macs": 1955332096,
+    "prefill_1024_macs": 1503608438784,
+    "bandwidth_for_20_tps_gbps": 22.447104
+  }
+}

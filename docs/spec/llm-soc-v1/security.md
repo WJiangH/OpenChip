@@ -1,0 +1,29 @@
+# Caliptra boundary and S1 integration plan
+
+Version 1.0-rc3. This is a separate security configuration release plan. SIM-L1 reports BUILD_CONFIG=1 and never claims secure boot.
+
+# §1 Chosen security architecture
+
+The integration candidate is **Caliptra core v2.1.2 passive mode**, not a hand-written authorization stub and not the larger subsystem. Official intake establishes that this release exposes an AXI mailbox target; its internal AHB is not the host boundary. Passive mode forbids using its AXI DMA manager: that interface shall be tied inactive and disconnected. [Official core repository](https://github.com/chipsalliance/caliptra-rtl/tree/v2.1.2), with exact revision and inspected paths in dependencies.md / IP intake.
+
+**SEC-01 (S1):** A trusted boot ROM execution stage shall run on the application PicoRV32 while the application SRAM is non-executable and NPU reset/DMA denial remain asserted. This ROM acts as Caliptra host, supplies allowed fuse/configuration data through a board/SoC security controller, loads Caliptra's real required firmware through its mailbox and requests real verification services. Holding the only CPU in reset while waiting for that same CPU to feed Caliptra is forbidden. On authorization completion, the security controller locks image/model memory, establishes execute/port permissions, and permits the ROM jump to application entry. The public application may not write host authorization/control registers merely because it shares a CPU port.
+
+**SEC-02 (S1):** A hardware boot-phase controller shall own the transition RESET→ROM_ONLY→VERIFY→APP_LOCKED or FAILED; authorization is accepted only from the actual Caliptra response handshake associated with the current measurement request. The CPU can request verification but cannot directly write an AUTH_OK bit. Firmware/model manifest covers exact executable and weight byte ranges, lengths, versions and cryptographic measurements. Authenticated bytes must be copied to or locked in a region that cannot be modified between verification and execution/NPU read. Immutable ROM origin and the phase controller are trust roots outside application software; bus identity from application CPU alone does not prove ROM privilege. Control writes are accepted only during ROM_ONLY/VERIFY and disabled irrevocably on the first transition to APP_LOCKED or FAILED.
+
+**SEC-03 (S1):** Application and NPU accesses to Caliptra private memories, fuses, lifecycle, debug controls and authorization state shall be denied. Only the approved mailbox service subset remains reachable after lock; provisioning/debug paths are closed by lifecycle policy. No security decision relies on software-writable AXI USER/PROT. On failed signature/version/measurement, Caliptra error or security timeout, controller enters FAILED, keeps application execution and NPU DMA denied, provides a diagnostic cause without secret data, and accepts recovery only from a defined immutable recovery path after system reset. Reset restores ROM_ONLY, never skips authentication; anti-rollback data requires monotonic protected nonvolatile storage, not mutable simulation RAM presented as persistent protection.
+
+# §2 Exact missing physical/IP bindings before S1 release
+
+The above is an architectural security boundary, not a complete S1 port ICD. The S1 owner must freeze the actual Caliptra ROM and firmware image revisions, command ABI and measurement/authentication service, immutable ROM/provisioning method, fuse/OTP map and lifecycle values, entropy-source model vs real source, security-controller reset/pwrgood sequence, AXI target address/data/ID width adaptation, memory macro bindings and fatal escalation signals. Caliptra uses SV interfaces (`axi_if`, `el2_mem_if`, `abr_mem_if`); this security configuration needs an explicitly pinned supported simulator and synthesis frontend or wrapper conversion. It cannot claim compliance with the old vanilla-Yosys subset merely because SIM-L1 uses Verilog PicoRV32.
+
+Mailbox aperture0x40010000..0x40020000 is reserved and DECERR in SIM-L1. S1 may enlarge/remap only with ABI version/change order and updated firewall/CSR/boot specifications. Caliptra private state is not included in the SIM-L1 256KiB SRAM or16MiB external-memory budget. No capacity or area number for that domain is invented here.
+
+# §3 Integration tasks and exit evidence
+
+1. RTL security owner: instantiate pinned real Caliptra passive core, memories and required firmware/ROM; compile and run native mailbox boot service with recorded configuration and every blackbox explicitly accounted for.
+2. Chief architect + security owner: issue S1 supplement with exact port/register/firmware service ABI and boot phase enforcement; independent verification architect reviews that the ROM-host loop is executable and post-verification bytes are immutable.
+3. Software owner: implement ROM mailbox/provisioning service, auth/copy/lock sequence, timeouts and recovery code; application cannot relaunch provisioning.
+4. Independent DV/formal: valid image executes; modified executable/weights, invalid signature/version and unauthorized DMA do not execute; retry/replay, reset during verification and attempt to unlock after APP_LOCKED fail closed. Assert no unverified fetch or NPU access, including address aliases and stale responses.
+5. FPGA platform owner: replace OTP/entropy/boot-storage/memory models with explicitly chosen real or emulated hardware and report remaining trust limits. Passing digital tests does not establish side-channel, fault-injection resistance, physical entropy quality or production root-of-trust certification.
+
+S1 is not a blocker to implementing the nonsecure B1/L1 path; it is a blocker to labelling that path secure. No S1 observable is silently called frozen while these dependencies remain open.
