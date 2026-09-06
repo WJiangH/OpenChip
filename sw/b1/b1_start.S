@@ -13,6 +13,13 @@
  * hardware reset value, reaffirmed by both ROM's own crt0 and here) — so
  * this file's only job is: skip the reserved slot, mask every IRQ source in
  * software (SYS-10 "initially mask every source"), and call b1_main().
+ *
+ * F-02: sw/rom/rom_start.S's `rom_irq_vector` BOOT_STAGE probe stashes the
+ * interrupted x5(t0)/x6(t1) into q2/q3 (via `setq`) before it uses t0/t1 as
+ * scratch, then forwards here with t0/t1 clobbered. `fw_irq_slot` restores
+ * them (via `getq`) before jumping into `picorv32_irq_common_entry`
+ * (sw/common/crt0.S), i.e. before that routine's GPR-save sequence runs, so
+ * every interrupted GPR reaches the save routine unmodified (SYS-10).
  */
 #include "irq_asm.h"
 
@@ -30,6 +37,10 @@ _fw_reset:
 .align 2
 .globl fw_irq_slot
 fw_irq_slot:
+    /* Restore t0/t1 (x5/x6) stashed by rom_irq_vector's BOOT_STAGE probe
+     * (F-02) before picorv32_irq_common_entry's GPR-save sequence runs. */
+    pr32_getq t0, x2
+    pr32_getq t1, x3
     j picorv32_irq_common_entry
 .size fw_irq_slot, . - fw_irq_slot
 
