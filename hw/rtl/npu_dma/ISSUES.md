@@ -29,6 +29,14 @@ what was implemented meanwhile; the code carries a matching
   `o_dma_terminal_error_code`, `i_stop_new_transactions`. AXI ports use
   `m_axi_<signal lowercase>` per the task packet.
 
+**rc4 ruling** (CHANGE_ORDER_rc4.md, ISSUE-npu_dma-01 row; disposition
+`rule-level`): the convention this issue proposed is now recorded verbatim in
+contract.json `port_identifier_convention`, binding for protocols added from
+rc4 on; rc3 port spellings (this module's, filed here) are reconciled in the
+top-level port map, not renamed — no change to this file's port names. An
+AGENTS.md sentence is recommended to the orchestrator (CHANGE_ORDER_rc4.md
+§Rule-level item 1) but not edited by this order.
+
 ## ISSUE-npu_dma-02 — dma_terminal has no handshake and no pulse/level rule
 
 - spec_ref: contract.json `protocols.dma_terminal.signals = {done, error,
@@ -49,6 +57,17 @@ what was implemented meanwhile; the code carries a matching
   handshake) or reset. They are mutually exclusive and `error_code` is 5 (read)
   or 6 (write), 5 winning if both (NPU-06).
 
+**rc4 ruling** (CHANGE_ORDER_rc4.md, ISSUE-npu_dma-02 + ISSUE-top-01 row,
+F-04; disposition `spec-gap`): `dma_terminal` is confirmed level, not pulse —
+registered, set on this module's terminal edge, held until this module's own
+C13 handshake edge or reset, exactly as implemented here. npu_ctl samples
+only from the cycle after its own C13 handshake and takes the first sampled
+assertion as the terminal edge T. This module's implementation stands
+unchanged; npu_ctl's pulse documentation was wrong and has been corrected
+(npu.md NPU-09(c); contract.json protocols.dma_terminal.semantics). Port
+comments and the `o_dma_terminal_*` assign block in npu_dma.sv now state this
+verbatim.
+
 ## ISSUE-npu_dma-03 — where the output write buffer lives
 
 - spec_ref: contract.json `blocks[npu_local].purpose = "activation and
@@ -68,6 +87,13 @@ what was implemented meanwhile; the code carries a matching
 - your_recommendation: option 1, and reword the block purpose.
 - what_you_implemented_meanwhile: a 16x32-bit write buffer inside npu_dma
   (exactly one full AXI burst), filled from C16 and drained on W.
+
+**rc4 ruling** (CHANGE_ORDER_rc4.md, ISSUE-npu_dma-03 row; disposition
+`metadata`): confirmed — the output write buffer lives in npu_dma (C16
+decides); contract.json `blocks[npu_local]`/`blocks[npu_dma]` purposes were
+reworded to match. No logic change; the buffer (`wbuf_q`) is also one of the
+arrays named by NPU-03's rc4 storage-array exemption (R4-09), cited verbatim
+in its declaration comment in npu_dma.sv.
 
 ## ISSUE-npu_dma-04 — "issues no memory request until both handshakes finish"
 
@@ -90,6 +116,16 @@ what was implemented meanwhile; the code carries a matching
   own dispatch handshake completes; npu_local holds `o_local_bytes_ready` low
   until its own dispatch handshake completes, so no fetched word can be
   consumed before both blocks hold the command. No AXI request depends on it.
+
+**rc4 ruling** (CHANGE_ORDER_rc4.md, ISSUE-npu_dma-04 row, F-06; disposition
+`spec-gap`): the rc3 sentence is replaced — C25 (local) handshake completes
+no later than C13 (dma), same edge allowed; npu_local holds `dispatch.ready`
+=1 always and backpressures `local_bytes.ready`=0 until armed; npu_dma may
+issue its first AR from the cycle after its own handshake. This module's
+provisional choice (start after own handshake; rely on npu_local's
+backpressure) is confirmed as-is (npu.md §4 sentence, NPU-09(a); no logic
+change here — npu_ctl must keep asserting C25 valid no later than C13
+valid).
 
 ## ISSUE-npu_dma-05 — no terminal is defined for stop without a DMA error
 
@@ -114,3 +150,21 @@ what was implemented meanwhile; the code carries a matching
   through their final R/B, and reports a terminal only if a genuine non-OKAY
   response occurred (code 5/6) or if the command happened to complete all of
   its work anyway (done).
+
+**rc4 ruling** (CHANGE_ORDER_rc4.md, ISSUE-npu_dma-05 row; disposition
+`spec-clear`, now also restated in NPU-09(e) for DV determinism): confirmed —
+SYS-12 "makes the run fail; it does not ... promise recovery without full
+reset"; NPU-07 "requires coordinated reset". Stop without a DMA non-OKAY
+response produces no terminal; BUSY stays 1 until reset. This module's
+implementation (option 1 above) stands unchanged.
+
+**Also touching this module (no logic change)**: CHANGE_ORDER_rc4.md's
+ISSUE-npu_dot-01 + ISSUE-npu_local-03 row (F-01) confirms this module's
+provisional choice under ISSUE-npu_dma-02 that `group_result.ready` stays 0
+after an error (npu_dot's own recommended "ready-while-draining" alternative
+was rejected). The new C34 `dot_lifecycle.flush` mechanism that resolves
+npu_dot/npu_local post-terminal recovery is wired between npu_ctl and
+npu_dot only; npu_dma's `group_result` port list and behaviour are unchanged
+(npu.md NPU-06, NPU-09(b)(d); contract.json protocols.dot_lifecycle /
+group_result / dispatch, C34). The `o_group_result_ready` comment in
+npu_dma.sv now cites NPU-09(d) directly.
