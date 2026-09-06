@@ -7,10 +7,15 @@ include flow/gates.mk
 # Toolchain: project venv (cocotb) + OSS CAD Suite (pinned in versions.mk).
 # Apple's GNU Make 3.81 ignores exported PATH when direct-exec'ing recipes
 # (P0 finding), so recipes also prefix PATH explicitly via $(TOOLPATH).
-TOOLPATH := $(CURDIR)/.venv/bin:$(HOME)/tools/oss-cad-suite/bin
+TOOLPATH := $(CURDIR)/.venv/bin:$(HOME)/tools/oss-cad-suite/bin:$(CURDIR)/.toolcache/xpack-riscv-none-elf-gcc-$(RISCV_GCC_VERSION)/bin
 export PATH := $(TOOLPATH):$(PATH)
 
 MODULES  := $(sort $(notdir $(patsubst %/,%,$(dir $(wildcard hw/rtl/*/*.sv)))))
+# Imported IP (hw/ip/<name>/): library search dirs + per-file Verilator waivers.
+# The waiver scope is a flow-owner decision (AGENTS.md "Imported third-party IP").
+IP_DIRS    := $(patsubst %/,%,$(wildcard hw/ip/*/))
+IP_INCS    := $(addprefix -I,$(IP_DIRS))
+IP_WAIVERS := $(wildcard hw/ip/*/*.vlt)
 SIM_MODS := $(notdir $(patsubst %/Makefile,%,$(wildcard hw/dv/*/Makefile)))
 SBY_MODS := $(notdir $(patsubst %.sby,%,$(wildcard hw/formal/*/*.sby)))
 MOD      ?=
@@ -39,7 +44,7 @@ ifeq ($(strip $(MODULES)),)
 else
 	@for m in $(LINT_MODS); do \
 		echo "== lint $$m"; \
-		PATH="$(TOOLPATH):$$PATH" verilator --lint-only -Wall --timing -Ihw/rtl -Ihw/rtl/$$m hw/rtl/$$m/*.sv || exit 1; \
+		PATH="$(TOOLPATH):$$PATH" verilator --lint-only -Wall --timing -Ihw/rtl -Ihw/rtl/$$m $(IP_INCS) $(IP_WAIVERS) hw/rtl/$$m/*.sv || exit 1; \
 	done
 	@echo "lint: PASS ($(LINT_MODS))"
 endif
