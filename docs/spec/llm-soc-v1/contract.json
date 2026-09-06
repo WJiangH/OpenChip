@@ -1,6 +1,6 @@
 {
-  "version": "1.0-rc3",
-  "status": "release-candidate-not-hardware-accepted",
+  "version": "1.0-rc4",
+  "status": "release-candidate-not-hardware-accepted; rc4 change-order proposal pending rc3-reviewer confirmation",
   "configuration": "SIM-L1",
   "clock_hz": 50000000,
   "blocks": [
@@ -67,17 +67,17 @@
     {
       "id": "npu_dma",
       "disposition": "build",
-      "purpose": "read and write DMA"
+      "purpose": "read and write DMA including the buffered output write burst"
     },
     {
       "id": "npu_local",
       "disposition": "build",
-      "purpose": "activation and weight/write buffers"
+      "purpose": "4096-byte activation store, weight transfer buffer and operand sequencing; holds no output buffer"
     },
     {
       "id": "npu_dot",
       "disposition": "build",
-      "purpose": "four signed-byte products, grouped INT32 sum"
+      "purpose": "four signed-byte products, grouped INT32 sum; flushed by dot_lifecycle"
     },
     {
       "id": "caliptra",
@@ -336,7 +336,8 @@
         "mem_wdata": 32,
         "mem_wstrb": 4,
         "mem_rdata": 32
-      }
+      },
+      "semantics": "SYS-13: core holds mem_valid and payload until the edge sampling mem_ready=1; mem_wstrb=0 read, !=0 write (8 legal strobe patterns); bridge asserts mem_ready one cycle per transfer, registered (never same cycle as mem_valid rise), never while mem_valid=0, mem_rdata valid in that cycle; failing request gets no mem_ready (SYS-07); mem_valid need not drop between transfers; one transfer live"
     },
     "dispatch": {
       "signals": {
@@ -351,7 +352,8 @@
         "group": 32,
         "w_stride": 32,
         "tag": 32
-      }
+      },
+      "semantics": "NPU-09(a): valid/ready, one command live, each recipient sees it once; accepted handshake re-arms the recipient (discard buffers, partial state, offered-but-unaccepted output beats, held dma_terminal level); npu_local ready=1 whenever not in reset; C25 (local) completes no later than C13 (dma), same edge permitted; dma first AR from the cycle after its own handshake"
     },
     "local_bytes": {
       "signals": {
@@ -362,7 +364,8 @@
         "kind": 2,
         "index": 12,
         "row": 12
-      }
+      },
+      "semantics": "NPU-09(a): valid/ready, payload stable when stalled; kind 0 activation / 1 weight, index = 4-aligned first k, row = n (0 for activation), keep[b]=1 iff k=index+b<K; consumer ready=0 until its dispatch handshake; producer forwards no fetched data after its first DMA error (NPU-06) except beats already offered"
     },
     "group_result": {
       "signals": {
@@ -372,7 +375,8 @@
         "row": 12,
         "group_index": 12,
         "last": 1
-      }
+      },
+      "semantics": "NPU-09(b,d): valid/ready, one INT32 result per group, last = dot_operands.command_last forwarded; producer never asserts valid while dot_lifecycle.flush=1; consumer holds ready=0 from its first DMA non-OKAY response until its next dispatch handshake"
     },
     "irq_level": {
       "signals": {
@@ -407,14 +411,16 @@
         "tag": 32,
         "error_code": 3,
         "cycles": 32
-      }
+      },
+      "semantics": "valid/ready, exactly one record per terminal edge; cycles = T-H+1 per NPU-04 (H = C12 handshake edge, T = dma_terminal sampling edge)"
     },
     "dma_terminal": {
       "signals": {
         "done": 1,
         "error": 1,
         "error_code": 3
-      }
+      },
+      "semantics": "NPU-09(c): no handshake; done/error/error_code are registered levels set on the producer terminal edge, exactly one of done/error, error_code 5 or 6 while error=1 else 0, held until the edge on which the producer next dispatch handshake (C13) completes or reset; consumer samples only from the cycle after its own C13 handshake, first edge with done|error=1 is the terminal edge T, no re-sampling for the same command"
     },
     "fault_event": {
       "signals": {
@@ -439,6 +445,12 @@
         "rst_n": 1
       },
       "semantics": "wrapper sticky fault metadata resets only by common rst_n; PicoRV32 core resets by cpu_local_rst_n; bridge unaffected by local reset"
+    },
+    "dot_lifecycle": {
+      "signals": {
+        "flush": 1
+      },
+      "semantics": "NPU-09(b): registered level driven by npu_ctl; 1 from reset release and from the edge sampling dma_terminal done|error, 0 from the edge on which the next npu_local dispatch handshake (C25) completes (still 1 in the cycle ending at that edge); while 1 npu_dot clears result register and accumulator, holds group_result.valid=0, presents dot_operands.ready=1 and discards accepted operand beats"
     }
   },
   "connections": [
@@ -874,6 +886,15 @@
       "source_role": "producer",
       "target_role": "consumer",
       "protocol": "stop_issue",
+      "scope": "SIM-L1"
+    },
+    {
+      "id": "C34",
+      "source": "npu_ctl",
+      "target": "npu_dot",
+      "source_role": "producer",
+      "target_role": "consumer",
+      "protocol": "dot_lifecycle",
       "scope": "SIM-L1"
     }
   ],
@@ -1604,7 +1625,9 @@
         "fabric",
         "cpu_bridge",
         "lite_bridge",
-        "extmem"
+        "extmem",
+        "rom",
+        "sram"
       ],
       "verification_obligation": "Independent channel protocol/order/backpressure/error/timeout checks and assertions",
       "status": "not-run"
@@ -1617,7 +1640,9 @@
         "fabric",
         "cpu_bridge",
         "lite_bridge",
-        "extmem"
+        "extmem",
+        "rom",
+        "sram"
       ],
       "verification_obligation": "Independent channel protocol/order/backpressure/error/timeout checks and assertions",
       "status": "not-run"
@@ -1630,7 +1655,9 @@
         "fabric",
         "cpu_bridge",
         "lite_bridge",
-        "extmem"
+        "extmem",
+        "rom",
+        "sram"
       ],
       "verification_obligation": "Independent CPU/NPU AW-offer ordering without AWREADY dependence, target early-W handshake and stalled payload checks",
       "status": "not-run"
@@ -1669,7 +1696,9 @@
         "fabric",
         "cpu_bridge",
         "lite_bridge",
-        "extmem"
+        "extmem",
+        "rom",
+        "sram"
       ],
       "verification_obligation": "Independent channel protocol/order/backpressure/error/timeout checks and assertions",
       "status": "not-run"
@@ -1685,7 +1714,10 @@
         "extmem"
       ],
       "verification_obligation": "Independent per-obligation timer and early-W unknown-address timeout checks",
-      "status": "not-run"
+      "status": "not-run",
+      "implemented_by": [
+        "fabric"
+      ]
     },
     {
       "id": "AXI-08",
@@ -1695,7 +1727,9 @@
         "fabric",
         "cpu_bridge",
         "lite_bridge",
-        "extmem"
+        "extmem",
+        "rom",
+        "sram"
       ],
       "verification_obligation": "Independent channel protocol/order/backpressure/error/timeout checks and assertions",
       "status": "not-run"
@@ -1734,6 +1768,7 @@
         "npu_csr",
         "npu_ctl",
         "npu_dma",
+        "npu_local",
         "npu_dot"
       ],
       "verification_obligation": "Independent grouped integer reference, command state/error/reset tests and arithmetic formal",
@@ -1747,6 +1782,7 @@
         "npu_csr",
         "npu_ctl",
         "npu_dma",
+        "npu_local",
         "npu_dot"
       ],
       "verification_obligation": "Independent grouped integer reference, command state/error/reset tests and arithmetic formal",
@@ -1760,6 +1796,7 @@
         "npu_csr",
         "npu_ctl",
         "npu_dma",
+        "npu_local",
         "npu_dot"
       ],
       "verification_obligation": "Independent grouped integer reference, command state/error/reset tests and arithmetic formal",
@@ -1773,6 +1810,7 @@
         "npu_csr",
         "npu_ctl",
         "npu_dma",
+        "npu_local",
         "npu_dot"
       ],
       "verification_obligation": "Independent grouped integer reference, command state/error/reset tests and arithmetic formal",
@@ -1786,6 +1824,7 @@
         "npu_csr",
         "npu_ctl",
         "npu_dma",
+        "npu_local",
         "npu_dot"
       ],
       "verification_obligation": "Independent grouped integer reference, command state/error/reset tests and arithmetic formal",
@@ -1799,6 +1838,7 @@
         "npu_csr",
         "npu_ctl",
         "npu_dma",
+        "npu_local",
         "npu_dot"
       ],
       "verification_obligation": "Independent grouped integer reference, command state/error/reset tests and arithmetic formal",
@@ -1812,6 +1852,7 @@
         "npu_csr",
         "npu_ctl",
         "npu_dma",
+        "npu_local",
         "npu_dot"
       ],
       "verification_obligation": "Independent grouped integer reference, command state/error/reset tests and arithmetic formal",
@@ -1825,6 +1866,7 @@
         "npu_csr",
         "npu_ctl",
         "npu_dma",
+        "npu_local",
         "npu_dot"
       ],
       "verification_obligation": "Independent grouped integer reference, command state/error/reset tests and arithmetic formal",
@@ -1910,7 +1952,10 @@
         "sys",
         "cpu_bridge",
         "irq",
-        "uart"
+        "uart",
+        "fabric",
+        "rom",
+        "sram"
       ],
       "verification_obligation": "Independent boot/reset/CSR/permission/IRQ firmware simulation and applicable formal properties",
       "status": "not-run"
@@ -1962,7 +2007,9 @@
         "sys",
         "cpu_bridge",
         "irq",
-        "uart"
+        "uart",
+        "npu_csr",
+        "lite_bridge"
       ],
       "verification_obligation": "Independent boot/reset/CSR/permission/IRQ firmware simulation and applicable formal properties",
       "status": "not-run"
@@ -2139,6 +2186,33 @@
       ],
       "verification_obligation": "Independent forward graph including gate/up, both residual sources, GQA, RoPE and head concatenation",
       "status": "not-run"
+    },
+    {
+      "id": "NPU-09",
+      "document": "npu.md",
+      "scope": "SIM-L1",
+      "owner_modules": [
+        "npu_csr",
+        "npu_ctl",
+        "npu_dma",
+        "npu_local",
+        "npu_dot"
+      ],
+      "verification_obligation": "Independent partition lifecycle checks: dispatch re-arm, C25-before-C13 ordering, dot_lifecycle flush (no result survives a terminal; operand on the C25 edge discarded), dma_terminal level hold/clear, stop-without-error stays BUSY",
+      "status": "not-run"
+    },
+    {
+      "id": "SYS-13",
+      "document": "system.md",
+      "scope": "SIM-L1",
+      "owner_modules": [
+        "cpu_bridge",
+        "cpu"
+      ],
+      "verification_obligation": "Independent native-port protocol checks: payload hold until mem_ready, single registered mem_ready per transfer, no mem_ready on failure, back-to-back mem_valid, strobe/read-write decode; pinned PicoRV32 README sections as reference",
+      "status": "not-run"
     }
-  ]
+  ],
+  "owner_modules_semantics": "owner_modules is the verification-scope participation list for a requirement (every module whose behaviour the requirement constrains); implemented_by, where present, names the module that realises the mechanism (rc4, ISSUE-cpu_bridge-02)",
+  "port_identifier_convention": "RTL ports of internal ICD protocols are named <i_|o_><protocol>_<field> (e.g. i_dispatch_x_base, o_group_result_last, o_dot_lifecycle_flush); full/Lite AXI ports <m_|s_>axi_<signal lowercase>; clock/reset i_clk, i_rst_n, i_cpu_local_rst_n; single-signal protocols whose field name is globally unique may drop the protocol prefix (i_stop_new_transactions). Binding for protocols added from rc4 on; rc3 port spellings are reconciled in the top-level port map, not renamed (rc4, ISSUE-npu_dma-01)"
 }

@@ -1,6 +1,6 @@
 {
-  "version": "1.0-rc3",
-  "status": "review-candidate; independent rc3 closure pending; no hardware acceptance",
+  "version": "1.0-rc4",
+  "status": "rc4 change-order proposal branch; rc3-reviewer confirmation pending; no hardware acceptance",
   "role": "chief-architect",
   "configuration": "SIM-L1",
   "artifacts": [
@@ -17,6 +17,12 @@
       "kind": "architecture deliverable"
     },
     {
+      "path": "docs/spec/llm-soc-v1/CHANGE_ORDER_rc4.md",
+      "bytes": 15412,
+      "sha256": "123ec17c49d020f8752b29ca1cb32a1c2177a0cd5220c5d176e532c7410134f7",
+      "kind": "architecture deliverable"
+    },
+    {
       "path": "docs/spec/llm-soc-v1/INPUTS_READ.json",
       "bytes": 8670,
       "sha256": "9e55712a0b595c91862fe8d8081dd49f772617bb274ee85a8d797f173fd0950a",
@@ -30,32 +36,32 @@
     },
     {
       "path": "docs/spec/llm-soc-v1/MANIFEST.md",
-      "bytes": 2855,
-      "sha256": "e9517ed50847188dcb2c21897f7b37c8ca6e36df62a408ab051a116ce5c079a6",
+      "bytes": 3824,
+      "sha256": "dba9d338c1bf0be84ec85011872d7f872eb9249882faa88d036dd1834fad377e",
       "kind": "architecture deliverable"
     },
     {
       "path": "docs/spec/llm-soc-v1/README.md",
-      "bytes": 2485,
-      "sha256": "436b61df2c1562cebc5a16c860456142d226779e8b191deaecc4eae300b93f65",
+      "bytes": 2764,
+      "sha256": "38b9f5605946429e9f867a914e991af3f9884fdf2e330d5d1624c49a8ed8cda3",
       "kind": "architecture deliverable"
     },
     {
       "path": "docs/spec/llm-soc-v1/axi.md",
-      "bytes": 9319,
-      "sha256": "1b105d39ee78cfcc65628b0f4ff425a756c09f70d54b07c50efea938dd3714f9",
+      "bytes": 10389,
+      "sha256": "e73d2f4a2b2b04546d682d11444460f1f3948a11971a074aae4c20d4c1252993",
       "kind": "architecture deliverable"
     },
     {
       "path": "docs/spec/llm-soc-v1/contract.json",
-      "bytes": 48482,
-      "sha256": "0ed7e395196901c6a1468ab3ac6b02ae4aef3f95bdcca9705875653ac2d7b957",
+      "bytes": 53613,
+      "sha256": "c519899dfe03c82baf7fe99a503cf69d0fea4c56b81711b025d905e947c79507",
       "kind": "architecture deliverable"
     },
     {
       "path": "docs/spec/llm-soc-v1/dependencies.md",
-      "bytes": 5599,
-      "sha256": "846d69e98b68c89a6e6a186f98621bde978b464d0326bf4e225588608f446e0d",
+      "bytes": 6119,
+      "sha256": "17ed2911061475635e7c81dc55dafbb5733d1bb3d8ffa88b75dc20e4a30f2ed9",
       "kind": "architecture deliverable"
     },
     {
@@ -150,8 +156,8 @@
     },
     {
       "path": "docs/spec/llm-soc-v1/npu.md",
-      "bytes": 10075,
-      "sha256": "9a87fe5fd1b988e2835355db1c006af0183ab56a6030d133b82e2a0895133abd",
+      "bytes": 14227,
+      "sha256": "d8aabc697f2bf43d82ad033ec7d4402fc555b40304f75d581a3a5e247c93275e",
       "kind": "architecture deliverable"
     },
     {
@@ -204,14 +210,14 @@
     },
     {
       "path": "docs/spec/llm-soc-v1/system.md",
-      "bytes": 13236,
-      "sha256": "48f49b2e0aa43c30fa57103daba65b2cf95afbe83826dcee85eda92556fdada3",
+      "bytes": 15852,
+      "sha256": "b8c671b7584a79bc842dec18d3fba65779aede37be1295d5d195f6162708e75f",
       "kind": "architecture deliverable"
     },
     {
       "path": "docs/spec/llm-soc-v1/traceability.md",
-      "bytes": 7025,
-      "sha256": "18b34c8388521467e0bafdd35dc81c39bf1b54d3244f4be8d34e13b9cb336e84",
+      "bytes": 8441,
+      "sha256": "754de58340d927ce94f644091afb45950e1a426ad6e463f13f82ff0153f34fe5",
       "kind": "architecture deliverable"
     },
     {
@@ -291,11 +297,17 @@
     {
       "command": "python3 explore/llm-soc-v1/check_contract.py",
       "exit_code": 0,
-      "stdout": "CONTRACT AUDIT PASS: blocks=16 connections=47 regions=14 CSR=33 requirements=45 Lite_signals=19; budget/profile consistent\nNOT RUN: firmware build, RTL lint/simulation/coverage/ISA/formal/synthesis/timing, S1, FPGA, physical signoff\n",
+      "stdout": "CONTRACT AUDIT PASS: blocks=16 connections=48 regions=14 CSR=33 requirements=47 Lite_signals=19; budget/profile consistent\nNOT RUN: firmware build, RTL lint/simulation/coverage/ISA/formal/synthesis/timing, S1, FPGA, physical signoff\n",
+      "stderr": ""
+    },
+    {
+      "command": "python3 -c \"import json;json.load(open('docs/spec/llm-soc-v1/contract.json'))\"",
+      "exit_code": 0,
+      "stdout": "",
       "stderr": ""
     }
   ],
-  "requirements": 45,
+  "requirements": 47,
   "implementation_scope": "B1/L1 contract; S1 integration plan and P1 budget distinct",
   "not_run": [
     "target firmware compile/link/run",
@@ -317,5 +329,7 @@
   ],
   "no_commit": true,
   "no_push": true,
-  "no_remote_pr": true
+  "no_remote_pr": true,
+  "hash_method": "sha256 via Python hashlib, cross-checked with shasum -a 256; no manifest generator exists in this tree (rc4)",
+  "change_order": "docs/spec/llm-soc-v1/CHANGE_ORDER_rc4.md"
 }
