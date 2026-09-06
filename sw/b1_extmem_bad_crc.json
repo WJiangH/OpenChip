@@ -2,14 +2,14 @@
   "extmem_base": 2147483648,
   "extmem_size": 16777216,
   "bin_file": "b1_extmem_bad_crc.bin",
-  "bin_sha256": "1d7847b56fe670f8b209d0cf6b712cbab2e5dc6d33c147fa0cfbde7ddcab6e99",
+  "bin_sha256": "ad69e8321ca58e1dd8d1265446a713a15bc3e6aa1a86988a330bac1e4787bd6a",
   "regions": [
     {
       "name": "boot_image",
       "addr": 2147483648,
       "file_offset": 0,
-      "length": 3124,
-      "sha256": "1d7847b56fe670f8b209d0cf6b712cbab2e5dc6d33c147fa0cfbde7ddcab6e99"
+      "length": 3132,
+      "sha256": "ad69e8321ca58e1dd8d1265446a713a15bc3e6aa1a86988a330bac1e4787bd6a"
     }
   ]
 }

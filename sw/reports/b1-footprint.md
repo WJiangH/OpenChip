@@ -10,18 +10,18 @@ placed section).
 
 | ELF | text | data | bss | dec | hex |
 |---|---:|---:|---:|---:|---|
-| rom.elf | 856 | 0 | 0 | 856 | 358 |
-| b1.elf | 2936 | 0 | 16 | 2952 | b88 |
+| rom.elf | 872 | 0 | 0 | 872 | 368 |
+| b1.elf | 2944 | 0 | 16 | 2960 | b90 |
 
 ## Flat binary budgets
 
-- `rom.bin`: 1096 bytes (budget 65536, SYS-05/SYS-06) — OK
-- `b1.bin`: 3060 bytes (budget 196608 = 0x30000, SYS-05) — OK
+- `rom.bin`: 1112 bytes (budget 65536, SYS-05/SYS-06) — OK
+- `b1.bin`: 3068 bytes (budget 196608 = 0x30000, SYS-05) — OK
 
 ## Stack budget argument (SYS-06)
 
-- `__bss_start` = 0x10000bf4, `__bss_end` = 0x10000c04 (BSS length 16 bytes)
+- `__bss_start` = 0x10000bfc, `__bss_end` = 0x10000c0c (BSS length 16 bytes)
 - Fixed stack region: 0x10030000..0x10040000 (65536 bytes = 64 KiB), grows downward from 0x10040000 (SYS-02 initial stack, STACKADDR hardware parameter).
-- Static headroom between BSS end and the stack region: 193532 bytes — OK (BSS does not encroach on the stack region).
+- Static headroom between BSS end and the stack region: 193524 bytes — OK (BSS does not encroach on the stack region).
 - This program's deepest observed call chain is 3 levels (`_fw_reset`/`fw_init` -> `b1_main` -> `run_cmd_a_polled`/`run_cmd_b_irq` -> `expected_find`/`compare_y_exact`/`crc32_iso_hdlc`), each frame under 128 bytes per the largest local buffer (`picorv32_irq_common_entry`'s 128-byte all-GPR save area, sw/common/crt0.S); worst case is that IRQ wrapper interrupting the deepest normal call chain, well under a few hundred bytes total — the 64 KiB stack region is not a tight budget here, it is dominated by the fixed SYS-06 allocation, not by this program's own usage.
 
