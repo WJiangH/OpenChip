@@ -1,8 +1,21 @@
 # fabric — spec issues raised during RTL implementation
 
-Spec baseline: `docs/spec/llm-soc-v1/` 1.0-rc3 (system.md, axi.md, contract.json).
-Each entry states what was implemented meanwhile; every provisional decision is
-marked in `fabric.sv` with a `// ISSUE-fabric-NN: provisional` comment.
+Spec baseline: `docs/spec/llm-soc-v1/` 1.0-rc4 (system.md, axi.md, contract.json)
+— filed against 1.0-rc3 and ruled by `CHANGE_ORDER_rc4.md`. Every issue below is
+now closed; each entry keeps its original text and adds an **rc4_ruling** block
+stating the disposition and whether `fabric.sv` changed. The `// ISSUE-fabric-NN`
+comments in `fabric.sv` were rewritten from `provisional` to the ruling they now
+cite; only ISSUE-fabric-04 required a logic change.
+
+Status summary (rc4):
+
+| Issue | Disposition | RTL change |
+|---|---|---|
+| ISSUE-fabric-01 | spec-gap, provisional confirmed | none |
+| ISSUE-fabric-02 | spec-clear, provisional confirmed | none |
+| ISSUE-fabric-03 | spec-gap, provisional confirmed | none |
+| ISSUE-fabric-04 | spec-gap, **provisional rejected** | ownerless target BVALID/RVALID -> immediate reason 6, fault_addr 0 |
+| ISSUE-fabric-05 | spec-clear, provisional confirmed | none |
 
 ---
 
@@ -34,6 +47,20 @@ marked in `fabric.sv` with a `// ISSUE-fabric-NN: provisional` comment.
 - **your_recommendation** Option 1, stated explicitly in AXI-05.
 - **what_you_implemented_meanwhile** Option 1: `aw_err`/`ar_err` evaluate
   `!mapped_and_authorized -> DECERR` before `attribute_bad -> SLVERR`.
+- **rc4_ruling** `CHANGE_ORDER_rc4.md` ISSUE-fabric-01: **spec-gap**, option 1
+  adopted, provisional confirmed, "RTL: fabric none". `axi.md` AXI-05 now reads
+  "a request that is unmapped or unauthorized returns DECERR even if its
+  attributes are also unsupported; SLVERR for unsupported attributes is reported
+  only for mapped, authorized addresses (rc4)".
+- **rc4_status** Closed, no code change. Verified against `fabric.sv`: `aw_err`
+  and `ar_err` still test `!aw_ok`/`!ar_ok` (region hit AND burst fits that one
+  region AND physical-port permission) before `*_attr_bad`, so DECERR wins
+  whenever both apply. One interpretation is recorded rather than changed: the
+  burst footprint fed to `region_lookup` is computed from the legal 4-byte beat
+  size, so a mapped start address whose 4-byte-derived burst leaves its region
+  reports DECERR even if the offending attribute is `AWSIZE`/`ARSIZE` itself.
+  This stays inside the ruling — SYS-04 makes a burst that does not fit one
+  authorized region unauthorized, and DECERR is the unauthorized code.
 
 ---
 
@@ -64,6 +91,14 @@ marked in `fabric.sv` with a `// ISSUE-fabric-NN: provisional` comment.
   the source owning the retained AW. An early W with no AW times out through
   obligation (a) with reason 3 and `fault_addr` = the offered AW address if the
   initiator offered one, otherwise 0 (SYS-12).
+- **rc4_ruling** `CHANGE_ORDER_rc4.md` ISSUE-fabric-02: **spec-clear**, no spec
+  text changed. AXI-07 "(e) early *accepted* W waiting for its AW" plus AXI-03's
+  "one-beat holding register **or** backpressure": under the backpressure option
+  (e) is vacuous and (a) bounds the illegal early W. Provisional confirmed; the
+  note lands in the traceability AXI-07 row, and DV tests condition (e) against
+  the implementation's stated option — this fabric's is backpressure.
+- **rc4_status** Closed, no code change. The chosen option is stated in the
+  `fabric.sv` header ("Early-W policy (AXI-03)") for DV to read off.
 
 ---
 
@@ -92,6 +127,17 @@ marked in `fabric.sv` with a `// ISSUE-fabric-NN: provisional` comment.
 - **what_you_implemented_meanwhile** Option 1: `AWID/ARID != {1'b0, port}` is part
   of the unsupported-attribute term (SLVERR), permission always uses the physical
   port, and the error response echoes the accepted ID.
+- **rc4_ruling** `CHANGE_ORDER_rc4.md` ISSUE-fabric-03: **spec-gap**, option 1
+  adopted, provisional confirmed, "RTL: fabric none". `axi.md` AXI-05 now reads
+  "An AWID/ARID other than the port's fixed source ID (AXI-02) is an unsupported
+  attribute: SLVERR, response echoing the presented ID, permission still decided
+  by physical port identity (rc4)".
+- **rc4_status** Closed, no code change. Verified against `fabric.sv`: the ID
+  mismatch sits in `aw_attr_bad`/`ar_attr_bad` (SLVERR, and DECERR still wins if
+  the address is also unmapped/unauthorized per ISSUE-fabric-01); `wr_id`/`rd_id`
+  capture `s_awid[wr_gsrc]`/`s_arid[rd_gsrc]` — the *presented* ID — and drive
+  `b_id_o`/`r_id_o`, so the error response echoes it; `region_lookup` is called
+  with the physical port index `wr_gsrc`/`rd_gsrc`, never with the ID.
 
 ---
 
@@ -117,6 +163,38 @@ marked in `fabric.sv` with a `// ISSUE-fabric-NN: provisional` comment.
 - **what_you_implemented_meanwhile** Option 1: `wr_own_oh`/`rd_own_oh` default to
   source 0 when no transaction is live, so such a timeout is reported as reason 3
   with `fault_addr=0` rather than dropped.
+- **rc4_ruling** `CHANGE_ORDER_rc4.md` ISSUE-fabric-04: **spec-gap**, option 2
+  adopted; "**Provisional (source0/reason3 after timeout) is wrong.**" `axi.md`
+  AXI-07 now reads "A target asserting BVALID or RVALID on a channel with no live
+  transaction routed to that target is a protocol violation: the fabric latches
+  fatal reason 6 with fault_addr 0 on the first edge it samples such a VALID,
+  without waiting for any timer (rc4)". R4-13 records the cost as accepted: a
+  timer-attributed reason 3 would misname a protocol violation as a timeout.
+- **rc4_status** Closed, **`fabric.sv` changed**:
+  - new `wr_routed`/`rd_routed` (write channel routed to a target in
+    `WS_AW`/`WS_DATA`/`WS_RESP`, read channel in `RS_AR`/`RS_DATA`), decoded to
+    `wr_tgt_oh`/`rd_tgt_oh`;
+  - `b_ownerless = m_bvalid & ~wr_tgt_oh`, `r_ownerless = m_rvalid & ~rd_tgt_oh`,
+    `ownerless_resp = |b_ownerless | |r_ownerless`;
+  - `ownerless_resp` joins `proto_hit` (reason 6) with `proto_addr` left at 0,
+    and through `proto_hit` it also blocks new transactions on its own detection
+    edge, consistent with ISSUE-fabric-05;
+  - the SYS-12 tie-break is unchanged: `timeout_hit` (reason 3) is still tested
+    before `proto_hit` (reason 6) in the fault register, so the lowest reason
+    wins on a simultaneous edge.
+  Scope decisions taken while implementing the ruling, offered for DV review:
+  (i) "routed to that target" spans from the state in which the fabric first
+  offers the request to that target through its response, so a response that is
+  merely *early* on the target that does own the live transaction is not an
+  ownerless VALID — that remains an AXI-03 ordering question; (ii) a
+  firewall-rejected transaction (`WS_DRAIN`/`WS_ERRB`, `RS_ERR`) reaches no
+  target, so any target response during it is ownerless; (iii) an ownerless
+  response has no source, so among simultaneous reason-6 candidates it is ranked
+  after `wlast_bad`/`rlast_bad`, which do carry a source and a known address —
+  the reason is 6 either way and AXI-07 fixes the ownerless address at 0.
+  The target-side (a) obligation counters on B/R are left in place; they can no
+  longer be the first to fire for an ownerless VALID, so the source-0 default in
+  `wr_own_oh`/`rd_own_oh` is now only a mux default.
 
 ---
 
@@ -149,3 +227,13 @@ marked in `fabric.sv` with a `// ISSUE-fabric-NN: provisional` comment.
 - **what_you_implemented_meanwhile** Option 1: `block_new =
   i_stop_new_transactions | fault_valid_q | proto_hit` (protocol violations do
   not create the cycle, so they do block on their own detection edge).
+- **rc4_ruling** `CHANGE_ORDER_rc4.md` ISSUE-fabric-05: **spec-clear**, no spec
+  text changed. AXI-07 "A matching handshake on the threshold edge wins and
+  clears/restarts its counter" and SYS-12's stop being sys's sticky output driven
+  "at the fatal capture edge" together give option 1: the timeout is registered,
+  blocking starts on the next edge, and the transaction accepted on the detection
+  edge is retained work that drains normally. Provisional confirmed.
+- **rc4_status** Closed, no code change. `block_new` is unchanged; the rc4
+  ownerless-response term added for ISSUE-fabric-04 enters it through `proto_hit`,
+  i.e. on the same combinational protocol-violation path that already blocked on
+  its own detection edge, so the registered-timeout property is untouched.
