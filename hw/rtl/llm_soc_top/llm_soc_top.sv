@@ -7,8 +7,14 @@
 //   docs/spec/llm-soc-v1/axi.md AXI-01 (signal set), AXI-09 (Lite port set),
 //   AXI-10 (external memory is a DV-owned functional target outside this top);
 //   docs/spec/llm-soc-v1/npu.md §4 (dispatch / local_bytes / dot_operands /
-//   group_result / dma_terminal / terminal internal partition interfaces);
-//   docs/spec/llm-soc-v1/contract.json connections C01..C33, CR00..CR14.
+//   group_result / dma_terminal / terminal internal partition interfaces),
+//   NPU-09(b) (dot_lifecycle flush level, C34), NPU-09(c) (dma_terminal is a
+//   registered level, not a pulse — CHANGE_ORDER_rc4 F-04 closed ISSUE-top-01);
+//   docs/spec/llm-soc-v1/contract.json connections C01..C34, CR00..CR14.
+//
+// Spec baseline: docs/spec/llm-soc-v1/ @ 1.0-rc4 (CHANGE_ORDER_rc4.md). rc4
+// adds exactly one connection to this top, C34 dot_lifecycle {flush}; no other
+// port of any instantiated module changed.
 //
 // This file contains no logic: instances, wires and renames only. Every port
 // pair it joins was checked for width, direction and field set; the audit and
@@ -444,7 +450,16 @@ module llm_soc_top (
   logic [11:0] gres_group_index;
   logic        gres_last;
 
-  // C23 dma_terminal: npu_dma -> npu_ctl (no handshake; see ISSUE-top-01)
+  // C34 dot_lifecycle: npu_ctl -> npu_dot (one registered level, NPU-09(b)).
+  // Never a constant here: 0 would restore the pre-rc4 npu_dot behaviour that
+  // NPU-09(b) forbids (a result formed before a terminal could survive into the
+  // next command), 1 would mask group_result.valid forever, so no command could
+  // ever complete. Both are NPU-09(b) violations.
+  logic        dotlife_flush;
+
+  // C23 dma_terminal: npu_dma -> npu_ctl. No handshake; done/error/error_code
+  // are registered levels held until npu_dma's next C13 handshake or reset
+  // (NPU-09(c), rc4 F-04 — ISSUE-top-01 closed).
   logic        dmaterm_done;
   logic        dmaterm_error;
   logic [ 2:0] dmaterm_error_code;
@@ -1224,7 +1239,9 @@ module llm_soc_top (
       .o_local_dispatch_group (loc_disp_group),
       .o_local_dispatch_w_stride(loc_disp_w_stride),
       .o_local_dispatch_tag   (loc_disp_tag),
-      // C23 dma_terminal <- npu_dma (levels, see ISSUE-top-01)
+      // C34 dot_lifecycle -> npu_dot (NPU-09(b) flush level)
+      .o_dot_lifecycle_flush   (dotlife_flush),
+      // C23 dma_terminal <- npu_dma (registered levels, NPU-09(c))
       .i_dma_done              (dmaterm_done),
       .i_dma_error             (dmaterm_error),
       .i_dma_error_code        (dmaterm_error_code),
@@ -1368,6 +1385,8 @@ module llm_soc_top (
       .i_dot_operands_row         (dotop_row),
       .i_dot_operands_group_index (dotop_group_index),
       .i_dot_operands_command_last(dotop_command_last),
+      // C34 dot_lifecycle <- npu_ctl (NPU-09(b) flush level)
+      .i_dot_lifecycle_flush      (dotlife_flush),
       // C16 group_result -> npu_dma
       .o_group_result_valid       (gres_valid),
       .i_group_result_ready       (gres_ready),

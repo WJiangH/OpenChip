@@ -1,7 +1,15 @@
 # llm_soc_top — connection binding table
 
-SIM-L1, spec `docs/spec/llm-soc-v1/` @ 1.0-rc3. Written by the rtl-engineer role
-as the integration record for `hw/rtl/llm_soc_top/llm_soc_top.sv`.
+SIM-L1, spec `docs/spec/llm-soc-v1/` @ 1.0-rc4 (repo commit `bd3b438d`,
+CHANGE_ORDER_rc4.md). Written by the rtl-engineer role as the integration record
+for `hw/rtl/llm_soc_top/llm_soc_top.sv`.
+
+rc4 delta for this top: exactly one new connection, **C34** `dot_lifecycle`
+{flush} from `npu_ctl` to `npu_dot` (NPU-09(b)); `contract.json connections[]`
+now holds **48** ids (C01..C34 + CR00..CR06, CR08..CR14). ISSUE-top-01 (C23
+level-vs-pulse) is ruled and closed by rc4 NPU-09(c): `dma_terminal` is a
+registered level. Every port of all fourteen instantiated modules was re-checked
+against the rc4-updated sources; C34 is the only port-level change.
 
 This file is normative for anyone binding to the top **without reading the RTL**:
 every contract.json `connections[]` id maps to exactly one producer port, one
@@ -59,7 +67,8 @@ Top port count: 44 ports (2 + 5 + 37).
 | C14 | local_bytes | `npu_dma.o_local_bytes_<f>`, in: `npu_dma.i_local_bytes_ready` | `npu_local.i_local_bytes_<f>`, out: `npu_local.o_local_bytes_ready` | `lbytes_<f>` | wired |
 | C15 | dot_operands | `npu_local.o_dot_operands_<f>`, in: `npu_local.i_dot_operands_ready` | `npu_dot.i_dot_operands_<f>`, out: `npu_dot.o_dot_operands_ready` | `dotop_<f>` | wired |
 | C16 | group_result | `npu_dot.o_group_result_<f>`, in: `npu_dot.i_group_result_ready` | `npu_dma.i_group_result_<f>`, out: `npu_dma.o_group_result_ready` | `gres_<f>` | wired |
-| C23 | dma_terminal | `npu_dma.o_dma_terminal_done` / `o_dma_terminal_error` / `o_dma_terminal_error_code` | `npu_ctl.i_dma_done` / `i_dma_error` / `i_dma_error_code` | `dmaterm_done`, `dmaterm_error`, `dmaterm_error_code` | wired (see ISSUE-top-01: level vs pulse) |
+| C23 | dma_terminal | `npu_dma.o_dma_terminal_done` / `o_dma_terminal_error` / `o_dma_terminal_error_code` | `npu_ctl.i_dma_done` / `i_dma_error` / `i_dma_error_code` | `dmaterm_done`, `dmaterm_error`, `dmaterm_error_code` | wired (registered levels, NPU-09(c); ISSUE-top-01 closed by rc4) |
+| C34 | dot_lifecycle | `npu_ctl.o_dot_lifecycle_flush` | `npu_dot.i_dot_lifecycle_flush` | `dotlife_flush` | wired |
 | C24 | terminal | `npu_ctl.o_terminal_valid/o_terminal_tag/o_terminal_error_code/o_terminal_cycles`, in: `npu_ctl.i_terminal_ready` | `npu_csr.i_terminal_valid/i_terminal_tag/i_terminal_error_code/i_terminal_cycles`, out: `npu_csr.o_terminal_ready` | `term_valid`, `term_ready`, `term_tag`, `term_error_code`, `term_cycles` | wired |
 
 `<f>` field sets (contract.json `protocols`, all fields present on both sides,
@@ -72,7 +81,16 @@ widths verified equal):
   `group_first`, `group_last`, `row`[12], `group_index`[12], `command_last`.
 - `group_result`: `valid`, `ready`, `data`[32], `row`[12], `group_index`[12], `last`.
 - `terminal`: `valid`, `ready`, `tag`[32], `error_code`[3], `cycles`[32].
-- `dma_terminal`: `done`, `error`, `error_code`[3] — no handshake.
+- `dma_terminal`: `done`, `error`, `error_code`[3] — no handshake; registered
+  levels held until npu_dma's next C13 handshake or reset (NPU-09(c)).
+- `dot_lifecycle`: `flush` — one registered level, no handshake, npu_ctl ->
+  npu_dot (NPU-09(b)). It carries lifecycle state, not a static configuration:
+  `dotlife_flush` is a named wire and must never be tied to a constant in any
+  bind, wrapper or stub. Constant 0 restores the pre-rc4 npu_dot behaviour that
+  NPU-09(b) forbids (a result or accumulator formed before a terminal survives
+  into the next command, and the C25/dispatch-re-arm race reopens); constant 1
+  masks `group_result.valid` forever, so no command can ever complete. Both are
+  NPU-09(b) violations.
 
 ### 2.2 Interrupt connections
 
@@ -155,35 +173,11 @@ top, the source pins are `u_cpu`'s outputs); nothing else in the design reads
 them, so driving or forcing them cannot affect behaviour.
 
 No input of any instantiated module is left undriven, and no connection listed in
-`contract.json` is missing. Verified mechanically: every port of all fourteen
-instantiated modules is accounted for by exactly one row above or by `clk`/`rst_n`.
-
-## 5. Filelist for elaboration
-
-Read these 16 files, in any order, for yosys / DV elaboration of `llm_soc_top`:
-
-```
-hw/ip/picorv32/picorv32.v
-hw/rtl/cpu/cpu.sv          hw/rtl/cpu_bridge/cpu_bridge.sv
-hw/rtl/fabric/fabric.sv    hw/rtl/lite_bridge/lite_bridge.sv
-hw/rtl/rom/rom.sv          hw/rtl/sram/sram.sv
-hw/rtl/sys/sys.sv          hw/rtl/irq/irq.sv
-hw/rtl/uart/uart.sv        hw/rtl/npu_csr/npu_csr.sv
-hw/rtl/npu_ctl/npu_ctl.sv  hw/rtl/npu_dma/npu_dma.sv
-hw/rtl/npu_local/npu_local.sv  hw/rtl/npu_dot/npu_dot.sv
-hw/rtl/llm_soc_top/llm_soc_top.sv
-```
-
-plus include directory `hw/rtl/rom` (for `rom_data.svh`).
-
-**Do not read** `hw/rtl/llm_soc_top/llm_soc_top_deps.sv` or
-`hw/rtl/llm_soc_top/rom_data.svh` in that flow. Those two files exist only so
-that the repository lint recipe (`make lint MOD=llm_soc_top`, which passes
-`-Ihw/rtl -Ihw/rtl/llm_soc_top` and globs `hw/rtl/llm_soc_top/*.sv`) can resolve
-the fourteen module sources at all; `llm_soc_top_deps.sv` textually includes
-them, so reading it *and* the module files in one flow defines every module
-twice. Both shims are documented in their own headers and reported as a
-flow-level defect (the recipe needs `-y hw/rtl/<mod>` or a filelist).
+`contract.json` is missing. Verified mechanically against the rc4 module sources:
+all 778 pins of the fourteen instantiated modules (`clk`/`rst_n` included) are
+accounted for by exactly one row above; 0 width mismatches, 0 direction
+mismatches, and every internal net has exactly one driver and at least one load
+except the three `unused_*` sinks in §4.
 
 `hw/rtl/blink` and `hw/rtl/npu` are ADR-0001 Wishbone modules from the other
 design family and are not part of this top.

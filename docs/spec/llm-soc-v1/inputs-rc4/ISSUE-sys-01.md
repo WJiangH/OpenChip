@@ -39,23 +39,3 @@
   `result_valid_r` is already 1) returns SLVERR and performs no state change;
   a write with bit0=0 (and reserved bits zero) is accepted OKAY with no
   effect, matching the plain WO-field idiom.
-
-## rc4 ruling (2026-09-06, `docs/spec/llm-soc-v1/CHANGE_ORDER_rc4.md`)
-
-- **ISSUE-sys-01**: **confirmed** — option 1 (SLVERR) is the ruling. Repeat
-  RESULT_COMMIT (write of 1 while `o_result_valid`=1) returns SLVERR, no
-  state change. The provisional implementation already matched this; the
-  `// ISSUE-sys-01: provisional` marker is removed from `sys.sv` since the
-  behavior is now the confirmed spec, not a guess.
-- **F-05** (system.md SYS-08, rc4): separate finding, **RTL changed**. WO
-  command registers (RESULT_COMMIT is the only one in this block) accept
-  exactly the written word value 1; any other word, including 0, now returns
-  SLVERR with no effect. Previously a write of 0 (reserved bits zero) was
-  accepted OKAY as a no-op — that provisional reading is ruled wrong. Fixed
-  in `sys.sv`'s `OFF_RESULT_COMMIT` `wr_slverr` expression:
-  `wr_slverr = (cur_wdata != 32'd1) || result_valid_r;`
-- **F-07** (system.md SYS-08 / BOOT_STAGE row, rc4): separate finding, **RTL
-  changed**. A BOOT_STAGE write with value above 4 now returns SLVERR, no
-  state change (previously unenforced). Fixed in `sys.sv`'s
-  `OFF_BOOT_STAGE` `wr_slverr` expression: `wr_slverr = (cur_wdata > 32'd4);`
-- Reserved-write-bits rule (SYS-08 general clause) is unchanged by rc4.

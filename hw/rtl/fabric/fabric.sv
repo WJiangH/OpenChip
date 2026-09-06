@@ -8,7 +8,8 @@
 //   AXI-03 (VALID stability, AW/W independence, no address inferred from W),
 //   AXI-04 (one read + one write live, separate round-robin), AXI-05
 //   (permission/attribute validation, exact LEN+1 error beats, drain-then-error),
-//   AXI-07 (per-obligation progress counters, threshold 65536, reason 3),
+//   AXI-07 (per-obligation progress counters, threshold 65536, reason 3;
+//   ownerless target BVALID/RVALID -> immediate reason 6, fault_addr 0),
 //   AXI-08 (no reordering; response order preserved by construction).
 //   contract.json: C02/C03 initiator ports, C04..C07 target ports, C28
 //   fault_event->sys, C33 stop_issue<-sys, address_regions.
@@ -29,6 +30,13 @@
 // reachable state; an illegal early W with no AW is still monitored by
 // obligation (a) on that source's W channel and times out to reason 3 with
 // fault_addr = the offered AW address if one was ever offered, else 0 (SYS-12).
+//
+// Ownerless target responses (AXI-07, rc4 / ISSUE-fabric-04): a target that
+// asserts BVALID or RVALID on a channel with no live transaction routed to it
+// is a protocol violation, not a stalled obligation.  The fabric latches fatal
+// reason 6 with fault_addr 0 on the first edge it samples such a VALID, with no
+// timer involved; the (a) counter on that target channel still exists but can
+// never reach the threshold first.
 //
 // The region table and the progress threshold are localparams bound to the
 // spec values; SYS-04 forbids runtime programmability.
@@ -507,7 +515,8 @@ module fabric (
 
   // New transactions are blocked by the sticky stop input, by a fatal already
   // captured here, and combinationally by a protocol violation detected on
-  // this edge.  ISSUE-fabric-05: provisional — a progress timeout is
+  // this edge (which from rc4 includes an ownerless target response).
+  // ISSUE-fabric-05 (rc4): confirmed spec-clear — a progress timeout is
   // deliberately *not* in this term, because AXI-07 requires a matching
   // handshake on the threshold edge to win and arbitration therefore must not
   // depend on this cycle's timeout decision; fault_valid_q blocks every later
@@ -575,9 +584,10 @@ module fabric (
                      |  aw_last[32]
                      | (aw_last[31:12] != s_awaddr[wr_gsrc][31:12]);
 
-  // ISSUE-fabric-01: provisional — SYS-04 states unconditionally that an
-  // unmapped/unauthorized access returns DECERR, so mapping/permission is
-  // reported ahead of the AXI-05 unsupported-attribute SLVERR when both apply.
+  // ISSUE-fabric-01 (rc4): confirmed — AXI-05 "a request that is unmapped or
+  // unauthorized returns DECERR even if its attributes are also unsupported;
+  // SLVERR for unsupported attributes is reported only for mapped, authorized
+  // addresses", so mapping/permission is reported ahead of SLVERR.
   assign aw_err = !aw_ok      ? RESP_DECERR :
                   aw_attr_bad ? RESP_SLVERR : RESP_OKAY;
 
@@ -636,7 +646,10 @@ module fabric (
                      |  ar_last[32]
                      | (ar_last[31:12] != s_araddr[rd_gsrc][31:12]);
 
-  // ISSUE-fabric-01: provisional — same DECERR-before-SLVERR ordering.
+  // ISSUE-fabric-01 (rc4): confirmed — same DECERR-before-SLVERR precedence.
+  // ISSUE-fabric-03 (rc4): confirmed — a foreign ARID/AWID is an unsupported
+  // attribute (SLVERR) and permission stays physical-port based; the error
+  // response echoes the presented ID (see rd_id/wr_id capture below).
   assign ar_err = !ar_ok      ? RESP_DECERR :
                   ar_attr_bad ? RESP_SLVERR : RESP_OKAY;
 
@@ -1106,12 +1119,50 @@ module fabric (
   logic [1:0] wr_own_oh, rd_own_oh;
   logic [1:0][31:0] wr_known_addr, rd_known_addr;
 
-  // Owner of the live transaction, one-hot.  ISSUE-fabric-04: provisional —
-  // a target-side VALID with no live transaction (a spurious response) has no
-  // owner in SYS-12's tie-break rule; it is attributed to the lowest source ID
-  // so that the timeout is still reported instead of silently dropped.
+  // Owner of the live transaction, one-hot.  A target-side obligation is
+  // attributed to the source owning that live transaction; the source-0 default
+  // covers the no-live-transaction case, which from rc4 can no longer produce a
+  // reason-3 timeout because an ownerless target VALID is latched as reason 6 on
+  // the edge it is first sampled (ISSUE-fabric-04 below).
   assign wr_own_oh = (wr_live && wr_owner) ? 2'b10 : 2'b01;
   assign rd_own_oh = (rd_live && rd_owner) ? 2'b10 : 2'b01;
+
+  // ---------------------------------------------------------------------
+  // Ownerless target response (AXI-07 rc4, ISSUE-fabric-04): "A target
+  // asserting BVALID or RVALID on a channel with no live transaction routed to
+  // that target is a protocol violation: the fabric latches fatal reason 6 with
+  // fault_addr 0 on the first edge it samples such a VALID, without waiting for
+  // any timer."
+  //
+  // "Routed to that target" is the window in which this fabric is driving that
+  // target's request channel or consuming its response: WS_AW..WS_RESP for the
+  // write channel and RS_AR..RS_DATA for the read channel, each on the decoded
+  // target only.  Consequences:
+  //   - every target other than the currently routed one is ownerless on both
+  //     response channels, so a stray response cannot hide behind a live
+  //     transaction to a different target;
+  //   - a firewall-rejected transaction (WS_DRAIN/WS_ERRB, RS_ERR) is answered
+  //     by the fabric itself and reaches no target, so any target response
+  //     during it is ownerless;
+  //   - a response that is merely early on the target that *does* own the live
+  //     transaction (BVALID before the final W) stays an AXI-03 ordering matter
+  //     handled by the response path, not an ownerless VALID.
+  // ---------------------------------------------------------------------
+  logic       wr_routed, rd_routed;
+  logic [3:0] wr_tgt_oh, rd_tgt_oh, b_ownerless, r_ownerless;
+  logic       ownerless_resp;
+
+  assign wr_routed = (wr_state == WS_AW) | (wr_state == WS_DATA)
+                   | (wr_state == WS_RESP);
+  assign rd_routed = (rd_state == RS_AR) | (rd_state == RS_DATA);
+
+  assign wr_tgt_oh = wr_routed ? (4'b0001 << wr_tgt) : 4'b0000;
+  assign rd_tgt_oh = rd_routed ? (4'b0001 << rd_tgt) : 4'b0000;
+
+  assign b_ownerless = m_bvalid & ~wr_tgt_oh;
+  assign r_ownerless = m_rvalid & ~rd_tgt_oh;
+
+  assign ownerless_resp = (|b_ownerless) | (|r_ownerless);
 
   always_comb begin
     for (int unsigned p = 0; p < 2; p++) begin
@@ -1157,8 +1208,12 @@ module fabric (
     else               timeout_hit  = 1'b0;
   end
 
+  // Reason-6 candidates.  SYS-12 orders same-reason candidates by source ID and
+  // then by channel; an ownerless response belongs to no source, and AXI-07
+  // fixes its fault_addr at 0, so it is ranked after the two attributable
+  // burst-format violations and contributes only the reason and address 0.
   always_comb begin
-    proto_hit  = wlast_bad | rlast_bad;
+    proto_hit  = wlast_bad | rlast_bad | ownerless_resp;
     proto_addr = 32'h0;
     if      (wlast_bad) proto_addr = wr_known_addr[wr_owner];
     else if (rlast_bad) proto_addr = rd_known_addr[rd_owner];
@@ -1170,6 +1225,8 @@ module fabric (
       fault_reason_q <= 3'd0;
       fault_addr_q   <= 32'h0;
     end else if (!fault_valid_q) begin
+      // SYS-12 tie-break: a simultaneous edge selects the lowest numeric
+      // reason, so progress 3 still wins over protocol 6.
       if (timeout_hit) begin
         fault_valid_q  <= 1'b1;
         fault_reason_q <= REASON_PROGRESS;

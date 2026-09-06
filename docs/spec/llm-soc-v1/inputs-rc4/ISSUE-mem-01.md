@@ -1,4 +1,4 @@
-# ISSUES — hw/rtl/sram
+# ISSUES — hw/rtl/rom
 
 ## ISSUE-mem-01
 
@@ -35,32 +35,10 @@
 - **your_recommendation**: Option 1 — cheapest, no semantic drift, and
   consistent with `downstream.md` already naming "MEMORY" as the RTL owner
   of "ROM/SRAM actual target implementations."
-- **what_you_implemented_meanwhile**: `sram.sv` implements AXI-01/02/03/06/08
-  and SYS-04 exactly as the prose states, with real byte-enable writes to
-  a single inferred memory array (`rom.sv` implements the same requirement
-  set with a defensive SLVERR-and-no-side-effect write path instead, since
-  ROM is read-only; same issue filed there). Nothing was withheld or
-  altered because of this metadata gap; it is reported for traceability
-  hygiene only.
-
-## Resolution (CHANGE_ORDER_rc4, 2026-09-06)
-
-- **disposition**: `metadata` (per rc4 ruling table row "ISSUE-mem-01").
-  `contract.json` `requirements[]` now lists `rom`, `sram` in
-  `owner_modules` for AXI-01, AXI-02, AXI-03, AXI-06, AXI-08 and for SYS-04
-  (SYS-04 additionally gains `fabric`; separately, rc4 also adds `npu_csr`/
-  `lite_bridge` to SYS-08 and `npu_local` to NPU-01..09 as the same defect
-  class, outside this module's scope). `traceability.md` mirrors the same
-  rows. Verified directly against this worktree's checked-out
-  `docs/spec/llm-soc-v1/contract.json` and `traceability.md` at commit
-  bd3b438d — both already carry `rom`/`sram` in the affected rows.
-- **RTL obligation**: none. rc4's own "Modules that must change (RTL)"
-  list states explicitly: "No change: cpu_bridge, lite_bridge, rom, sram,
-  npu_dma, npu_local, sw/." `sram.sv`/`rom.sv` were already implemented
-  against the axi.md/system.md prose exactly as this issue's
-  `what_you_implemented_meanwhile` section recorded; nothing in that
-  implementation contradicts the now-corrected metadata.
-- **DV obligation** (per rc4, not this role's to discharge): evidence
-  ledger links rom/sram deliveries to the AXI-01/02/03/06/08 and SYS-04
-  rows now that `owner_modules` names them.
-- **status**: closed. No code change in `hw/rtl/rom/` or `hw/rtl/sram/`.
+- **what_you_implemented_meanwhile**: `rom.sv` implements AXI-01/02/03/06/08
+  and SYS-04 exactly as the prose states (including read-only enforcement:
+  a defensive SLVERR with no side effect on any write, since the fabric
+  should never forward one here). `sram.sv` implements the same
+  requirement set with real byte-enable writes (same issue filed there).
+  Nothing was withheld or altered because of this metadata gap; it is
+  reported for traceability hygiene only.

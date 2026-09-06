@@ -1,20 +1,8 @@
 # llm_soc_top — integration findings
 
-Filed by the rtl-engineer role that wired `hw/rtl/llm_soc_top/llm_soc_top.sv`.
-Re-audited against `docs/spec/llm-soc-v1/` @ 1.0-rc4 (commit `bd3b438d`,
-CHANGE_ORDER_rc4.md) and the rc4-updated module sources. Nothing here was
-"fixed" in the top: the top contains no logic, only instances, wires and renames.
-
-**Open issues: none.** ISSUE-top-01 is closed by rc4 (ruling below). The rc4
-re-audit found no new mismatch: the only port-level change across the seven
-`rtl/*` branches is the C34 pair `npu_ctl.o_dot_lifecycle_flush` ->
-`npu_dot.i_dot_lifecycle_flush`, which this top now wires as `dotlife_flush`.
-Checked, not assumed: the port list (direction, width, name, order) of each of
-the fourteen modules at this commit was diffed against the same file at `b9b9896`
-(the rc3 top delivery). Twelve are identical, including all of the rc4-changed
-sys / uart / fabric / npu_csr — their rc4 work is behavioural. The only two
-deltas are `+output o_dot_lifecycle_flush` on npu_ctl and
-`+input i_dot_lifecycle_flush` on npu_dot.
+Filed by the rtl-engineer role that wired `hw/rtl/llm_soc_top/llm_soc_top.sv`
+against `docs/spec/llm-soc-v1/` @ 1.0-rc3. Nothing here was "fixed" in the top:
+the top contains no logic, only instances, wires and renames.
 
 ## Audit method (what "no mismatch" means below)
 
@@ -22,11 +10,11 @@ Every port of the fourteen instantiated modules was extracted from its
 declaration and mechanically compared, per `contract.json` connection, against
 the port it is joined to: direction (producer output vs consumer input), bit
 width, and presence of every field named in the corresponding
-`protocols.<name>.signals` entry. Re-run in full on the rc4 sources (778 instance
-pins over fourteen modules). Result: **0 width mismatches, 0 direction
+`protocols.<name>.signals` entry. Result: **0 width mismatches, 0 direction
 mismatches, 0 missing or extra protocol fields, 0 undriven module inputs,
-0 multiply-driven nets, 0 module outputs unconnected other than the three
-recorded in CONNECTIONS.md §4.** No open finding remains.
+0 module outputs unconnected other than the three recorded in CONNECTIONS.md §4.**
+The only findings are ISSUE-top-01 below (documentation-level, wired anyway) and
+the flow defect at the end (not an RTL defect).
 
 Port-name spelling differs between authors — `npu_ctl.o_dma_dispatch_x_base` vs
 `npu_dma.i_dispatch_x_base`, `cpu_bridge.axi_awvalid` vs `fabric.s0_axi_awvalid`,
@@ -38,21 +26,7 @@ doing (the renames are the only thing this top had to invent).
 
 ---
 
-## ISSUE-top-01 — CLOSED by rc4 — `dma_terminal` (C23): producer implements sticky levels, consumer documents one-cycle pulses
-
-- **status**: **closed, ruled**. CHANGE_ORDER_rc4.md row "ISSUE-npu_dma-02 +
-  ISSUE-top-01 (F-04)", disposition *spec-gap*: "`dma_terminal` is **level**,
-  not pulse: registered, set on the npu_dma terminal edge, held until the
-  npu_dma C13 handshake edge or reset; npu_ctl samples only from the cycle after
-  its own C13 handshake and takes the first sampled assertion as T." The text is
-  now normative in `npu.md` NPU-09(c) and `contract.json`
-  `protocols.dma_terminal.semantics`. The ruling confirms npu_dma's
-  implementation and orders npu_ctl's pulse *documentation* (not its logic) to
-  change; both modules were updated on their own branches, and the C23 wiring in
-  this top is unchanged — the escalation cost this top no glue and no tie.
-  The residual risk recorded below (back-to-back terminal -> CLEAR -> SUBMIT with
-  zero idle cycles) is now an explicit rc4 DV obligation, not a top-level
-  assumption. Kept below for the record; nothing here is actionable any more.
+## ISSUE-top-01 — `dma_terminal` (C23): producer implements sticky levels, consumer documents one-cycle pulses
 
 - **spec_ref**: `contract.json` `protocols.dma_terminal` =
   `{"signals": {"done": 1, "error": 1, "error_code": 3}}` — no `valid`/`ready`,
@@ -113,21 +87,44 @@ doing (the renames are the only thing this top had to invent).
   is a DV obligation, not something this top can decide. If it ever fires it
   shows up as a spurious terminal on the *second* command with the first
   command's `error_code`.
-- **status (as filed)**: wired, no glue logic, no waiver. Escalated to the chief
-  architect as a spec-text defect. Ruled in rc4, see the closure note above.
+- **status**: wired, no glue logic, no waiver. Escalated to the chief architect
+  as a spec-text defect.
 
 ---
 
-## Not an RTL issue: flow-level defect in the lint recipe — RESOLVED
+## Not an RTL issue: flow-level defect in the lint recipe (reported, not fixed)
 
-The rc3 delivery of this top reported that `make lint MOD=<mod>` could not
-resolve `hw/rtl/<x>/<x>.sv` for an integration top (it passed only `-Ihw/rtl`,
-which resolves `hw/rtl/x.sv`), and worked around it with two shim files inside
-this directory, `llm_soc_top_deps.sv` and `rom_data.svh`.
+`make lint MOD=<mod>` runs
 
-The flow owner fixed the recipe (commit `6a85971`: the lint rule now adds `-y`
-library directories and per-module include dirs for every `hw/rtl/<m>/`), and
-the two shims were deleted in commit `c14fdf8`. `make lint MOD=llm_soc_top` now
-elaborates the real fourteen module sources with no file in this directory other
-than `llm_soc_top.sv`. Nothing is outstanding; CONNECTIONS.md no longer carries
-the "do not read these two files" section that the workaround required.
+```
+verilator --lint-only -Wall --timing --timescale 1ns/1ps \
+  -Ihw/rtl -Ihw/rtl/$(MOD) $(IP_INCS) $(IP_WAIVERS) hw/rtl/$(MOD)/*.sv
+```
+
+The tool resolves a missing module `x` as `<incdir>/x.sv`, but every delivered
+module lives at `hw/rtl/<x>/<x>.sv`, so `-Ihw/rtl` resolves none of them. For a
+leaf module this never mattered (`-Ihw/rtl/$(MOD)` covers it); for an
+integration top it makes the gate impossible to run: bare
+`hw/rtl/llm_soc_top/llm_soc_top.sv` fails with
+
+```
+%Error-MODMISSING: hw/rtl/llm_soc_top/llm_soc_top.sv:...: Cannot find file containing module: 'cpu'
+```
+
+The tool also does not search the including file's own directory for
+`` `include ``, so `hw/rtl/rom/rom.sv`'s `` `include "rom_data.svh" `` is
+unresolvable without `-Ihw/rtl/rom`.
+
+`flow/` and the `Makefile` are owned by the orchestrator (AGENTS.md: "Flow-level
+defects you discover ... are reported, not fixed: work around inside your own
+directories and flag it"). The in-directory workaround is two shim files,
+`hw/rtl/llm_soc_top/llm_soc_top_deps.sv` (includes the fourteen module sources)
+and `hw/rtl/llm_soc_top/rom_data.svh` (forwards to `rom/rom_data.svh`). Both
+carry a header saying what they are; CONNECTIONS.md §5 tells every other flow to
+exclude them. The proper fix is one of:
+
+1. add `$(addprefix -y ,$(wildcard hw/rtl/*/))` (plus `-Ihw/rtl/rom`, or `-y`
+   semantics for includes) to the lint recipe, or
+2. give each module directory an `.f` filelist that the recipe consumes,
+
+after which both shims should be deleted.
