@@ -53,3 +53,9 @@ hw/formal/**/status.sqlite
 .qwen/
 .opencode/
 .kimi/
+
+# B1 interface artifacts: the SW->ROM-RTL and SW->DV bytes must travel with the branch (FLOW-003 / integrator F-09)
+!sw/rom/rom.bin
+!sw/b1_extmem.bin
+!sw/b1_extmem_bad_magic.bin
+!sw/b1_extmem_bad_crc.bin

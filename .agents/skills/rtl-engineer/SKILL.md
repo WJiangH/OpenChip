@@ -34,3 +34,5 @@ to RTL — "looks right" is not a state.
 ## References index
 Distilled from retros, integrator-gated. Load only what the task needs:
 - `references/verilator-lint-pitfalls.md` — width-cast and $clog2 traps
+
+- `references/external-ip-intake.md` — read when importing or adapting an external IP; interface metadata and probe scope.
