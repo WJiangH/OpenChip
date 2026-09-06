@@ -79,8 +79,17 @@ make clean
   (except in testbench/formal code), no delays, no tri-state on internal logic.
 - Stay inside the Yosys-supported SV subset: no classes, no interfaces in
   synthesizable code, no unpacked-struct ports across the synthesis boundary.
-- Wishbone B4 pipelined is the on-chip bus. Signal prefix `wb_`.
-- Module I/O: `i_` inputs, `o_` outputs (bus ports keep the `wb_` prefix convention).
+- On-chip bus is set per design family by ADR: the soc-1 / legacy NPU line uses
+  Wishbone B4 pipelined (ADR-0001, prefix `wb_`); `llm-soc-v1` uses AXI4 / AXI4-Lite
+  per ADR-0004 and `docs/spec/llm-soc-v1/axi.md` (prefixes `axi_` / `axil_`,
+  signal names as the ICD lists them, lowercase). Never mix the two in one top.
+- Module I/O: `i_` inputs, `o_` outputs (bus ports keep their bus prefix instead).
+- Imported third-party IP lives under `hw/ip/<name>/` byte-identical to its pinned
+  upstream commit, with `PROVENANCE.md` (URL, commit, sha256, license). The house
+  style rules above do not apply inside `hw/ip/`; they apply in full to every
+  adapter/wrapper in `hw/rtl/`. Strict-lint findings on imported IP are recorded,
+  never silenced; a per-file lint scope for `hw/ip/` is a flow-owner decision
+  documented in the PR, not an RTL-agent waiver.
 
 ## Verification conventions
 
