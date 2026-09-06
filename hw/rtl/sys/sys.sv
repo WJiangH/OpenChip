@@ -10,6 +10,13 @@
 // Drives cpu_local_rst_n (SYS-12: rst_n & boot_delay_done & !FATAL) and a
 // single broadcast stop_new_transactions net (fanned out at integration to
 // cpu_bridge/npu_ctl/npu_dma/fabric per C30-C33 — one field, four sinks).
+//
+// rc4 (CHANGE_ORDER_rc4.md F-05/F-07, ISSUE-sys-01): RESULT_COMMIT (the only
+// WO command register in this block) accepts exactly the written word value
+// 1; any other value, including 0, returns SLVERR with no state change. A
+// repeat RESULT_COMMIT write of 1 while o_result_valid=1 also returns
+// SLVERR, no state change. BOOT_STAGE write above 4 returns SLVERR, no
+// state change. See hw/rtl/sys/ISSUES.md for the ruling record.
 `default_nettype none
 
 module sys (
@@ -215,13 +222,16 @@ module sys (
       wr_slverr = 1'b1;
     end else begin
       case (waddr_off)
-        OFF_BOOT_STAGE:  wr_slverr = 1'b0;
+        // rc4/F-07 (ISSUE-uart-01 sibling ruling): BOOT_STAGE write above 4
+        // returns SLVERR, no state change (system.md SYS-08 / BOOT_STAGE row).
+        OFF_BOOT_STAGE:  wr_slverr = (cur_wdata > 32'd4);
         OFF_RESULT_CODE: wr_slverr = 1'b0;
-        OFF_RESULT_COMMIT:
-        // ISSUE-sys-01: provisional — additional commits after latch treated
-        // as rejected (SLVERR), matching the SLVERR-on-atomic-reject idiom
-        // used elsewhere in this spec family (e.g. NPU-05 SUBMIT-while-busy).
-        wr_slverr = (cur_wdata[31:1] != 31'd0) || (result_valid_r && cur_wdata[0]);
+        // rc4/F-05 (ISSUE-sys-01 confirmed): a WO command register accepts
+        // exactly the written word value 1; any other word, including 0,
+        // returns SLVERR with no effect (system.md SYS-08). A repeat commit
+        // (cur_wdata==1 while result_valid_r is already 1) is separately
+        // SLVERR per the RESULT_COMMIT row / ISSUE-sys-01.
+        OFF_RESULT_COMMIT: wr_slverr = (cur_wdata != 32'd1) || result_valid_r;
         default: wr_slverr = 1'b1;  // RO registers and unmapped offsets (SYS-08)
       endcase
     end
@@ -255,10 +265,10 @@ module sys (
             OFF_BOOT_STAGE:  boot_stage_r  <= cur_wdata;
             OFF_RESULT_CODE: result_code_r <= cur_wdata;
             OFF_RESULT_COMMIT: begin
-              if (cur_wdata[0] && !result_valid_r) begin
-                result_valid_r      <= 1'b1;
-                result_code_latched <= result_code_r;
-              end
+              // wr_slverr already guarantees cur_wdata==1 and
+              // !result_valid_r whenever this branch is reached.
+              result_valid_r      <= 1'b1;
+              result_code_latched <= result_code_r;
             end
             default: ;  // unreachable when !wr_slverr
           endcase

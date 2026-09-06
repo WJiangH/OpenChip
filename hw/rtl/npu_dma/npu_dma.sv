@@ -20,7 +20,9 @@ module npu_dma (
     input wire rst_n,
 
     // C13 dispatch {valid, ready, opcode, x_base, w_base, y_base, k, n,
-    //               group, w_stride, tag} — consumer side.
+    //               group, w_stride, tag} — consumer side. NPU-09(a): an
+    // accepted handshake re-arms this module (see the dispatch re-arm
+    // comment on the C13 case below for the exact discard list).
     input  wire        i_dispatch_valid,
     output logic       o_dispatch_ready,
     input  wire [31:0] i_dispatch_opcode,
@@ -42,7 +44,9 @@ module npu_dma (
     output logic [11:0] o_local_bytes_index,
     output logic [11:0] o_local_bytes_row,
 
-    // C16 group_result {valid, ready, data, row, group_index, last} — consumer.
+    // C16 group_result {valid, ready, data, row, group_index, last} —
+    // consumer. NPU-09(d): after this module's first non-OKAY response,
+    // ready is held 0 until its next dispatch handshake.
     input  wire        i_group_result_valid,
     output logic       o_group_result_ready,
     input  wire [31:0] i_group_result_data,
@@ -51,6 +55,11 @@ module npu_dma (
     input  wire        i_group_result_last,
 
     // C23 dma_terminal {done, error, error_code} — producer, no handshake.
+    // NPU-09(c) (rc4, ISSUE-npu_dma-02 + ISSUE-top-01 / F-04: spec-gap; this
+    // module's implementation confirmed, npu_ctl's pulse documentation was
+    // wrong and has been corrected): done/error/error_code are registered
+    // levels, set on this module's terminal edge Td and held until the edge
+    // on which its own next C13 dispatch handshake completes, or reset.
     output logic       o_dma_terminal_done,
     output logic       o_dma_terminal_error,
     output logic [2:0] o_dma_terminal_error_code,
@@ -257,11 +266,23 @@ module npu_dma (
   // progress obligation that the stalled RREADY then inherits.
   // ------------------------------------------------------------------
   logic [2:0]  wr_state_q;
-  // ISSUE-npu_dma-03: provisional — the burst write buffer lives here, not in
-  // npu_local, because contract.json has no npu_local->npu_dma connection.
-  // Data array, not control state: wbuf_q holds no meaning outside the burst
-  // whose W beats it feeds, and wcount_q/widx_q (which do reset) gate every
-  // read of it, so its contents are deliberately not reset.
+  // ISSUE-npu_dma-03 (CHANGE_ORDER_rc4: metadata, provisional confirmed) —
+  // the burst write buffer lives here, not in npu_local, because
+  // contract.json has no npu_local->npu_dma connection; block purposes were
+  // reworded to match, no logic change.
+  // Data array, not control state: wbuf_q is the 16x32-bit output write
+  // buffer named by NPU-03's rc4 exemption; it holds no meaning outside the
+  // burst whose W beats it feeds, and wcount_q/widx_q (which do reset) gate
+  // every read of it, so its contents are deliberately not reset. NPU-03
+  // (rc4, R4-09), verbatim: "The contents of the activation store, weight
+  // transfer buffer and output write buffer are not reset and are undefined
+  // after reset; every pointer, counter, valid, output register and
+  // descriptor field resets (SYS-03), and DV shall not assume storage
+  // contents after reset (rc4). This exemption from the every-flop-resets
+  // house rule is conditional on the AGENTS.md storage-array clause
+  // recommended in CHANGE_ORDER_rc4 §Rule-level; until that clause lands,
+  // the module header shall name the array and cite this sentence
+  // (rc4, R4-09)."
   logic [31:0] wbuf_q [0:15];
   logic [ 4:0] wcount_q;   // 0..16 words currently buffered
   logic [31:0] wstart_q;   // address of wbuf_q[0]
@@ -296,6 +317,12 @@ module npu_dma (
                       | (wr_can_append_c & (st_last_q | (wcount_q == 5'd15))));
 
   wire st_fire_c = i_group_result_valid & o_group_result_ready;
+  // NPU-09(d): after this module's first non-OKAY response, hold ready=0
+  // until its next dispatch handshake. err_any_c (err_read_q/err_write_q)
+  // stays set from the error until the dispatch-fire clear below, and busy_q
+  // is separately cleared to 0 once the drain in NPU-06 completes, so ready
+  // is 0 throughout the interval and only returns to a computed value again
+  // after the next accepted dispatch re-arms busy_q/err_any_c.
   assign o_group_result_ready = busy_q & ~err_any_c & (~st_valid_q | wr_append_c);
 
   wire aw_clear_c = ~aw_valid_q | m_axi_awready;
@@ -318,9 +345,12 @@ module npu_dma (
   assign m_axi_wlast   = w_valid_q & w_last_c;
   assign m_axi_bready  = b_pending_q;
 
-  // ISSUE-npu_dma-02: provisional — C23 dma_terminal has no handshake, so
-  // done/error are driven as sticky levels: asserted on the terminal edge and
-  // held until the next accepted dispatch or reset.
+  // ISSUE-npu_dma-02 + ISSUE-top-01 (CHANGE_ORDER_rc4, F-04: spec-gap; this
+  // module's implementation confirmed, npu_ctl's pulse documentation was
+  // wrong and has been corrected) — dma_terminal is a registered level, not
+  // a handshake: done/error/error_code assert on this module's terminal
+  // edge Td and are held until its own next C13 dispatch handshake
+  // completes, or reset (NPU-09(c)).
   assign o_dma_terminal_done       = done_q;
   assign o_dma_terminal_error      = error_q;
   assign o_dma_terminal_error_code = ecode_q;
@@ -528,12 +558,22 @@ module npu_dma (
       end
 
       // ---------------- dispatch (C13) ----------------
-      // ISSUE-npu_dma-04: provisional — the first AR is offered once this
-      // block's own dispatch handshake completes; npu_local's handshake is not
-      // observable here.
-      // Accepted only while idle; clears the previous terminal level and every
-      // sequencer, which is what makes CLEAR-and-reuse after a terminal error
-      // safe (NPU-06).
+      // ISSUE-npu_dma-04 (CHANGE_ORDER_rc4: spec-gap, provisional confirmed)
+      // — NPU-09(a): this module may issue its first AR from the cycle
+      // after its own dispatch handshake completes (see RD_SETUP below,
+      // reached the cycle after dispatch_fire_c, which offers ARVALID no
+      // earlier than the following cycle — never earlier than NPU-09(a)'s
+      // floor); npu_local's handshake is not observable here, and per the
+      // same clause npu_local back-pressures local_bytes until it is armed,
+      // so no ordering wire is needed.
+      // NPU-09(a) re-arm discard list for this module, accepted only while
+      // idle: any fetched word not yet delivered / any offered-but-
+      // unaccepted local_bytes beat (sk_valid_q, the one-entry output
+      // register towards npu_local), its output write buffer (wr_state_q,
+      // wcount_q, wnext_q, wfinal_q, aw_valid_q, w_valid_q, b_pending_q,
+      // widx_q, st_valid_q) and any held dma_terminal level (done_q,
+      // error_q, ecode_q) — which is what makes CLEAR-and-reuse after a
+      // terminal error safe (NPU-06).
       if (dispatch_fire_c) begin
         w_base_q      <= i_dispatch_w_base;
         y_base_q      <= i_dispatch_y_base;

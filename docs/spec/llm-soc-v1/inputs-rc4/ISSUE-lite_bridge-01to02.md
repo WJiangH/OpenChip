@@ -1,18 +1,7 @@
 # lite_bridge — spec issues raised during RTL implementation
 
-Spec baseline: `docs/spec/llm-soc-v1/` 1.0-rc4 (axi.md AXI-09, system.md SYS-08,
-contract.json C07..C11) — filed against 1.0-rc3 and ruled by
-`CHANGE_ORDER_rc4.md`. Both issues are now closed with the provisional
-implementation confirmed; `lite_bridge.sv` has no logic change, only its
-`// ISSUE-lite_bridge-NN` comments rewritten from `provisional` to the ruling
-they now cite. rc4 lists lite_bridge under "No change".
-
-Status summary (rc4):
-
-| Issue | Disposition | RTL change |
-|---|---|---|
-| ISSUE-lite_bridge-01 | spec-gap, provisional confirmed (+ R4-04 precedence) | none |
-| ISSUE-lite_bridge-02 | spec-clear, provisional confirmed | none |
+Spec baseline: `docs/spec/llm-soc-v1/` 1.0-rc3 (axi.md AXI-09, system.md SYS-08,
+contract.json C07..C11).
 
 ---
 
@@ -42,28 +31,6 @@ Status summary (rc4):
 - **what_you_implemented_meanwhile** Option 1. In both directions the rejected
   transaction still consumes exactly LEN+1 W beats (write) or produces exactly
   LEN+1 zero-data error beats (read) per AXI-05, and no Lite port is touched.
-- **rc4_ruling** `CHANGE_ORDER_rc4.md` ISSUE-lite_bridge-01: **spec-gap**, option
-  1 adopted, provisional confirmed, "RTL: lite_bridge none". `axi.md` AXI-09 now
-  reads "A transaction the bridge rejects without issuing a Lite request returns
-  SLVERR when its shape is unsupported (LEN>0, SIZE!=2, WSTRB!=0xf on writes,
-  misaligned address) and DECERR only when the address lies outside the four Lite
-  windows; the rejected transfer still consumes exactly LEN+1 W beats or produces
-  exactly LEN+1 zero-data error beats (AXI-05) (rc4)". The rc4 amendment R4-04
-  adds "AXI-05's precedence applies at the bridge as well: an address outside the
-  four windows returns DECERR even when the shape is also unsupported (rc4,
-  R4-04)".
-- **rc4_status** Closed, no code change. R4-04 rejection order verified against
-  `lite_bridge.sv`:
-  - `aw_err_c = !aw_dec[2] ? DECERR : aw_shape_bad ? SLVERR : OKAY` and
-    `ar_err_c = !ar_dec[2] ? DECERR : ar_shape_bad ? SLVERR : OKAY` — the window
-    decode is evaluated before the shape term, so an out-of-window address whose
-    LEN/SIZE/BURST/alignment is also unsupported returns DECERR;
-  - the one late rejection, `WSTRB != 0xf` (and the ISSUE-lite_bridge-02 `!wb_last`
-    term), is reached only from `WS_WAITW`, which is entered only when
-    `aw_err_c == OKAY`; an out-of-window AW goes straight to `WS_DRAIN` with
-    DECERR already latched in `wr_resp`, so a bad strobe can never displace it;
-  - the LEN+1 beat obligation is unaffected: `WS_DRAIN` drains `aw_len+1` W beats
-    before `WS_ERRB`, and `RS_ERR` emits `ar_len+1` zero-data beats.
 
 ---
 
@@ -88,10 +55,3 @@ Status summary (rc4):
 - **what_you_implemented_meanwhile** Option 1: `wb_last` must be 1 on the single
   beat of a `AWLEN=0` write, otherwise the write is rejected with SLVERR and no
   Lite request is issued.
-- **rc4_ruling** `CHANGE_ORDER_rc4.md` ISSUE-lite_bridge-02: **spec-clear**, no
-  spec text changed. AXI-03 "Protocol violations such as incorrect WLAST are
-  illegal initiator behavior ... protocol monitor latches fatal": behind a
-  conforming fabric the bridge never sees WLAST=0 on a LEN=0 write, so its local
-  SLVERR is unobservable and permitted. Provisional confirmed; DV checks WLAST
-  violations at the fabric (reason 6), not as a lite_bridge response.
-- **rc4_status** Closed, no code change.

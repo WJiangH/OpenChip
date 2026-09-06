@@ -1,7 +1,12 @@
 // npu_csr.sv — NPU command-shadow register file, AXI4-Lite target at 0x40001000.
-// Spec: docs/spec/llm-soc-v1/npu.md NPU-04, NPU-05, NPU-06 (irq level equations),
-// system.md SYS-08 (CSR/IRQ semantics). contract.json blocks[npu_csr],
-// csr_registers[block==npu_csr], connections C09/C12/C17/C18/C24/CR10.
+// Spec baseline: docs/spec/llm-soc-v1 1.0-rc4 (CHANGE_ORDER_rc4 rows F-05,
+// ISSUE-npu_ctl-02/F-06, ISSUE-npu_csr-01, ISSUE-uart-01/F-07).
+// Spec: npu.md NPU-04 (register table, LAST_CYCLES = T-H+1 and its
+// per-SUBMIT-outcome behaviour), NPU-05, NPU-06 (irq level equations),
+// system.md SYS-08 (CSR semantics, WO command registers accept exactly the
+// word 1, NPU shadows accept any word while writable and are validated only
+// at SUBMIT). contract.json blocks[npu_csr], csr_registers[block==npu_csr],
+// connections C09/C12/C17/C18/C24/CR10.
 //
 // Descriptor validation ("SUBMIT ... validate and atomically snapshot descriptor",
 // NPU-04 register table) and the priority-1..4 error classification of NPU-05 are
@@ -11,7 +16,9 @@
 // (SUBMIT's own field description says "validate ... snapshot"; NPU-05 additionally
 // says a malformed idle SUBMIT "returns OKAY at the CSR layer ... issues no DMA",
 // i.e. npu_ctl never even sees a malformed command), so validation is placed here.
-// See ISSUES.md ISSUE-npu_csr-01 for the recorded reasoning.
+// rc4 ruled ISSUE-npu_csr-01 spec-clear on exactly this reading ("npu_csr
+// validates fully; a dispatch never carries a malformed descriptor"), so this
+// implementation stands unchanged. See ISSUES.md ISSUE-npu_csr-01.
 `default_nettype none
 
 module npu_csr (
@@ -168,6 +175,12 @@ module npu_csr (
   logic [31:0] opcode_q, x_base_q, w_base_q, y_base_q;
   logic [31:0] k_q, n_q, group_q, w_stride_q, tag_q;
   logic        busy_q, done_q, error_q;
+  // NPU-04 (rc4): LAST_CYCLES is write-once-per-terminal — the ONLY two
+  // assignments to last_cycles_q in this file are the reset value 0 and the
+  // C24 terminal record that also sets DONE/ERROR/ERROR_CODE/COMPLETED_TAG.
+  // No SUBMIT path (accepted, malformed-idle or SLVERR-rejected), no CLEAR and
+  // no descriptor write touches it; it therefore holds T-H+1 of the last
+  // completed command until the next terminal record or reset.
   logic [31:0] completed_tag_q, error_code_q, last_cycles_q;
   logic [ 1:0] irq_enable_q;   // bit0 done, bit1 error
   logic        dispatch_pending_q;
@@ -350,11 +363,19 @@ module npu_csr (
               b_resp_q <= AXI_SLVERR;  // RO
             end
 
+            // NPU-05 / SYS-08 (rc4, F-05). Three outcomes, none of which may
+            // touch LAST_CYCLES (NPU-04 rc4): SLVERR refusal while busy or
+            // terminal-uncleared "changes no state, including LAST_CYCLES";
+            // a write of any word other than 1 (including 0) is SLVERR with
+            // no effect; a malformed idle descriptor is OKAY at the CSR layer,
+            // sets ERROR/ERROR_CODE/COMPLETED_TAG, issues no dispatch and
+            // "does not modify LAST_CYCLES". An accepted SUBMIT leaves it at
+            // its previous value while BUSY; only the C24 record updates it.
             OFF_SUBMIT: begin
               if (shadow_locked) begin
                 b_resp_q <= AXI_SLVERR;                 // NPU-05 command refusal
               end else if (w_data_q != 32'd1) begin
-                b_resp_q <= AXI_SLVERR;                 // malformed write1-only value
+                b_resp_q <= AXI_SLVERR;                 // SYS-08: WO accepts only 1
               end else begin
                 b_resp_q <= AXI_OKAY;                   // NPU-05: OKAY at CSR layer
                 if (desc_valid) begin
@@ -372,8 +393,10 @@ module npu_csr (
               if (busy_q) begin
                 b_resp_q <= AXI_SLVERR;                 // NPU-04: rejects while BUSY
               end else if (w_data_q != 32'd1) begin
-                b_resp_q <= AXI_SLVERR;                 // malformed write1-only value
+                b_resp_q <= AXI_SLVERR;                 // SYS-08: WO accepts only 1
               end else begin
+                // NPU-04: CLEAR clears DONE/ERROR/ERROR_CODE/COMPLETED_TAG and
+                // leaves LAST_CYCLES unchanged (rc4).
                 b_resp_q        <= AXI_OKAY;
                 done_q          <= 1'b0;
                 error_q         <= 1'b0;
@@ -457,6 +480,11 @@ module npu_csr (
       end
 
       // ---- terminal record from npu_ctl (C24), NPU-06 ----
+      // The only non-reset write of last_cycles_q: NPU-04 (rc4) "updates it to
+      // T-H+1 through the same C24 terminal record that sets DONE or ERROR and
+      // COMPLETED_TAG"; npu_ctl guarantees exactly one record per terminal
+      // edge T (NPU-09(c)) and o_terminal_ready is constant 1, so the record
+      // is consumed on the edge it is offered.
       if (i_terminal_valid) begin  // o_terminal_ready is constant 1
         busy_q <= 1'b0;
         if (i_terminal_error_code == 3'd0) begin

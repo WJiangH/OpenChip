@@ -8,6 +8,11 @@
 // returns SLVERR (never silently dropped). DIVISOR writes reject while
 // BUSY. Idle line level is 1. No RX, no FIFO deeper than one, no baud
 // tolerance modeling (SYS-11).
+//
+// rc4 (CHANGE_ORDER_rc4.md F-07, ISSUE-uart-01 ruled reject): a DIVISOR
+// write whose 16-bit field value is below 2 additionally returns SLVERR, no
+// state change (the "legal 2..65535" range is hardware-enforced, not just
+// documentation). See hw/rtl/uart/ISSUES.md for the ruling record.
 `default_nettype none
 
 module uart (
@@ -190,11 +195,12 @@ module uart (
     end else begin
       case (waddr_off)
         OFF_TX_DATA: wr_slverr = (cur_wdata[31:8] != 24'd0) || holding_valid;  // not READY
+        // rc4 (CHANGE_ORDER_rc4.md F-07, ISSUE-uart-01 ruled reject):
+        // "legal 2..65535" is hardware-enforced. A divisor field value below
+        // 2 returns SLVERR, no state change, in addition to the pre-existing
+        // reserved-bits check and the BUSY-reject; see hw/rtl/uart/ISSUES.md.
         OFF_DIVISOR:
-        // ISSUE-uart-01: provisional — "legal 2..65535" is not hardware-
-        // enforced (only the reserved-bits check and the BUSY-reject are);
-        // see hw/rtl/uart/ISSUES.md.
-        wr_slverr = (cur_wdata[31:16] != 16'd0) || busy;
+        wr_slverr = (cur_wdata[31:16] != 16'd0) || busy || (cur_wdata[15:0] < 16'd2);
         default: wr_slverr = 1'b1;  // STATUS (RO) and unmapped offsets (SYS-08)
       endcase
     end

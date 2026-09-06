@@ -9,9 +9,18 @@
 // This is a simulation target: a single inferred memory array with
 // byte-enable writes, no vendor RAM macro and no timing model implied
 // (axi.md AXI-06: "simulation target obligations; no ... PHY validated").
-// Contents are never reset (system.md SYS-03: "mutable SRAM/external
-// bytes need not retain meaningful data"; firmware is responsible for
-// initializing what it uses) -- but every control flop below resets.
+// The storage array `mem` (declared below) is never reset (system.md
+// SYS-03: "mutable SRAM/external bytes need not retain meaningful data";
+// "Firmware shall initialize every mutable location before reading it" is
+// the write-before-read discipline this exemption relies on) -- but every
+// control flop below resets. This is the same every-flop-resets exemption
+// npu.md NPU-03 takes for its storage arrays (rc4, R4-09): conditional on
+// the AGENTS.md storage-array clause recommended in CHANGE_ORDER_rc4
+// §Rule-level item 2 ("A storage array ... whose every read within a
+// reset epoch is preceded by a write may omit reset; the module header
+// must name the array and the spec clause that guarantees write-before-
+// read"); until that clause lands, this header names the array (`mem`)
+// and cites SYS-03 as that clause (rc4, ISSUE-mem-01 / rule-level item 2).
 `default_nettype none
 
 module sram (
@@ -69,9 +78,13 @@ module sram (
   localparam int IDX_W = $clog2(WORDS);  // 16
   localparam int IDX_HI = IDX_W + 1;  // 17 (word index occupies addr[17:2])
 
-  // Single inferred memory array, byte-enable write, no vendor macro.
-  // Not reset (SYS-03): SRAM contents need not retain meaningful data
-  // across reset; firmware initializes what it uses (including BSS).
+  // `mem`: single inferred memory array, byte-enable write, no vendor
+  // macro. Not reset (SYS-03: "mutable SRAM/external bytes need not
+  // retain meaningful data"; firmware initializes what it uses, including
+  // BSS, before reading it -- the write-before-read discipline SYS-03
+  // requires). Storage-array reset exemption per CHANGE_ORDER_rc4
+  // §Rule-level item 2, cited in the module header above (rc4, R4-09
+  // pattern); every control flop in this module still resets.
   logic [31:0] mem[0:WORDS-1];
 
   // AXI-02 restricts DUT initiators to aligned SIZE=2 INCR beats with no

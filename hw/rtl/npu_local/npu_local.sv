@@ -61,8 +61,21 @@ module npu_local (
   // activation load ahead of weight computation) and every weight-buffer entry
   // is written before the pointers that reset can address it. Their contents
   // are therefore deliberately not reset; all sequencing state below is.
-  // ISSUE-npu_local-02: provisional — SYS-03 does not say whether the
-  // activation store counts as command state that reset must discard.
+  // ISSUE-npu_local-02 (CHANGE_ORDER_rc4: spec-gap, provisional confirmed) —
+  // the arrays this exemption covers, named here per NPU-03 (rc4, R4-09):
+  //   act_mem_q    — the 4096-byte activation store.
+  //   wfifo_data_q — the 64-byte weight transfer buffer.
+  //   wfifo_row_q, wfifo_idx_q — its tag arrays (row / first-byte coordinate
+  //                  k of each buffered word).
+  // NPU-03 (rc4, R4-09), verbatim: "The contents of the activation store,
+  // weight transfer buffer and output write buffer are not reset and are
+  // undefined after reset; every pointer, counter, valid, output register
+  // and descriptor field resets (SYS-03), and DV shall not assume storage
+  // contents after reset (rc4). This exemption from the every-flop-resets
+  // house rule is conditional on the AGENTS.md storage-array clause
+  // recommended in CHANGE_ORDER_rc4 §Rule-level; until that clause lands,
+  // the module header shall name the array and cite this sentence
+  // (rc4, R4-09)."
   // ------------------------------------------------------------------
   logic [31:0] act_mem_q [0:1023];  // 4096 bytes, word b holds X[4*idx+b]
   logic [31:0] wfifo_data_q [0:15]; // 64 bytes of weight transfer buffer
