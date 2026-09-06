@@ -1,4 +1,7 @@
-# npu_csr — open issues
+# npu_csr — issue log
+
+Spec baseline: `docs/spec/llm-soc-v1` 1.0-rc4. Rulings on the issues below are
+in `docs/spec/llm-soc-v1/CHANGE_ORDER_rc4.md` §Rulings.
 
 ## ISSUE-npu_csr-01: which module validates the NPU-01/02 descriptor?
 
@@ -42,3 +45,34 @@
   toward npu_ctl when the descriptor is fully valid. `// ISSUE-npu_csr-01:
   provisional` is not marked in code since this reading is the most literal one
   available (SUBMIT's own field text), not a guess among equally-weighted options.
+- **rc4_ruling**: **CLOSED — spec-clear** (CHANGE_ORDER_rc4, row
+  ISSUE-npu_csr-01): *"NPU-04 SUBMIT 'validate and atomically snapshot
+  descriptor'; NPU-05 'malformed descriptor returns OKAY at the CSR layer, sets
+  ERROR ... issues no DMA'. npu_csr validates fully; a dispatch never carries a
+  malformed descriptor. Provisional confirmed."* Option 1 stands; no escalation
+  needed.
+- **code_changed**: no logic change; the header comment now cites the ruling.
+
+## rc4 verification record: LAST_CYCLES and the WO command registers
+
+CHANGE_ORDER_rc4 row ISSUE-npu_ctl-02 + F-06 assigns npu_csr one obligation —
+*"verify LAST_CYCLES untouched on CSR-layer descriptor rejection"* — and NPU-04
+(rc4) states it in full: *"only reset (value 0) and a terminal edge T change
+it"*. Verified in `npu_csr.sv`: `last_cycles_q` has exactly two assignments,
+the reset value `32'd0` and `last_cycles_q <= i_terminal_cycles` inside the C24
+terminal record that also sets DONE/ERROR, ERROR_CODE and COMPLETED_TAG. No
+SUBMIT arm (accepted, malformed-idle-descriptor or SLVERR-rejected), no CLEAR
+arm and no descriptor-shadow write assigns it. No logic change; the invariant
+is now stated at the declaration and at the terminal arm so it stays
+grep-checkable.
+
+SYS-08 (rc4, F-05) *"WO command registers (RESULT_COMMIT, NPU SUBMIT, NPU
+CLEAR) accept exactly the written word value 1: any other written word,
+including 0, returns SLVERR and has no effect"*: verified — both `OFF_SUBMIT`
+and `OFF_CLEAR` reject `w_data_q != 32'd1` with SLVERR before any state update
+(and the busy/uncleared refusal is checked first, so a rejected write is SLVERR
+under either rule). RESULT_COMMIT lives in `sys`, not here. SYS-08 (rc4, R4-07)
+*"NPU descriptor shadow registers accept any word value while writable and are
+validated only at SUBMIT"*: verified — the RW shadow arms store `w_data_q`
+unconditionally when `!shadow_locked`, with validation only in `desc_error_code`
+at the SUBMIT commit.
