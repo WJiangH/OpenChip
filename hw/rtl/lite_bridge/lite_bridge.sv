@@ -7,7 +7,8 @@
 //   complete AW/W pair, independent Lite target ports selected by address);
 //   AXI-01/AXI-02 (full-AXI target signal set and legal attributes);
 //   AXI-05 (rejected reads return zero data for exactly LEN+1 beats, rejected
-//   writes drain exactly LEN+1 W beats then return one error B);
+//   writes drain exactly LEN+1 W beats then return one error B; its DECERR-
+//   over-SLVERR precedence applies at the bridge as well, rc4/R4-04);
 //   system.md SYS-08 (aligned 32-bit single transfers, WSTRB=0xf on writes,
 //   other sizes/strobes/offsets return SLVERR and change no state);
 //   contract.json C07 (fabric -> lite_bridge, axi4), C08..C11 (lite_bridge ->
@@ -284,10 +285,15 @@ module lite_bridge (
   logic       wstrb_bad;
   logic       wr_lite_aw_hs, wr_lite_w_hs, wr_b_hs;
 
-  // ISSUE-lite_bridge-01: provisional — an address that decodes to no window
-  // is DECERR, an in-window transaction whose shape is not a full-word single
-  // beat is SLVERR (SYS-08 "other sizes, strobes, offsets ... return SLVERR");
-  // when both apply the mapping error is reported, matching the fabric.
+  // ISSUE-lite_bridge-01 (rc4): confirmed — an address that decodes to no
+  // window is DECERR, an in-window transaction whose shape is not a full-word
+  // single beat is SLVERR (SYS-08 "other sizes, strobes, offsets ... return
+  // SLVERR").  AXI-09 rc4/R4-04: "an address outside the four windows returns
+  // DECERR even when the shape is also unsupported", so the window decode is
+  // evaluated first, exactly as in the fabric firewall.  The late WSTRB!=0xf
+  // rejection below cannot reorder this: it is only reachable from WS_WAITW,
+  // which an out-of-window AW never enters (it goes straight to WS_DRAIN with
+  // the DECERR already latched in wr_resp).
   assign aw_err_c  = !aw_dec[2]    ? RESP_DECERR :
                      aw_shape_bad  ? RESP_SLVERR : RESP_OKAY;
   assign wstrb_bad = (wb_strb != WSTRB_ALL);
@@ -341,7 +347,11 @@ module lite_bridge (
           if (wb_valid) begin
             if (wstrb_bad || !wb_last) begin
               // Not a full-word single-beat write: no Lite request is issued.
-              // aw_len is 0 here, so this beat is the whole burst.
+              // aw_len is 0 here, so this beat is the whole burst.  Reached
+              // only for an in-window AW (R4-04), so SLVERR never displaces a
+              // DECERR.  The !wb_last term is ISSUE-lite_bridge-02 (rc4):
+              // confirmed spec-clear — behind a conforming fabric the bridge
+              // never sees it, so this local SLVERR is unobservable.
               wr_resp  <= RESP_SLVERR;
               wr_beat  <= wr_beat + 8'd1;
               wr_state <= WS_ERRB;
@@ -404,7 +414,8 @@ module lite_bridge (
                       | (s_axi_arcache != 4'd0)
                       | (s_axi_arqos   != 4'd0)
                       | (s_axi_araddr[1:0] != 2'b00);
-  // ISSUE-lite_bridge-01: provisional — same ordering as the write path.
+  // ISSUE-lite_bridge-01 (rc4): confirmed — same DECERR-before-SLVERR order as
+  // the write path (AXI-09 rc4/R4-04).
   assign ar_err_c     = !ar_dec[2]   ? RESP_DECERR :
                         ar_shape_bad ? RESP_SLVERR : RESP_OKAY;
 
