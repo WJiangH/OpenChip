@@ -1,0 +1,15 @@
+{
+  "extmem_base": 2147483648,
+  "extmem_size": 16777216,
+  "bin_file": "b1_extmem_bad_magic.bin",
+  "bin_sha256": "18d795ae59856a4ecf3577fb033bea79e2acc937cf5c6ff0953dd3d75e5d6e9c",
+  "regions": [
+    {
+      "name": "boot_image",
+      "addr": 2147483648,
+      "file_offset": 0,
+      "length": 3124,
+      "sha256": "18d795ae59856a4ecf3577fb033bea79e2acc937cf5c6ff0953dd3d75e5d6e9c"
+    }
+  ]
+}

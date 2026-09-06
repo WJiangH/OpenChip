@@ -1,0 +1,64 @@
+{
+  "extmem_base": 2147483648,
+  "extmem_size": 16777216,
+  "bin_file": "b1_extmem.bin",
+  "bin_sha256": "e94f62a911c7357a688e3cbf9a9af1c99786cca119b5fc98a95d45393a76f194",
+  "regions": [
+    {
+      "name": "boot_image",
+      "addr": 2147483648,
+      "file_offset": 0,
+      "length": 3124,
+      "sha256": "5ad52dec6cd339e0a11d0465ba35c9df0d7addd70b46ae488ad6319ad1131aa9"
+    },
+    {
+      "name": "cmd_a_poll_x",
+      "addr": 2153775104,
+      "file_offset": 3124,
+      "length": 12,
+      "sha256": "6b1f3e6827baa4e7576ce970b7254523c4e2b3ffcc5b046991f7fef39c85c58f"
+    },
+    {
+      "name": "cmd_a_poll_w",
+      "addr": 2153775120,
+      "file_offset": 3136,
+      "length": 48,
+      "sha256": "a82a822b2417fb3e1808fd8874aa20395877fc1a375cf32965fdcad979b848dd"
+    },
+    {
+      "name": "cmd_a_poll_y_sentinel",
+      "addr": 2153775168,
+      "file_offset": 3184,
+      "length": 36,
+      "sha256": "99e06b94e5ca9f3e640ceb902b519f86bc45d831d3bbb5c6c2adb0525bb17efc"
+    },
+    {
+      "name": "cmd_b_irq_x",
+      "addr": 2153775360,
+      "file_offset": 3220,
+      "length": 16,
+      "sha256": "e754a5a2b93f7cf22fc2a1207669256126d973387f68b22ab463e5eecd5a1b96"
+    },
+    {
+      "name": "cmd_b_irq_w",
+      "addr": 2153775392,
+      "file_offset": 3236,
+      "length": 32,
+      "sha256": "2c52299cb43e4436c07ba3f185a74560b691c09de3723b32cf1a06eeaba78f8a"
+    },
+    {
+      "name": "cmd_b_irq_y_sentinel",
+      "addr": 2153775440,
+      "file_offset": 3268,
+      "length": 16,
+      "sha256": "1c712ecc21e27e374111d5a1beeaf75a4e343b3814c1847cba14013420809873"
+    },
+    {
+      "name": "expected",
+      "addr": 2154823680,
+      "file_offset": 3284,
+      "length": 116,
+      "sha256": "f8581526a7dcf2448bf91665415df5c32ebae8667cfc11c886d324be075a9720"
+    }
+  ]
+}
