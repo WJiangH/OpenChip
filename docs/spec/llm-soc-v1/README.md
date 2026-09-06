@@ -1,6 +1,6 @@
 # LLM SoC v1 architecture release candidate
 
-Version 1.0-rc4 · 2026-09-06 · chief-architect · LOCAL ONLY · proposal branch: [change order rc4](CHANGE_ORDER_rc4.md) rules the 27 B1 implementation issues and becomes the baseline only after rc3-reviewer confirmation
+Version 1.0-rc4 · 2026-09-06 · chief-architect · LOCAL ONLY · proposal branch: [change order rc4](CHANGE_ORDER_rc4.md) rules the 28 B1 implementation issue ids, is amended after RTL/SW review (inputs-rc4/rc4_review_rtl.md, rc4_review_sw.md) and becomes the baseline only after rc3-reviewer confirmation
 
 This is the implementation contract for **SIM-L1**, a complete small-model SoC execution configuration. It defines real CPU execution, AXI transactions and NPU arithmetic. It is not an implemented chip, frozen product or accepted hardware result. Independent architecture review and IP/software intake remain release conditions; the status ledger below prevents equating a complete contract with validated implementation.
 

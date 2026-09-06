@@ -1,6 +1,6 @@
 # Requirement traceability obligations
 
-Version1.0-rc4 (change order rc4, proposal pending rc3-reviewer confirmation). Independent verification duties; implementation evidence remains not-run. owner lists are verification-scope participation lists (contract.json owner_modules_semantics).
+Version1.0-rc4 (change order rc4, amended after RTL/SW review, proposal pending rc3-reviewer confirmation). Independent verification duties; implementation evidence remains not-run. owner lists are verification-scope participation lists (contract.json owner_modules_semantics).
 
 | ID | Contract | Responsible modules | Independent obligation |
 |---|---|---|---|
@@ -12,12 +12,12 @@ Version1.0-rc4 (change order rc4, proposal pending rc3-reviewer confirmation). I
 |AXI-06|[axi.md](axi.md)|fabric, cpu_bridge, lite_bridge, extmem, rom, sram|Independent channel protocol/order/backpressure/error/timeout checks and assertions|
 |AXI-07|[axi.md](axi.md)|fabric (implements), cpu_bridge, lite_bridge, extmem|Independent per-obligation timer and early-W unknown-address timeout checks; obligation (e) only under the holding-register option; ownerless target VALID is immediate reason6 (rc4)|
 |AXI-08|[axi.md](axi.md)|fabric, cpu_bridge, lite_bridge, extmem, rom, sram|Independent channel protocol/order/backpressure/error/timeout checks and assertions|
-|AXI-09|[axi.md](axi.md)|fabric, cpu_bridge, lite_bridge, extmem|Independent channel protocol/order/backpressure/error/timeout checks and assertions; bridge rejection SLVERR/DECERR split (rc4)|
+|AXI-09|[axi.md](axi.md)|fabric, cpu_bridge, lite_bridge, extmem|Independent channel protocol/order/backpressure/error/timeout checks and assertions; bridge rejection SLVERR/DECERR split, DECERR precedence per AXI-05 (rc4)|
 |AXI-10|[axi.md](axi.md)|fabric, cpu_bridge, lite_bridge, extmem|Independent channel protocol/order/backpressure/error/timeout checks and assertions|
 |NPU-01|[npu.md](npu.md)|npu_csr, npu_ctl, npu_dma, npu_local, npu_dot|Independent grouped integer reference, command state/error/reset tests and arithmetic formal|
 |NPU-02|[npu.md](npu.md)|npu_csr, npu_ctl, npu_dma, npu_local, npu_dot|Independent grouped integer reference, command state/error/reset tests and arithmetic formal|
 |NPU-03|[npu.md](npu.md)|npu_csr, npu_ctl, npu_dma, npu_local, npu_dot|Independent grouped integer reference, command state/error/reset tests and arithmetic formal|
-|NPU-04|[npu.md](npu.md)|npu_csr, npu_ctl, npu_dma, npu_local, npu_dot|Independent grouped integer reference, command state/error/reset tests and arithmetic formal; LAST_CYCLES=T-H+1 exact endpoints (rc4)|
+|NPU-04|[npu.md](npu.md)|npu_csr, npu_ctl, npu_dma, npu_local, npu_dot|Independent grouped integer reference, command state/error/reset tests and arithmetic formal; LAST_CYCLES=T-H+1 exact endpoints and unchanged on every rejected SUBMIT and CLEAR (rc4)|
 |NPU-05|[npu.md](npu.md)|npu_csr, npu_ctl, npu_dma, npu_local, npu_dot|Independent grouped integer reference, command state/error/reset tests and arithmetic formal|
 |NPU-06|[npu.md](npu.md)|npu_csr, npu_ctl, npu_dma, npu_local, npu_dot|Independent grouped integer reference, command state/error/reset tests and arithmetic formal; error terminal after AXI drain only, datapath residue discarded by NPU-09 (rc4)|
 |NPU-07|[npu.md](npu.md)|npu_csr, npu_ctl, npu_dma, npu_local, npu_dot|Independent grouped integer reference, command state/error/reset tests and arithmetic formal|
@@ -32,7 +32,7 @@ Version1.0-rc4 (change order rc4, proposal pending rc3-reviewer confirmation). I
 |SYS-05|[system.md](system.md)|sys, cpu_bridge, irq, uart|Independent boot/reset/CSR/permission/IRQ firmware simulation and applicable formal properties|
 |SYS-06|[system.md](system.md)|sys, cpu_bridge, irq, uart|Independent boot/reset/CSR/permission/IRQ firmware simulation and applicable formal properties; 0xB001/0xB002/0xB003 taxonomy and check order (rc4)|
 |SYS-07|[system.md](system.md)|sys, cpu_bridge, irq, uart|Independent boot/reset/CSR/permission/IRQ firmware simulation and applicable formal properties|
-|SYS-08|[system.md](system.md)|sys, cpu_bridge, irq, uart, npu_csr, lite_bridge|Independent boot/reset/CSR/permission/IRQ firmware simulation and applicable formal properties; WO write-1-only SLVERR, BOOT_STAGE/DIVISOR range SLVERR, RESULT_COMMIT repeat SLVERR (rc4)|
+|SYS-08|[system.md](system.md)|sys, cpu_bridge, irq, uart, npu_csr, lite_bridge|Independent boot/reset/CSR/permission/IRQ firmware simulation and applicable formal properties; WO write-1-only SLVERR, BOOT_STAGE/DIVISOR range SLVERR, RESULT_COMMIT repeat SLVERR, each CSR error fatal via SYS-07 (rc4)|
 |SYS-09|[system.md](system.md)|sys, cpu_bridge, irq, uart|Independent boot/reset/CSR/permission/IRQ firmware simulation and applicable formal properties|
 |SYS-10|[system.md](system.md)|sys, cpu_bridge, irq, uart|Independent boot/reset/CSR/permission/IRQ firmware simulation and applicable formal properties|
 |SYS-11|[system.md](system.md)|sys, cpu_bridge, irq, uart|Independent boot/reset/CSR/permission/IRQ firmware simulation and applicable formal properties|
@@ -49,5 +49,5 @@ Version1.0-rc4 (change order rc4, proposal pending rc3-reviewer confirmation). I
 |LLM-11|[workload.md](workload.md)|software-runtime|Independent expectation bounds and exact header/directory/data CRC interval checks|
 |SYS-12|[system.md](system.md)|sys, cpu_bridge, fabric, npu_ctl, npu_dma|Independent fault priority/known-or-zero address, wrapper common reset, core local reset, and retained offered-write stop checks|
 |LLM-12|[workload.md](workload.md)|software-runtime|Independent forward graph including gate/up, both residual sources, GQA, RoPE and head concatenation|
-|NPU-09|[npu.md](npu.md)|npu_csr, npu_ctl, npu_dma, npu_local, npu_dot|Independent partition lifecycle checks: dispatch re-arm, C25-before-C13 ordering, dot_lifecycle flush (no result survives a terminal; operand on the C25 edge discarded), dma_terminal level hold/clear, stop-without-error stays BUSY|
-|SYS-13|[system.md](system.md)|cpu_bridge, cpu|Independent native-port protocol checks: payload hold until mem_ready, single registered mem_ready per transfer, no mem_ready on failure, back-to-back mem_valid, strobe/read-write decode; pinned PicoRV32 README sections as reference|
+|NPU-09|[npu.md](npu.md)|npu_csr, npu_ctl, npu_dma, npu_local, npu_dot|Independent partition lifecycle checks: dispatch re-arm, C25-before-C13 ordering, dot_lifecycle flush (reset 1, set at T, cleared only at C25 and never at C12; valid/ready masked combinationally while flush=1; no result survives a terminal; operand on the C25 edge discarded), dma_terminal level hold/clear, stop-without-error stays BUSY|
+|SYS-13|[system.md](system.md)|cpu_bridge, cpu|Independent native-port protocol checks: payload hold until mem_ready, single registered mem_ready per transfer, no mem_ready on failure, back-to-back mem_valid (no mem_ready in the first cycle of any transfer), strobe/read-write decode, no mem_ready and held AXI state under cpu_local_rst_n=0; pinned PicoRV32 README sections as reference, SYS-13 governing where they differ|

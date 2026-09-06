@@ -1,6 +1,6 @@
 {
   "version": "1.0-rc4",
-  "status": "release-candidate-not-hardware-accepted; rc4 change-order proposal pending rc3-reviewer confirmation",
+  "status": "release-candidate-not-hardware-accepted; rc4 change-order proposal, amended after RTL/SW review, pending rc3-reviewer confirmation",
   "configuration": "SIM-L1",
   "clock_hz": 50000000,
   "blocks": [
@@ -337,7 +337,7 @@
         "mem_wstrb": 4,
         "mem_rdata": 32
       },
-      "semantics": "SYS-13: core holds mem_valid and payload until the edge sampling mem_ready=1; mem_wstrb=0 read, !=0 write (8 legal strobe patterns); bridge asserts mem_ready one cycle per transfer, registered (never same cycle as mem_valid rise), never while mem_valid=0, mem_rdata valid in that cycle; failing request gets no mem_ready (SYS-07); mem_valid need not drop between transfers; one transfer live"
+      "semantics": "SYS-13: core holds mem_valid and payload until the edge sampling mem_ready=1; mem_wstrb=0 read, !=0 write (8 legal strobe patterns); bridge asserts mem_ready one cycle per transfer, registered (never in the first cycle of a transfer, including back-to-back), never while mem_valid=0, mem_rdata valid in that cycle; failing request gets no mem_ready (SYS-07); mem_valid need not drop between transfers; one transfer live; SYS-13 governs over the pinned README where they differ; core payload stability is suspended while cpu_local_rst_n=0, bridge holds its AXI state and issues no mem_ready for the failed request (SYS-12)"
     },
     "dispatch": {
       "signals": {
@@ -376,7 +376,7 @@
         "group_index": 12,
         "last": 1
       },
-      "semantics": "NPU-09(b,d): valid/ready, one INT32 result per group, last = dot_operands.command_last forwarded; producer never asserts valid while dot_lifecycle.flush=1; consumer holds ready=0 from its first DMA non-OKAY response until its next dispatch handshake"
+      "semantics": "NPU-09(b,d): valid/ready, one INT32 result per group, last = dot_operands.command_last forwarded; producer presents valid=0 as a combinational function of dot_lifecycle.flush while flush=1 (NPU-09(b), same waveform as dot_lifecycle.semantics); consumer holds ready=0 from its first DMA non-OKAY response until its next dispatch handshake"
     },
     "irq_level": {
       "signals": {
@@ -402,7 +402,7 @@
         "group_index": 12,
         "command_last": 1
       },
-      "semantics": "command_last iff group_last and final descriptor row/group; forwarded to group_result.last"
+      "semantics": "command_last iff group_last and final descriptor row/group; forwarded to group_result.last; consumer presents ready=1 as a combinational function of dot_lifecycle.flush while flush=1 and discards the beat accepted at any edge at which flush=1 (NPU-09(b)); producer may retract an offered beat only by the NPU-09(a) dispatch re-arm"
     },
     "terminal": {
       "signals": {
@@ -420,7 +420,7 @@
         "error": 1,
         "error_code": 3
       },
-      "semantics": "NPU-09(c): no handshake; done/error/error_code are registered levels set on the producer terminal edge, exactly one of done/error, error_code 5 or 6 while error=1 else 0, held until the edge on which the producer next dispatch handshake (C13) completes or reset; consumer samples only from the cycle after its own C13 handshake, first edge with done|error=1 is the terminal edge T, no re-sampling for the same command"
+      "semantics": "NPU-09(c): no handshake; done/error/error_code are registered levels set on the producer assertion edge Td, exactly one of done/error, error_code 5 or 6 while error=1 else 0, held until the edge on which the producer next dispatch handshake (C13) completes or reset; consumer samples only from the cycle after its own C13 handshake, first edge with done|error=1 is the terminal edge T (T >= Td+1; 'terminal edge' means T), no re-sampling for the same command"
     },
     "fault_event": {
       "signals": {
@@ -450,7 +450,7 @@
       "signals": {
         "flush": 1
       },
-      "semantics": "NPU-09(b): registered level driven by npu_ctl; 1 from reset release and from the edge sampling dma_terminal done|error, 0 from the edge on which the next npu_local dispatch handshake (C25) completes (still 1 in the cycle ending at that edge); while 1 npu_dot clears result register and accumulator, holds group_result.valid=0, presents dot_operands.ready=1 and discards accepted operand beats"
+      "semantics": "NPU-09(b): registered level driven by npu_ctl: reset value 1, set on the dma_terminal sampling edge T, cleared only on the C25 handshake edge, never on the C12 accept edge (not ~command_live; still 1 in the cycle ending at the C25 edge); while flush=1 npu_dot presents group_result.valid=0 and dot_operands.ready=1 as combinational functions of the registered flush, and on every edge at which flush=1 clears result register and accumulator and discards the operand beat accepted at that edge"
     }
   },
   "connections": [
@@ -2198,7 +2198,7 @@
         "npu_local",
         "npu_dot"
       ],
-      "verification_obligation": "Independent partition lifecycle checks: dispatch re-arm, C25-before-C13 ordering, dot_lifecycle flush (no result survives a terminal; operand on the C25 edge discarded), dma_terminal level hold/clear, stop-without-error stays BUSY",
+      "verification_obligation": "Independent partition lifecycle checks: dispatch re-arm, C25-before-C13 ordering, dot_lifecycle flush (reset 1, set at T, cleared only at C25 and never at C12; valid/ready masked combinationally while flush=1; no result survives a terminal; operand on the C25 edge discarded), dma_terminal level hold/clear, stop-without-error stays BUSY",
       "status": "not-run"
     },
     {
@@ -2209,7 +2209,7 @@
         "cpu_bridge",
         "cpu"
       ],
-      "verification_obligation": "Independent native-port protocol checks: payload hold until mem_ready, single registered mem_ready per transfer, no mem_ready on failure, back-to-back mem_valid, strobe/read-write decode; pinned PicoRV32 README sections as reference",
+      "verification_obligation": "Independent native-port protocol checks: payload hold until mem_ready, single registered mem_ready per transfer, no mem_ready on failure, back-to-back mem_valid (no mem_ready in the first cycle of any transfer), strobe/read-write decode, no mem_ready and held AXI state under cpu_local_rst_n=0; pinned PicoRV32 README sections as reference, SYS-13 governing where they differ",
       "status": "not-run"
     }
   ],

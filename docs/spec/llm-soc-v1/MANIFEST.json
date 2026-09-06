@@ -1,6 +1,6 @@
 {
   "version": "1.0-rc4",
-  "status": "rc4 change-order proposal branch; rc3-reviewer confirmation pending; no hardware acceptance",
+  "status": "rc4 change-order proposal branch, amended after RTL/SW review (R4-01..R4-12, SW-RC4-01/02); verification-role and rc3-reviewer confirmation pending; no hardware acceptance",
   "role": "chief-architect",
   "configuration": "SIM-L1",
   "artifacts": [
@@ -18,8 +18,8 @@
     },
     {
       "path": "docs/spec/llm-soc-v1/CHANGE_ORDER_rc4.md",
-      "bytes": 15412,
-      "sha256": "123ec17c49d020f8752b29ca1cb32a1c2177a0cd5220c5d176e532c7410134f7",
+      "bytes": 21280,
+      "sha256": "37bf7792e278250ea30e2352018f9e3994699631ab0801cd6249f03979c8ad3a",
       "kind": "architecture deliverable"
     },
     {
@@ -36,32 +36,32 @@
     },
     {
       "path": "docs/spec/llm-soc-v1/MANIFEST.md",
-      "bytes": 3824,
-      "sha256": "dba9d338c1bf0be84ec85011872d7f872eb9249882faa88d036dd1834fad377e",
+      "bytes": 4533,
+      "sha256": "2f4eca93a978e668f8afef99e33d8378ad749b7d5cb746b60924f822e26dbace",
       "kind": "architecture deliverable"
     },
     {
       "path": "docs/spec/llm-soc-v1/README.md",
-      "bytes": 2764,
-      "sha256": "38b9f5605946429e9f867a914e991af3f9884fdf2e330d5d1624c49a8ed8cda3",
+      "bytes": 2848,
+      "sha256": "5053e6aae29cfa60a3426a17667967032e40163f500833bdee6f88249e09fc09",
       "kind": "architecture deliverable"
     },
     {
       "path": "docs/spec/llm-soc-v1/axi.md",
-      "bytes": 10389,
-      "sha256": "e73d2f4a2b2b04546d682d11444460f1f3948a11971a074aae4c20d4c1252993",
+      "bytes": 10545,
+      "sha256": "f6b47f743222a2c5cd8a0e3ff858d6d631bee5e4f83be9742f6557318a4f0233",
       "kind": "architecture deliverable"
     },
     {
       "path": "docs/spec/llm-soc-v1/contract.json",
-      "bytes": 53613,
-      "sha256": "c519899dfe03c82baf7fe99a503cf69d0fea4c56b81711b025d905e947c79507",
+      "bytes": 54592,
+      "sha256": "757999b3af66ab7d7da11b8013934ff068fefc5965ae8b1d479cfa36a239bdad",
       "kind": "architecture deliverable"
     },
     {
       "path": "docs/spec/llm-soc-v1/dependencies.md",
-      "bytes": 6119,
-      "sha256": "17ed2911061475635e7c81dc55dafbb5733d1bb3d8ffa88b75dc20e4a30f2ed9",
+      "bytes": 6166,
+      "sha256": "ae860e0cd4fa894dd4ee2b28e7cbb9d36e351f20e868174f2931e464268856c7",
       "kind": "architecture deliverable"
     },
     {
@@ -156,8 +156,8 @@
     },
     {
       "path": "docs/spec/llm-soc-v1/npu.md",
-      "bytes": 14227,
-      "sha256": "d8aabc697f2bf43d82ad033ec7d4402fc555b40304f75d581a3a5e247c93275e",
+      "bytes": 16032,
+      "sha256": "6ccd83ee343a460de9c1ce60b532830d1a2ae35e96adea4c4d32fd265b4d2014",
       "kind": "architecture deliverable"
     },
     {
@@ -210,14 +210,14 @@
     },
     {
       "path": "docs/spec/llm-soc-v1/system.md",
-      "bytes": 15852,
-      "sha256": "b8c671b7584a79bc842dec18d3fba65779aede37be1295d5d195f6162708e75f",
+      "bytes": 17050,
+      "sha256": "a5ab5f21096dac53fdbf92c87f1ba00cd5ae6f6c8ef1a74edfee0688414e626c",
       "kind": "architecture deliverable"
     },
     {
       "path": "docs/spec/llm-soc-v1/traceability.md",
-      "bytes": 8441,
-      "sha256": "754de58340d927ce94f644091afb45950e1a426ad6e463f13f82ff0153f34fe5",
+      "bytes": 8832,
+      "sha256": "bd80b5e475e515161263c602497244bcd78f667dc7092d154fe634107e5b2dc0",
       "kind": "architecture deliverable"
     },
     {
@@ -331,5 +331,10 @@
   "no_push": true,
   "no_remote_pr": true,
   "hash_method": "sha256 via Python hashlib, cross-checked with shasum -a 256; no manifest generator exists in this tree (rc4)",
-  "change_order": "docs/spec/llm-soc-v1/CHANGE_ORDER_rc4.md"
+  "change_order": "docs/spec/llm-soc-v1/CHANGE_ORDER_rc4.md",
+  "review_inputs_rc4": {
+    "docs/spec/llm-soc-v1/inputs-rc4/rc4_review_rtl.md": "fd06c22946ccc61a2608e850f73a343e96c4c71b8bb545df0275fb30ea31470b",
+    "docs/spec/llm-soc-v1/inputs-rc4/rc4_review_sw.md": "5de6a26182ff8d9a8564f07713793615e906c257e39da7848c9c7d15f4513f8b",
+    "note": "review inputs to the rc4 amendment; committed under inputs-rc4/, not architecture deliverables"
+  }
 }
