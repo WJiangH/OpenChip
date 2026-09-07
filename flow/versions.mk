@@ -10,7 +10,7 @@ OSS_CAD_SUITE_TAG := 2026-07-26
 LIBRELANE_IMAGE := ghcr.io/librelane/librelane:3.0.5@sha256:ecabd075d0ddf6a2bd1cd4a32109c7dbb861ec007f7e4e423a9a081f8d23b8e2
 
 # xPack riscv-none-elf-gcc
-RISCV_GCC_VERSION := 14.2.0-3   # xPack darwin-arm64 tarball sha256 e08754e8c500f8e92b3b4ff7b0444cfbf3b218515f322929e0744ec3b9ed80a8, unpacked in .toolcache/
+RISCV_GCC_VERSION := 14.2.0-3   # xPack darwin-arm64 tarball sha256 e76e86b8c500f8e92b3b4ff7b0444cfbf3b218515f322929e0744ec3b9ed80a8, unpacked in .toolcache/
 RISCV_PREFIX      := riscv-none-elf-
 
 # Golden ISA model + compliance framework (pinned in M2)
