@@ -5,38 +5,218 @@ on:
     branches: [main]
   pull_request:
 
+permissions:
+  contents: read
+
 jobs:
   boundaries:
+    name: boundaries
     if: github.event_name == 'pull_request'
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
         with:
           fetch-depth: 0
+          persist-credentials: false
+      - name: Record boundary identity
+        run: |
+          mkdir -p _ci_artifacts/boundaries
+          {
+            printf 'source_sha=%s\n' "$GITHUB_SHA"
+            printf 'checked_out_sha=%s\n' "$(git rev-parse HEAD)"
+            git --version
+            bash --version | head -n 1
+          } | tee _ci_artifacts/boundaries/identity.log
+          test "$(git rev-parse HEAD)" = "$GITHUB_SHA"
       - name: Boundary checker regression tests
-        run: bash flow/tests/test_check_boundaries.sh
+        run: |
+          set -o pipefail
+          bash flow/tests/test_check_boundaries.sh 2>&1 | tee _ci_artifacts/boundaries/regression.log
       - name: Iron Rule 2 — role/directory boundaries
         env:
           BOUNDARY_BASE_REF: ${{ github.event.pull_request.base.sha }}
           BOUNDARY_ROLE_BRANCH: ${{ github.head_ref }}
-        run: bash flow/check_boundaries.sh "$BOUNDARY_BASE_REF" "$BOUNDARY_ROLE_BRANCH"
+        run: |
+          set -o pipefail
+          bash flow/check_boundaries.sh "$BOUNDARY_BASE_REF" "$BOUNDARY_ROLE_BRANCH" 2>&1 | tee _ci_artifacts/boundaries/scope.log
+      - name: Upload boundary logs
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        with:
+          name: boundaries-${{ github.sha }}-${{ github.run_attempt }}
+          path: _ci_artifacts/boundaries
+          if-no-files-found: warn
+          retention-days: 14
+
+  framework:
+    name: framework
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065 # v5.6.0
+        with:
+          python-version: "3.12.14"
+      - name: Record framework identity
+        run: |
+          mkdir -p _ci_artifacts/framework
+          {
+            printf 'source_sha=%s\n' "$GITHUB_SHA"
+            printf 'checked_out_sha=%s\n' "$(git rev-parse HEAD)"
+            python3 --version
+            git --version
+            make --version | head -n 1
+            bash --version | head -n 1
+          } | tee _ci_artifacts/framework/identity.log
+          test "$(git rev-parse HEAD)" = "$GITHUB_SHA"
+      - name: Framework regression tests
+        run: |
+          set -o pipefail
+          make framework-test 2>&1 | tee _ci_artifacts/framework/tests.log
+      - name: Upload framework logs
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        with:
+          name: framework-${{ github.sha }}-${{ github.run_attempt }}
+          path: _ci_artifacts/framework
+          if-no-files-found: warn
+          retention-days: 14
 
   gates:
-    runs-on: ubuntu-latest
+    name: gates
+    runs-on: ubuntu-24.04
     steps:
-      - uses: actions/checkout@v4
-      - uses: YosysHQ/setup-oss-cad-suite@v3
-      - uses: actions/setup-python@v5
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
         with:
-          python-version: "3.12"
-      - name: Install python deps
-        run: pip install -r requirements.txt
+          persist-credentials: false
+      - uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065 # v5.6.0
+        with:
+          python-version: "3.12.14"
+      - name: Install pinned OSS CAD Suite
+        run: |
+          set -o pipefail
+          mkdir -p _ci_artifacts/gates
+          suite_tag="$(make -s print-oss-cad-suite-tag)"
+          suite_sha256="$(make -s print-oss-cad-suite-linux-x64-sha256)"
+          asset="oss-cad-suite-linux-x64-${suite_tag//-/}.tgz"
+          archive="$RUNNER_TEMP/$asset"
+          install_dir="$RUNNER_TEMP/oss-cad-suite-$suite_tag"
+          curl --fail --location --retry 3 --silent --show-error \
+            "https://github.com/YosysHQ/oss-cad-suite-build/releases/download/$suite_tag/$asset" \
+            --output "$archive"
+          printf '%s  %s\n' "$suite_sha256" "$archive" | sha256sum -c - \
+            | tee _ci_artifacts/gates/suite-checksum.log
+          mkdir -p "$install_dir"
+          tar -xzf "$archive" --strip-components=1 -C "$install_dir"
+          printf '%s/bin\n' "$install_dir" >> "$GITHUB_PATH"
+          {
+            printf 'oss_cad_suite_tag=%s\n' "$suite_tag"
+            printf 'oss_cad_suite_sha256=%s\n' "$suite_sha256"
+            printf 'oss_cad_suite_asset=%s\n' "$asset"
+          } | tee _ci_artifacts/gates/configured-suite.log
+      - name: Install pinned Python dependencies
+        run: |
+          set -o pipefail
+          "$pythonLocation/bin/python" -m venv .venv
+          .venv/bin/python -m pip install --disable-pip-version-check -r requirements.txt 2>&1 \
+            | tee _ci_artifacts/gates/python-install.log
+      - name: Record gate identity
+        run: |
+          {
+            printf 'source_sha=%s\n' "$GITHUB_SHA"
+            printf 'checked_out_sha=%s\n' "$(git rev-parse HEAD)"
+            export PATH="$PWD/.venv/bin:$PATH"
+            printf 'effective_python=%s\n' "$(command -v python3)"
+            printf 'effective_cocotb_config=%s\n' "$(command -v cocotb-config)"
+            python3 --version
+            python3 -c 'import importlib.metadata as m; print("cocotb=" + m.version("cocotb")); print("find_libpython=" + m.version("find_libpython"))'
+            cocotb-config --version
+            printf 'cocotb_python_bin=%s\n' "$(cocotb-config --python-bin)"
+            printf 'cocotb_libpython=%s\n' "$(cocotb-config --libpython)"
+            git --version
+            verilator --version
+            yosys -V
+            sby --version
+            iverilog -V 2>&1 | head -n 1
+          } | tee _ci_artifacts/gates/identity.log
+          test "$(git rev-parse HEAD)" = "$GITHUB_SHA"
       - name: Gate — lint
-        run: make lint
+        run: |
+          set -o pipefail
+          make lint 2>&1 | tee _ci_artifacts/gates/lint.log
       - name: Gate — unit simulation
-        run: make sim
+        run: |
+          set -o pipefail
+          make sim 2>&1 | tee _ci_artifacts/gates/sim.log
       - name: Gate — formal
-        run: make formal
+        run: |
+          set -o pipefail
+          make formal 2>&1 | tee _ci_artifacts/gates/formal.log
+      - name: Upload gate logs
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        with:
+          name: gates-${{ github.sha }}-${{ github.run_attempt }}
+          path: _ci_artifacts/gates
+          if-no-files-found: warn
+          retention-days: 14
+
+  delivery:
+    name: delivery
+    needs: [gates, framework]
+    if: >-
+      github.event_name == 'push' &&
+      github.ref == 'refs/heads/main' &&
+      needs.gates.result == 'success' &&
+      needs.framework.result == 'success'
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+          ref: ${{ github.sha }}
+      - uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065 # v5.6.0
+        with:
+          python-version: "3.12.14"
+      - name: Verify delivery source
+        env:
+          EVENT_REPOSITORY: ${{ github.event.repository.full_name }}
+        run: |
+          mkdir -p _ci_artifacts
+          {
+            printf 'event=%s\n' "$GITHUB_EVENT_NAME"
+            printf 'ref=%s\n' "$GITHUB_REF"
+            printf 'repository=%s\n' "$EVENT_REPOSITORY"
+            printf 'source_sha=%s\n' "$GITHUB_SHA"
+            printf 'checked_out_sha=%s\n' "$(git rev-parse HEAD)"
+            python3 --version
+            git --version
+          } | tee _ci_artifacts/delivery-identity.log
+          test "$GITHUB_EVENT_NAME" = push
+          test "$GITHUB_REF" = refs/heads/main
+          test "$EVENT_REPOSITORY" = "$GITHUB_REPOSITORY"
+          test "$(git rev-parse HEAD)" = "$GITHUB_SHA"
+      - name: Package tested tracked source
+        run: |
+          set -o pipefail
+          python3 scripts/package_source_snapshot.py \
+            --source-sha "$GITHUB_SHA" \
+            --repository "$GITHUB_REPOSITORY" \
+            --run-id "$GITHUB_RUN_ID" \
+            --run-attempt "$GITHUB_RUN_ATTEMPT" \
+            --output-dir _ci_artifacts/delivery 2>&1 \
+            | tee _ci_artifacts/delivery-package.log
+          mv _ci_artifacts/delivery-identity.log _ci_artifacts/delivery/
+          mv _ci_artifacts/delivery-package.log _ci_artifacts/delivery/
+      - name: Upload tested source snapshot
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        with:
+          name: openchip-source-${{ github.sha }}-${{ github.run_attempt }}
+          path: _ci_artifacts/delivery
+          if-no-files-found: error
+          retention-days: 14
 
   # M0 TODO: nightly job running `make gds MOD=blink` (LibreLane container)
   # M2 TODO: compliance job (RISCOF + Spike)

@@ -41,6 +41,11 @@ which of these rungs ran and identifies gate-level simulation as open. It
 supports those results for that reference module; it does not establish that
 every repository design or every framework stage has passed.
 
+The `framework` CI job tests framework parsers, packaging, and boundary tooling.
+It does not evaluate product coverage. The `gates` job runs the listed lint,
+simulation, and formal entrypoints with the pinned toolchain. CI identity logs
+and exact-source delivery are described in [CI_CD.md](CI_CD.md).
+
 ## Unit-level contract
 
 - Testbenches live in `hw/dv/<module>/`, with shared drivers, monitors,
