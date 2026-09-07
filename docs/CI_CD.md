@@ -20,6 +20,10 @@ Workflow actions are pinned to immutable commit SHAs. Python is selected by an
 exact patch version, Python packages are pinned in `requirements.txt`, and the
 Linux OSS CAD Suite release and archive digest are declared in
 `flow/versions.mk`. CI verifies that archive digest before using the tools.
+The gate job creates `.venv` from setup-python's selected interpreter and places
+that environment before the EDA suite on the effective test PATH. Its identity
+log records the selected Python and `cocotb-config` paths plus cocotb's Python
+and libpython paths so the simulator startup can be checked against the pins.
 
 Each test job records the event source SHA, checked-out SHA, and observed tool
 versions. Its logs are uploaded even when a shell check fails, when the runner

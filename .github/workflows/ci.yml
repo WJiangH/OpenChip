@@ -118,15 +118,22 @@ jobs:
       - name: Install pinned Python dependencies
         run: |
           set -o pipefail
-          python3 -m pip install --disable-pip-version-check -r requirements.txt 2>&1 \
+          "$pythonLocation/bin/python" -m venv .venv
+          .venv/bin/python -m pip install --disable-pip-version-check -r requirements.txt 2>&1 \
             | tee _ci_artifacts/gates/python-install.log
       - name: Record gate identity
         run: |
           {
             printf 'source_sha=%s\n' "$GITHUB_SHA"
             printf 'checked_out_sha=%s\n' "$(git rev-parse HEAD)"
+            export PATH="$PWD/.venv/bin:$PATH"
+            printf 'effective_python=%s\n' "$(command -v python3)"
+            printf 'effective_cocotb_config=%s\n' "$(command -v cocotb-config)"
             python3 --version
             python3 -c 'import importlib.metadata as m; print("cocotb=" + m.version("cocotb")); print("find_libpython=" + m.version("find_libpython"))'
+            cocotb-config --version
+            printf 'cocotb_python_bin=%s\n' "$(cocotb-config --python-bin)"
+            printf 'cocotb_libpython=%s\n' "$(cocotb-config --libpython)"
             git --version
             verilator --version
             yosys -V
