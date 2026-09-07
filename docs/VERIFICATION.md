@@ -1,86 +1,93 @@
-# Verification Strategy
+# Verification strategy
 
-The platform's credibility rests on this document. Without physical hardware,
-"the chip works" must be established by an evidence ladder where every rung is
-machine-checked, reproducible, and adversarial to the design.
+OpenChip separates evidence already produced by a reference design from gates
+planned for later designs. A claim is no stronger than the highest applicable
+rung that actually ran, and every reported result must identify its inputs,
+command, and tool output.
 
 ## Principles
 
-1. **Independence.** DV agents derive expected behavior from `docs/spec/` and
-   golden models only. Reading RTL to decide "what it should do" is a protocol
-   breach — it converts verification into confirmation.
-2. **Objective anchors.** Wherever a third-party truth source exists, use it:
-   riscv-arch-test + Spike for the core, standard protocol checkers for buses,
-   CoreMark's own checksum for system-level. Self-graded tests are the weakest
-   evidence and never the only evidence.
-3. **Adversarial posture.** DV agents are scored on bugs found, coverage holes
-   closed, and spec ambiguities surfaced — not on making the design look good.
+1. **Independent expected behavior.** DV authors derive checkers and golden
+   models from `docs/spec/`, without reading RTL to decide what the design
+   should do. RTL and DV for a module use separate authors and contexts.
+2. **Objective anchors.** Use external standards and reference models when
+   available, such as RISCOF/riscv-arch-test against Spike for a RISC-V core.
+3. **Adversarial tests.** Directed, randomized, negative, and formal checks
+   should expose ambiguity and failures rather than confirm an implementation.
+4. **Scoped evidence.** Report applicable gates and exact results. Mark skipped,
+   unavailable, and future gates explicitly. Never infer a later rung from an
+   earlier one.
+5. **Gate integrity.** Thresholds, exclusions, waivers, constraints, and tests
+   are reviewable artifacts. They may not be weakened to obtain a pass.
 
-## The evidence ladder
+## Evidence ladder
 
-| Rung | What | Tool | Catches |
+| Rung | Evidence | Typical tool | Status in public CI |
 |---|---|---|---|
-| 1 | Lint | Verilator, Verible | width bugs, latches, missing resets |
-| 2 | Unit sim, directed + constrained-random | cocotb + Verilator | functional bugs per module |
-| 3 | Coverage ≥ 90% line/toggle | verilator --coverage | untested logic |
-| 4 | Formal proofs | SymbiYosys | corner cases sim can't reach |
-| 5 | ISA compliance | RISCOF + riscv-arch-test + Spike | ISA misinterpretation |
-| 6 | Full-SoC firmware sim | cocotb system tb | integration, memory map, interrupts |
-| 7 | Post-synth netlist sim (smoke) | Yosys netlist + Verilator | synth/RTL mismatch |
-| 8 | STA | OpenSTA | timing violations |
-| 9 | GL-sim with SDF | Icarus/Verilator + SDF | post-layout functional/timing reality |
-| 10 | (optional) silicon | Tiny Tapeout | everything else |
+| 1 | RTL lint | Verilator | run |
+| 2 | Unit simulation | cocotb + Verilator | run |
+| 3 | Coverage acceptance | Verilator coverage plus reviewed gate logic | not enforced by the diagnostic reporter |
+| 4 | Formal properties | SymbiYosys | run for listed jobs |
+| 5 | ISA compliance | RISCOF + riscv-arch-test + Spike | milestone-specific |
+| 6 | Full-SoC firmware simulation | cocotb system testbench | milestone-specific |
+| 7 | Post-synthesis netlist simulation | Yosys netlist + simulator | local or milestone-specific |
+| 8 | Static timing analysis | OpenSTA / LibreLane | local or milestone-specific |
+| 9 | Physical signoff | Magic/KLayout + Netgen | local or milestone-specific |
+| 10 | Gate-level simulation with SDF | simulator + post-layout netlist | open for the current `blink` evidence |
+| 11 | Optional silicon | fabrication and bring-up | future |
 
-## Unit level (per module)
+The checked-in [`blink` evidence package](../evidence/blink/README.md) records
+which of these rungs ran and identifies gate-level simulation as open. It
+supports those results for that reference module; it does not establish that
+every repository design or every framework stage has passed.
 
-- Testbench: cocotb; reusable Wishbone driver/monitor/scoreboard in `verif/common/`.
-- Golden model: plain Python in `verif/common/models/<mod>.py`, docstring cites
-  spec sections. The scoreboard compares RTL observed vs model expected.
-- Stimulus: directed tests for every spec "shall", plus constrained-random with
-  a seeded RNG (seed logged; failures must be reproducible via `SEED=`).
-- Checks: scoreboard + interface assertions. A test with no checker is not a test.
-- Bug protocol: failures become entries in `verif/<mod>/BUGS.md` + a GitHub issue
-  (repro command, spec citation, expected vs observed). DV never patches RTL.
+## Unit-level contract
 
-## Formal (per module where it pays)
+- Testbenches live in `hw/dv/<module>/`, with shared drivers, monitors,
+  scoreboards, and golden models in `hw/dv/common/`.
+- Golden-model docstrings cite the implemented spec section.
+- Every normative spec requirement gets a directed or formal check where
+  practical. Random tests use logged seeds so failures can be replayed.
+- A test needs an explicit checker. A waveform or completed process alone is
+  not a functional pass.
+- DV reports a failure with a reproduction command, expected-per-spec behavior,
+  and observed behavior. The independent RTL author owns implementation fixes.
 
-- Wishbone B4 slave/master compliance properties bound to every bus port
-  (ack/err/stall discipline, no response without request, bounded response).
-- FIFOs: no overflow/underflow, data ordering (via 2-symbol abstraction).
-- Core: PC alignment, single write-port commit, no x-prop into architectural state,
-  trap entry/return invariants.
-- Each job: `formal/<mod>/<mod>.sby`, BMC depth documented, induction where feasible.
+## Formal and system evidence
 
-## Core compliance (M2's headline)
+Formal jobs state their engines, depths, assumptions, assertions, and whether a
+claim is bounded or proven. System tests use externally observable criteria such
+as firmware output, architectural signatures, checksums, interrupts, and error
+responses. Physical claims require their own timing and signoff artifacts; an
+RTL simulation result cannot substitute for them.
 
-- RISCOF runs riscv-arch-test with our core as DUT and **Spike as reference**;
-  signature regions must match 100%.
-- For debug, optional lock-step co-sim: core commit log diffed against Spike
-  instruction-by-instruction; first divergence pinpoints the bug.
+Gate-level simulation should rerun the same decision-bearing firmware or tests
+against the post-layout netlist with the declared timing annotation. Until that
+rung passes, describe physical results as implementation signoff rather than
+post-layout functional verification.
 
-## System level (M3)
+## Coverage policy and diagnostics
 
-- The SoC testbench boots real firmware from ROM. Pass criteria are external:
-  UART output matches a golden log; CoreMark completes with its own valid
-  checksum; timer interrupts observed at spec'd rate.
-- Negative tests: illegal instruction traps, bus error responses, watchdog cases.
+`flow/gates.mk` declares the repository target of at least 90% line and toggle
+coverage per module. Existing simulation can collect Coverage-3 data, but the
+public flow does not currently turn the diagnostic report into an automatic
+coverage acceptance decision.
 
-## Physical-adjacent (M4)
+`make coverage-report` reads one existing Coverage-3 `coverage.dat` and
+produces a deterministic point census. It reports per-kind counts, uncovered
+points, hierarchies, and the input hash. It rejects malformed, duplicate,
+missing-field, and unknown-kind records and refuses to overwrite its input.
+It does not apply exclusions or waivers and always records
+`coverage_gate: "not_evaluated"`. See
+[COVERAGE_REPORT.md](COVERAGE_REPORT.md).
 
-- GL-sim re-runs the *same firmware* on the post-layout netlist with SDF
-  annotation at slow/typ/fast corners. This is the platform's strongest
-  no-hardware claim and is required for release.
+A `t=line` record is an instrumented code-flow point rather than one physical
+source line. Toggle points cover only signals instrumented by the producer.
+Raw diagnostic percentages therefore cannot be relabeled as a 90% gate pass.
 
-## Coverage policy
+## Review record
 
-- Gates live in `flow/gates.mk`: line ≥ 90%, toggle ≥ 90% per module to merge;
-  exclusions require justification comments and reviewer approval.
-- Coverage holes drive the next round of DV-agent test writing — the loop is:
-  run → report holes → agent proposes tests targeting holes → repeat.
-
-## What we do NOT claim
-
-- No post-layout dynamic IR/EM signoff (open tooling is immature there).
-- sky130 SRAM macros are used as characterized by their providers.
-- Analog/mixed-signal is out of scope for v1.
-Stating limits honestly is part of being trustworthy.
+The author records exact commands and summary output in the PR manifest. An
+independent reviewer checks the aggregate diff, gate integrity, cited spec or
+policy, and a proportionate set of reproduced commands. Checks outside the work
+item are recorded as `NOT_RUN` with a reason rather than implied by a green PR.

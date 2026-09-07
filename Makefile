@@ -1,5 +1,5 @@
 # OpenChip — top-level flow entry points.
-# Every target is a quality gate. Thresholds: flow/gates.mk. Tool pins: flow/versions.mk.
+# Gate thresholds: flow/gates.mk. Tool pins: flow/versions.mk.
 
 include flow/versions.mk
 include flow/gates.mk
@@ -15,12 +15,13 @@ SIM_MODS := $(notdir $(patsubst %/Makefile,%,$(wildcard hw/dv/*/Makefile)))
 SBY_MODS := $(notdir $(patsubst %.sby,%,$(wildcard hw/formal/*/*.sby)))
 MOD      ?=
 
-.PHONY: help lint sim formal synth compliance soc-sim gds glsim sw agents agents-sync clean
+.PHONY: help lint sim coverage-report formal synth compliance soc-sim gds glsim sw agents agents-sync clean
 
 help:
 	@echo "OpenChip flow targets:"
-	@echo "  make lint   [MOD=<m>]   Verilator --lint-only over rtl/"
+	@echo "  make lint   [MOD=<m>]   Verilator --lint-only over hw/rtl/"
 	@echo "  make sim    [MOD=<m>]   cocotb unit suites (COVERAGE=1, SEED=, TEST=)"
+	@echo "  make coverage-report    diagnostic census of one existing Coverage-3 file"
 	@echo "  make formal [MOD=<m>]   SymbiYosys proofs"
 	@echo "  make synth   MOD=<m>    Yosys synthesis + OpenSTA (M0)"
 	@echo "  make compliance         riscv-arch-test via RISCOF vs Spike (M2)"
@@ -55,6 +56,12 @@ else
 		PATH="$(TOOLPATH):$$PATH" $(MAKE) -C hw/dv/$$m || exit 1; \
 	done
 endif
+
+# Diagnostic only: this reports raw instrumented points and never closes a gate.
+COVERAGE_DATA ?= coverage.dat
+COVERAGE_REPORT ?= coverage-report.json
+coverage-report:
+	@python3 scripts/coverage_report.py "$(COVERAGE_DATA)" --output "$(COVERAGE_REPORT)"
 
 # --- Gate 4: formal ---------------------------------------------------------
 RUN_SBY_MODS = $(if $(MOD),$(MOD),$(SBY_MODS))

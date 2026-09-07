@@ -1,85 +1,124 @@
-# The Agent Organization
+# Agent collaboration model
 
-OpenChip is developed by a fleet of specialized AI agents modeled on a real
-silicon team. This document defines the roles, their boundaries, and the
-coordination protocol. The role definitions used by Claude Code live in
-`.claude/agents/` (Claude Code) and `.agents/skills/` (all agents).
+OpenChip treats chip development as a chain of owned work items with independent
+review. The roles mirror a silicon team, but their methods are independent of
+any particular model provider or coding-agent client.
 
-## Why multiple agents (not one big prompt)
+## Why use separate agents
 
-1. **Independence where it matters.** In industry, design and DV are separate
-   teams *because shared assumptions hide bugs*. Two agents with separate
-   contexts, both reading only the spec, reproduce that safeguard. A single
-   agent verifying its own RTL will test its misunderstanding, not the spec.
-2. **Focused context.** Timing closure and testbench architecture and ISA
-   semantics don't fit one context window well. Specialists stay sharp.
-3. **Parallel throughput.** Modules are independent until integration;
-   N designer/DV pairs work N branches concurrently.
+Design and verification need separate contexts because a shared misunderstanding
+can make a self-test agree with the wrong behavior. Specialist contexts also
+keep architecture, RTL, DV, formal, software, modeling, and physical-design
+tasks focused. Parallel work is useful only when every work item still has a
+clear owner, branch, interface, and acceptance test.
 
-## Roles
+The canonical role methods are under `.agents/skills/`. `AGENTS.md` defines
+the common policy and directory boundaries.
 
-| Role | Writes to | Must never touch | Key gates it owns |
-|---|---|---|---|
-| **Architect** | `docs/spec/`, `docs/adr/` | rtl/, verif/ | Spec completeness, ADRs |
-| **RTL Designer** (per module) | `rtl/<mod>/` | `verif/` | lint, synthesizability |
-| **DV Engineer** (per module) | `verif/<mod>/`, `verif/common/` | `rtl/` | sim green, coverage ≥ 90% |
-| **Formal Engineer** | `formal/` | `verif/` (sim tb) | SymbiYosys proofs |
-| **Firmware Engineer** | `sw/` | rtl/, verif/ | firmware builds & runs in SoC sim |
-| **Backend Engineer** | `syn/`, `pd/` | rtl/ logic (may flag issues) | timing, DRC, LVS, GL-sim |
-| **Reviewer / Integrator** | PR reviews, merges | (writes nothing) | spec conformance, iron rules |
-| **Orchestrator** (main session) | task assignment | — | milestone progress |
+## Roles and accountability
 
-Boundary enforcement is social + CI: a PR from a `rtl/<mod>` branch that touches
-`verif/` fails the boundary check in CI.
-
-## Coordination protocol
-
-```
-Architect writes/updates spec  ──►  docs/spec/<unit>.md   (human-reviewed PR)
-                                          │
-              ┌───────────────────────────┼──────────────────────────┐
-              ▼                           ▼                          ▼
-   RTL Designer (worktree,       DV Engineer (worktree,     Formal Engineer
-   branch rtl/<mod>)             branch dv/<mod>)           (branch formal/<mod>)
-   reads spec only               reads spec only            reads spec + RTL interface
-              │                           │                          │
-              └────────────► PR + CI quality gates ◄─────────────────┘
-                                          │
-                          Reviewer agent + human maintainer
-                                          │
-                                        main
-```
-
-- **Task queue:** GitHub Issues, labeled `role:rtl`, `role:dv`, `role:formal`,
-  `role:sw`, `role:pd`, `mod:<name>`, `milestone:M<n>`. The orchestrator files
-  and assigns; any contributor (human or agent) can pick up an unassigned issue.
-- **Workspace:** every agent works in its own git worktree on its own branch.
-  No two agents share a branch.
-- **Bug loop:** DV finds a failure → files issue (repro command + expected-per-spec
-  vs observed) → RTL agent fixes on its branch → DV re-runs. DV never patches RTL;
-  RTL never edits tests. If spec itself is wrong → escalate to Architect.
-- **Escalation:** any agent blocked > 2 iterations on the same gate escalates to
-  the orchestrator with a written summary rather than thrashing.
-
-## Quality gates (CI-enforced, definitions in flow/gates.mk)
-
-| Gate | Tool | Threshold |
+| Role | Primary responsibility | Product paths |
 |---|---|---|
-| lint | Verilator --lint-only, Verible | zero warnings (waivers need human sign-off) |
-| unit sim | cocotb + Verilator | all tests pass |
-| coverage | verilator --coverage | ≥ 90% line + toggle per module |
-| formal | SymbiYosys | all listed properties pass (BMC depth per module) |
-| ISA compliance | RISCOF + Spike | 100% signature match |
-| SoC sim | cocotb system tb | firmware boots, UART golden log match, CoreMark checksum |
-| synth | Yosys | no inferred latches, no $assert failures |
-| timing | OpenSTA / LibreLane | WNS ≥ 0 at 50 MHz sky130 |
-| signoff | Magic/KLayout + Netgen | DRC = 0, LVS clean |
-| GL-sim | Verilator/Icarus + SDF | same firmware passes on post-layout netlist |
+| Chief architect | specs, ADRs, design-space decisions | `docs/spec/`, `docs/adr/`, `workloads/`, `explore/` |
+| Verification architect | vplan, independent golden models, DV infrastructure | `hw/dv/` |
+| RTL engineer | synthesizable implementation from an approved spec | `hw/rtl/` |
+| DV engineer | adversarial simulation and coverage evidence | `hw/dv/` |
+| Formal engineer | properties and bounded/proven claims | `hw/formal/` |
+| Software engineer | firmware, compiler, and runtime against the contract | `sw/` |
+| Model engineer | bit-accurate and calibrated models | `sim/` |
+| Backend engineer | synthesis, timing, layout, and signoff evidence | `hw/syn/`, `hw/pd/` |
+| Integrator | independent review, evidence audit, and integration verdict | reviews, `evidence/` |
 
-## Working agreements
+A framework author owns policy, public documentation, and shared workflow tooling
+when those paths are explicitly assigned. Review and integration are specialist
+roles with their own evidence standard; they are not administrative afterthoughts.
+The assignment fixes the active author role. Reading another role's method to
+apply its criteria does not change authorship. Shared flow infrastructure uses
+the assigned orchestrator or flow-owner role.
 
-- Reports quote tool output; "it should work" is not a status.
-- Every PR description: what changed, spec sections implemented/tested,
-  gate results, open questions.
-- Humans are maintainers: they review spec changes, approve waivers, and merge.
-  Agents propose; the repo's history is the record of who decided what.
+The manager represents the maintainer. It defines acceptance criteria, decomposes
+work, chooses specialists and configured models according to uncertainty and
+impact, and checks the quality of both output and review. It corrects missing
+skills, context, decomposition, or model fit. It normally does not implement the
+specialist's deliverable or replace independent review.
+
+Requested runtime settings and observed identity are separate facts. Record the
+requested model and effort. Record an observed model only when the runtime
+independently exposes it; otherwise use `unattested`. Role methods and acceptance
+criteria must not change merely because a different model executes them.
+
+## Delivery and review loop
+
+```text
+maintainer criteria
+        |
+manager assigns author + independent reviewer
+        |
+author: isolated worktree -> implement -> check -> commit -> push -> manifest PR
+        |
+reviewer: boundary -> gate integrity -> spec/policy -> evidence -> impact
+        |
+author fixes findings, reruns checks, and updates the same PR
+        |
+manager audits output and review quality -> maintainer-controlled integration
+```
+
+The author owns delivery after public publication is authorized. It chooses Draft
+while scoped acceptance criteria or known review findings remain unresolved, and
+marks the PR ready when all applicable criteria are met. A future milestone's
+unimplemented chip gates do not block a framework-only change; the manifest marks
+them `NOT_RUN` and explains why they are inapplicable.
+
+Pending CI or independent review remains an explicit open item. The manifest is
+updated as checks and reviews complete; `Open items: none` is reserved for a
+ready deliverable with no known unresolved criterion.
+
+A neutral candidate checkout and reproduced checks inform the verdict. They do
+not make a merge accepted. Review findings cite a file and line plus the violated
+rule or spec. The author, rather than the reviewer or manager, owns fixes and PR
+updates.
+
+## Independence and escalation
+
+- RTL and DV for one module use separate authors, contexts, branches, and
+  worktrees. Both derive behavior from `docs/spec/`.
+- A DV failure becomes a reproducible bug report with expected behavior, observed
+  behavior, and a spec citation. DV does not patch RTL; RTL does not edit tests.
+- A product ambiguity returns to the architect. A repeated tool failure is
+  escalated with commands and output rather than hidden or worked around by
+  weakening a gate.
+- Each feature branch contains one authorized work item. Before pushing, the
+  author and reviewer audit every outgoing commit and the aggregate diff against
+  the public base.
+
+The public boundary workflow currently invokes `flow/check_boundaries.sh` for
+pull requests. That automation is supplemental: authors and reviewers must still
+verify role ownership and full publication scope themselves.
+
+## Public artifact policy
+
+Public history may contain specs, ADRs, methods, source code, tests, and
+reproducible evidence that supports a stated claim. Personal handoffs,
+conversation-derived notes, local experiment diaries, credentials, private
+inputs, and local-only drafts are not deliverables. A blanket ban on Markdown or
+raw evidence would remove useful traceability, so publication is decided by
+provenance, reproducibility, and relevance.
+
+Authorized authors push only their clean feature branch and open or update its
+manifest PR. Main-branch pushes, merges, history rewrites, and publication of
+other branches remain maintainer-controlled actions unless separately authorized.
+
+## Current automated checks
+
+The public CI workflow runs these jobs:
+
+- pull-request boundary script;
+- `make lint`;
+- `make sim`;
+- `make formal`.
+
+Synthesis, STA, compliance, full-SoC simulation, GDS, and gate-level simulation
+are local or milestone-specific until CI contains jobs for them. Coverage
+collection may occur during simulation, but the diagnostic reporter documented
+in [COVERAGE_REPORT.md](COVERAGE_REPORT.md) never evaluates the repository's 90%
+coverage policy.

@@ -2,169 +2,161 @@
 
 # OpenChip
 
-### Silicon designed by AI agents. Proven by tools, never by claims.
+### A public multi-agent framework for open-source chip development
 
-An end-to-end open-source chip platform — from architecture spec to signed-off GDSII —
-built with **zero proprietary EDA tools** and **zero physical hardware**.
+Specifications define behavior. Independent specialists own implementation and
+verification. Tools and cited review bound every claim.
 
 [![CI](https://github.com/WJiangH/OpenChip/actions/workflows/ci.yml/badge.svg)](https://github.com/WJiangH/OpenChip/actions/workflows/ci.yml)
 [![License](https://img.shields.io/badge/license-Apache--2.0-888780)](LICENSE)
-[![EDA](https://img.shields.io/badge/EDA-100%25%20open%20source-1D9E75)](#the-stack)
-[![PDK](https://img.shields.io/badge/PDK-sky130A-D85A30)](#the-stack)
-[![Hardware required](https://img.shields.io/badge/hardware%20required-none-534AB7)](#what-is-already-proven)
-[![Agents](https://img.shields.io/badge/agent%20roles-9-534AB7)](AGENTS.md)
-[![Any CLI](https://img.shields.io/badge/works%20with-Claude%20%C2%B7%20Codex%20%C2%B7%20Gemini%20%C2%B7%20Grok-888780)](#any-coding-agent-same-rules)
+[![Agent roles](https://img.shields.io/badge/agent%20roles-9-534AB7)](AGENTS.md)
 
 </div>
 
 ---
 
-In early 2026, Moonshot's Kimi K3 designed a working accelerator in 48 hours using only
-open-source tools — no Cadence, no Synopsys. That was a one-shot demo.
-**OpenChip turns it into a reproducible, community-owned platform**: clone the repo,
-launch the agent fleet, and take a chip from a markdown spec to a GDSII layout that is
-*proven to run real software* — entirely in simulation.
+OpenChip provides a reusable collaboration system for chip projects:
 
-## What "end-to-end" means here
+- a shared agent constitution and nine model-independent specialist methods;
+- spec authority and separate RTL/DV authorship contexts;
+- one owned work item per branch and worktree;
+- author-owned checks, commits, feature-branch pushes, and manifest PRs;
+- independent, citation-based review with author-owned fixes;
+- maintainer supervision of task decomposition, context, skills, model fit, and
+  review quality;
+- common open-source EDA entrypoints and reference silicon artifacts.
 
-![OpenChip end-to-end framework](docs/images/architecture.svg)
+The checked-in `blink` module validates parts of this workflow and toolchain.
+It is a reference example, not proof that every planned chip or flow stage is
+complete.
 
-Every stage is a machine-checkable quality gate, and the same AI-agent loop drives every
-stage: generate artifacts → run the tools → read the diagnostics → the gates decide.
-An agent's work is accepted only when the tools say so — never because the agent says so.
+## Collaboration contract
 
-## What is already proven
+The framework organizes work toward the target silicon flow below. Implemented
+automation and current reference evidence are scoped in the following sections.
 
-`blink` — a deliberately trivial module — was taken through **every stage of the flow**
-to prove the pipeline itself, from a cold machine in one day. Real numbers, all
-re-runnable, all quoted from tool output:
+![OpenChip framework and silicon flow](docs/images/architecture.svg)
 
-| Gate | Result | Headline numbers |
-|---|---|---|
-| Lint | ✅ | Verilator 5.051, `--lint-only -Wall --timing`, 0 warnings |
-| Sim + coverage | ✅ | 7/7 cocotb tests, parameter sweep 28/28; **line 100%, toggle 100%** (gate: 90%) |
-| Formal | ✅ | 10 asserts + 6 covers, k-induction over N ∈ {1,2,3}; **mutation-tested with 6 mutants, all caught** |
-| Synthesis | ✅ | Yosys 0.67 → 106 cells / 1242.44 µm², 26 flops, 0 latches |
-| GDSII signoff | ✅ | LibreLane 3.0.5, 80/80 steps. **DRC 0 · LVS match · antenna 0**; setup WNS +11.382 ns, hold WNS +0.1069 ns @ 50 MHz |
+The spec is the source of product behavior. Architects resolve ambiguity before
+implementation. RTL and DV for a module are written by different agents in
+separate contexts, with DV expected values derived from the spec and independent
+golden models.
 
-Full package with every authoritative artifact: [evidence/blink/](evidence/blink/README.md) ·
-Post-mortem: [docs/retro/P0.md](docs/retro/P0.md)
+The assigned specialist owns the full delivery loop: implement, run applicable
+checks, commit, push the authorized feature branch, open a manifest PR, and fix
+valid review findings. An independent reviewer audits role boundaries, gate
+integrity, policy or spec conformance, evidence, and cross-module impact.
+The manager represents the maintainer: it evaluates both the output and the
+review, then adjusts assignments, skills, context, task decomposition, or model
+choice when needed. It does not routinely replace the author or reviewer.
 
-> Gate-level simulation is the one rung still open (M4). We say so rather than round up —
-> an honest capability boundary is part of the deliverable.
+Before publication, the author audits every outgoing commit and the aggregate
+diff against the intended public base. Specs, ADRs, role methods, source code,
+tests, and reproducible evidence belong in public history. Personal handoffs,
+conversation-derived notes, local experiment diaries, private inputs, and
+local-only draft evidence do not.
 
-## Built by a fleet, not by a prompt
+Read [AGENTS.md](AGENTS.md) for the enforceable contract and
+[docs/AGENTS.md](docs/AGENTS.md) for the operating model.
 
-Nine specialist roles mirror a real silicon team, each with its own method file, its own
-context, and hard directory boundaries. They open issues at each other, review each
-other's pull requests, and merge through CI. The git history is the receipt:
+## What the framework automates today
 
-```console
-$ git log --format="%an" | grep -- "-agent-" | sort | uniq -c | sort -rn
-   8 chief-architect-agent-Sonnet5-medium
-   2 verif-architect-agent-Sonnet5-medium
-   1 verif-architect-agent-Sonnet5-high
-   1 sw-agent-Sonnet5-medium
-   1 rtl-agent-Sonnet5-medium
-   1 rtl-agent-Sonnet5-high
-   1 integrator-agent-Sonnet5-high
-   1 formal-agent-Opus5-high
-   1 dv-agent-Sonnet5-medium
-   1 dv-agent-Sonnet5-high
-   1 chief-architect-agent-Sonnet5-high
-   1 chief-architect-agent-Opus5-high
-   1 backend-agent-Opus5-high
-```
+The public CI workflow currently runs:
 
-Every role signs its own commits with the model and effort it actually ran on — no
-honorary upgrades. Seven of these landed through reviewed pull requests.
+- a pull-request boundary job;
+- `make lint`;
+- `make sim`;
+- `make formal`.
 
-Two iron rules make agent-built silicon trustworthy:
+Authors and reviewers still audit publication scope and ownership; automation is
+supporting evidence rather than a substitute for review. Synthesis, STA,
+compliance, full-SoC simulation, GDS, and gate-level simulation are local or
+milestone-specific until a public workflow runs them.
 
-1. **Design/DV independence** — the agent that writes the RTL never writes its testbench.
-   Both derive from the spec; expected values come from golden models, never from
-   observing the RTL. CI enforces the directory boundaries on every PR.
-2. **Tools are the arbiter** — no agent-asserted correctness. Merges happen only when
-   lint, sim, coverage, formal, STA, DRC and LVS are green.
-
-**It works — and we have the scar to prove it.** While verifying the NPU, the DV agent
-found that *no CPU-visible path could ever write a nonzero activation byte from cold
-reset* — the accelerator could only ever output zeros. It did not patch the RTL to hide
-it. It filed the finding back at the architect as a **specification** defect, with a
-reproducing probe and a coverage number. That backward-propagation loop, running with no
-human in it, is the whole thesis of this repo.
-
-Full model: [AGENTS.md](AGENTS.md) · [docs/AGENTS.md](docs/AGENTS.md) ·
-Verification strategy: [docs/VERIFICATION.md](docs/VERIFICATION.md)
-
-## Any coding agent, same rules
-
-OpenChip is not tied to one AI tool. `AGENTS.md` is the constitution and indexes the nine
-role method files in `.agents/skills/`; `CLAUDE.md` and `GEMINI.md` are one-line pointers
-to it. Claude Code, Codex, Gemini, Grok, Cursor, Copilot and OpenCode all start from
-identical rules, boundaries and role skills.
+The repository exposes the same canonical role methods to supported clients:
 
 ```bash
-make agents        # which coding-agent CLIs are installed here
-make agents-sync   # mirror .agents/skills into each CLI's skills directory
+make agents        # list detected coding-agent CLIs
+make agents-sync   # mirror canonical role methods into supported CLI locations
 ```
 
-## The stack
+These commands inventory clients and synchronize methods. Model selection and
+agent dispatch remain orchestrator procedures. OpenChip does not currently
+provide an automatic cross-provider scheduler.
 
-| Stage | Tool | Why |
+## Reference evidence: `blink`
+
+The committed [`blink` evidence package](evidence/blink/README.md) records this
+reference snapshot:
+
+| Rung | Recorded result | Scope |
 |---|---|---|
-| HDL | SystemVerilog (Yosys-safe subset) | Largest training corpus → best agent performance |
-| Lint | Verilator `--lint-only`, Verible | Strict, machine-readable diagnostics |
-| Simulation | **Verilator** (primary), Icarus | Fastest open-source simulator |
-| Testbench | **cocotb** (Python) | Agents write Python well; rich randomization + coverage |
-| Formal | **SymbiYosys** | BMC + k-induction for protocol proofs |
-| ISA compliance | **riscv-arch-test + RISCOF** vs Spike | *Third-party* proof the core is correct |
-| Synthesis / STA | **Yosys** · **OpenSTA** | The open-source standard |
-| RTL → GDSII | **LibreLane** on OpenROAD | The maintained community flow |
-| PDK | **SkyWater sky130A** | Open PDK, real signoff decks |
-| Signoff | Magic / KLayout (DRC) · Netgen (LVS) | Standard open signoff |
+| Lint | PASS, 0 warnings | Verilator lint for `blink` |
+| Unit simulation | PASS, 7/7 tests and 28/28 parameter-sweep runs | cocotb `blink` suite |
+| Coverage observation | line 100% and toggle 100% | measured for the recorded run; automatic 90% acceptance is not wired into `make sim` |
+| Formal | PASS, 10 assertions, 6 covers, 6/6 mutants caught | listed `blink` properties and parameter tasks |
+| Synthesis | 106 cells, 26 flops, 0 latches | recorded Yosys result |
+| Physical signoff | DRC 0, LVS match, antenna 0; timing met at 50 MHz | recorded LibreLane/sky130 result |
+| Gate-level simulation | OPEN | the reference evidence does not include post-layout functional verification |
 
-One-command environment: [OSS CAD Suite](https://github.com/YosysHQ/oss-cad-suite-build)
-+ LibreLane via Docker + xPack RISC-V GCC. Everything pinned in `flow/versions.mk`.
-Design rationale: [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md)
+These results support the stated `blink` artifact only. The open gate-level
+simulation rung is not rounded up into an end-to-end functional claim.
 
-## Quick start
+## Diagnostic coverage reporting
+
+`make coverage-report` inventories one existing Verilator Coverage-3 file:
 
 ```bash
-export PATH="$HOME/tools/oss-cad-suite/bin:$PATH"
-
-make lint            # Verilator lint over all RTL
-make sim             # all cocotb unit suites
-make formal          # all SymbiYosys proofs
-make gds MOD=blink   # RTL → GDSII on sky130 (Docker)
+make coverage-report \
+  COVERAGE_DATA=path/to/coverage.dat \
+  COVERAGE_REPORT=path/to/coverage-report.json
 ```
 
-## Repository layout
+The JSON includes the input SHA-256, per-kind hit and total counts, per-source
+and per-hierarchy counts, and every uncovered point. Corrupt, duplicate,
+missing-field, or unknown-kind records fail. The output always states that
+coverage closure is false and the gate was not evaluated. See
+[docs/COVERAGE_REPORT.md](docs/COVERAGE_REPORT.md).
 
+## Tool entrypoints
+
+```bash
+make help
+make lint
+make sim
+make formal
+make synth MOD=blink
+make gds MOD=blink
 ```
-docs/spec/   Specifications — the single source of truth
-docs/adr/    Architecture decision records
-hw/rtl/      SystemVerilog RTL, one directory per module
-hw/dv/       cocotb testbenches + golden models (independent authorship)
-hw/formal/   SymbiYosys jobs + SVA properties
-hw/syn/  hw/pd/   Synthesis + STA · LibreLane configs and signoff
-sw/  sim/    Firmware and compiler · bit-accurate ISS and performance models
-workloads/   Workload profiling — what the silicon must actually run
-explore/     Design space exploration and cost models
-evidence/    The per-design evidence package
-flow/        Shared make fragments + the gate thresholds
-AGENTS.md    The agent constitution — iron rules, role index, conventions
-.agents/     Role method files, canonical and CLI-agnostic
+
+Some targets require local toolchains or milestone artifacts. A command's exit
+status and output establish only the scope it actually exercises. The
+[verification strategy](docs/VERIFICATION.md) separates current CI checks,
+diagnostic evidence, and future acceptance rungs.
+
+## Repository map
+
+```text
+AGENTS.md        shared policy, ownership, and publication contract
+.agents/skills/  canonical model-independent role methods
+docs/spec/       product specifications
+docs/adr/        architecture decision records
+hw/rtl/          reference RTL
+hw/dv/           independent testbenches and golden models
+hw/formal/       formal jobs and properties
+hw/syn/          synthesis and timing inputs
+hw/pd/           physical-design configuration and signoff summaries
+sw/ and sim/     software and models
+flow/            shared EDA make fragments, versions, and thresholds
+scripts/         framework diagnostics and their tests
+evidence/        scoped, reproducible evidence packages
 ```
 
-## Status
-
-**M0 complete** — toolchain, CI, agent fleet, and the `blink` tracer bullet all the way to
-a DRC/LVS-clean GDSII. Now building the first real design: an edge-AI SoC around a
-streaming int8 NPU, specified from a profiled workload rather than a guess.
-Milestones: [docs/ROADMAP.md](docs/ROADMAP.md)
+The current reference design uses a Yosys-safe SystemVerilog subset, synchronous
+active-low reset, and Wishbone B4. Those are reference-design architecture
+choices, not requirements imposed on every chip project that adopts the
+collaboration framework.
 
 ## License
 
-[Apache-2.0](LICENSE). Specs, RTL, testbenches, firmware and flow are all free to use,
-modify, and manufacture.
+[Apache-2.0](LICENSE).

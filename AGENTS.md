@@ -1,126 +1,167 @@
-# AGENTS.md — Rules for all agents working in this repo
+# AGENTS.md — OpenChip agent constitution
 
-OpenChip is an end-to-end open-source silicon platform built by collaborating AI agents.
-Read this file fully before touching anything. These rules are non-negotiable.
+OpenChip is a public framework for building and reviewing open-source silicon
+with collaborating agents. The repository also contains reference designs that
+exercise parts of the framework. Read this file before changing anything.
 
-This file is the constitution for **every** coding agent — Claude Code, Codex,
-Gemini, Grok, Cursor, Copilot, OpenCode. `CLAUDE.md` and `GEMINI.md` are
-one-line pointers to it; no rule lives only in a vendor-specific file.
+This file is the shared constitution for every supported coding-agent client.
+`.agents/skills/` contains the canonical, model-independent role methods;
+vendor-specific entrypoints mirror or point to those methods.
 
-## Find your role first
+## Choose one role per work item
 
-Before your first edit, read the method file of the role you are acting as.
-Each is short by design; load its `references/` entries only when the task
-needs them.
+Before the first edit, name the role and read its method file. Load a method's
+`references/` entries only when the task needs them.
 
-| Role | `.agents/skills/<role>/SKILL.md` | Writes to | Never touches |
+| Role | Method | Writes to | Never touches |
 |---|---|---|---|
-| Chief architect | `chief-architect` | `docs/spec/`, `docs/adr/`, `workloads/`, `explore/` | `hw/`, `sw/`, `sim/` |
-| Verification architect | `verif-architect` | `hw/dv/` (vplan, golden models, DV infra) | `hw/rtl/` |
-| DV engineer | `dv-engineer` | `hw/dv/` | `hw/rtl/` |
-| RTL engineer | `rtl-engineer` | `hw/rtl/` | `hw/dv/` |
-| Formal engineer | `formal-engineer` | `hw/formal/` | `hw/dv/`, `hw/rtl/` |
-| Software engineer | `sw-engineer` | `sw/` | `hw/rtl/`, `hw/dv/` |
-| Model engineer | `model-engineer` | `sim/` | `hw/rtl/`, `hw/dv/` |
-| Backend engineer | `backend-engineer` | `hw/syn/`, `hw/pd/` | `hw/rtl/` logic |
-| Integrator | `integrator` | reviews, `evidence/`, skill curation | all product code |
+| Chief architect | `.agents/skills/chief-architect/SKILL.md` | `docs/spec/`, `docs/adr/`, `workloads/`, `explore/` | `hw/`, `sw/`, `sim/` |
+| Verification architect | `.agents/skills/verif-architect/SKILL.md` | `hw/dv/` plans, models, infrastructure | `hw/rtl/` |
+| DV engineer | `.agents/skills/dv-engineer/SKILL.md` | `hw/dv/` | `hw/rtl/` |
+| RTL engineer | `.agents/skills/rtl-engineer/SKILL.md` | `hw/rtl/` | `hw/dv/` |
+| Formal engineer | `.agents/skills/formal-engineer/SKILL.md` | `hw/formal/` | `hw/dv/`, `hw/rtl/` |
+| Software engineer | `.agents/skills/sw-engineer/SKILL.md` | `sw/` | `hw/rtl/`, `hw/dv/` |
+| Model engineer | `.agents/skills/model-engineer/SKILL.md` | `sim/` | `hw/rtl/`, `hw/dv/` |
+| Backend engineer | `.agents/skills/backend-engineer/SKILL.md` | `hw/syn/`, `hw/pd/` | `hw/rtl/` logic |
+| Integrator | `.agents/skills/integrator/SKILL.md` | reviews, `evidence/`, skill curation | product code |
 
-If no role was assigned to you, you are the orchestrator: name the role the
-task belongs to, then act as that role — one role per work item.
+Framework work belongs to a named framework author. That author may edit the
+repository policy, documentation, and shared workflow tooling named by the work
+item, but does not use framework work as permission to change product artifacts.
+The assignment determines the active author role; reading another role's method
+for review criteria does not transfer authorship. Framework and shared flow
+infrastructure use the assigned orchestrator or flow-owner role.
 
-`.agents/skills/` holds the only copy. `make agents-sync` mirrors it into each
-CLI's own skills directory (`.claude/skills/`, `.grok/skills/`, …) so the same
-nine methods are auto-discovered whichever agent you run — edit the canonical
-file, never a mirror. `make agents` lists the CLIs installed on this machine.
+## Ownership and supervision
 
-## The Iron Rules
+The manager represents the maintainer and supervises system quality. It defines
+the work item and acceptance criteria, assigns an independent specialist and
+reviewer, and selects a configured model according to uncertainty and impact.
+It examines both the deliverable and the quality of the review. When results are
+weak, it looks for missing context, missing skills, poor task decomposition, or
+poor model fit and adjusts the assignment or workflow. It does not routinely
+implement specialists' work or replace all reviewers with its own judgment.
 
-1. **The spec is the single source of truth.** Everything derives from `docs/spec/`.
-   If the spec is ambiguous or wrong, STOP and escalate to the architect role /
-   the human maintainer — never silently "fix" behavior in RTL or testbench.
+The assigned author owns the complete delivery loop: implementation, applicable
+checks, commit, feature-branch push, and a manifest PR. The author decides whether
+the PR is Draft or ready from the work item's acceptance criteria and recorded
+open items. Gates planned for future silicon milestones do not block a scoped
+framework or documentation PR when those gates are not applicable.
 
-2. **Design/DV independence.** The agent (or session) that writes a module's RTL
-   must never write or modify that module's testbench, and vice versa.
-   - RTL work writes only under `hw/rtl/` (+ its formal constraints under `hw/formal/` are OK).
-   - DV work writes only under `hw/dv/` and derives expected values from
-     `docs/spec/` and golden models — **never** from reading the RTL implementation.
-   - If a test fails, the DV agent files a bug report (GitHub issue or
-     `hw/dv/<mod>/BUGS.md`); it does not patch the RTL. The RTL agent fixes it.
+Review and integration are professional agent roles. A reviewer must use an
+independent context and cite the diff, governing rule or spec, and reproduced
+evidence. The author owns every response: fix valid findings, rerun affected
+checks, update the same branch and manifest, and request another review. A clean
+candidate checkout or neutral test run is evidence for review; it is not an
+accepted merge or permission to publish.
 
-3. **Tools are the arbiter.** Work is done only when the machine says so:
-   lint clean → sim green → coverage met → formal proven → timing met → DRC/LVS clean.
-   Never claim success without pasting the actual tool output summary.
+## Iron rules
 
-4. **One module per branch.** Branch names: `rtl/<mod>`, `dv/<mod>`, `formal/<mod>`,
-   `pd/<top>`, `sw/<feature>`. Agents work in separate git worktrees and merge via PR.
+1. **The spec is the source of product behavior.** RTL, DV, formal, software,
+   and models derive from `docs/spec/`. If the spec is ambiguous or wrong, stop
+   product implementation and escalate to the architect or maintainer.
+2. **Design and DV use independent authors and contexts.** An RTL author never
+   writes that module's testbench. A DV author derives expected results from the
+   spec and independent golden models, never by reading the RTL implementation.
+   DV reports RTL failures; it does not patch them.
+3. **Machine results bound every claim.** Report the exact checks that ran and
+   their results. Mark skipped or inapplicable checks explicitly. A diagnostic
+   report is not an acceptance gate.
+4. **Use one work item per branch and worktree.** Product branches normally use
+   `rtl/<module>`, `dv/<module>`, `formal/<module>`, `pd/<top>`, or
+   `sw/<feature>`. Framework branches use a descriptive feature name. Do not mix
+   unrelated roles or deliverables in one branch.
+5. **Never weaken a gate to make work pass.** Do not lower thresholds, add
+   waivers, loosen constraints, or delete failing tests without an explicit
+   maintainer-approved note in the PR manifest.
 
-5. **Never weaken a gate to make it pass.** Do not lower coverage thresholds, waive
-   lint rules, loosen timing constraints, or delete failing tests without an
-   explicit human-approved note in the PR description.
+Automated checks supplement these rules. The author and reviewer remain
+responsible for verifying the full diff, role boundary, and evidence.
+
+## Publication boundary
+
+Before a public push, audit the entire outgoing commit ancestry and aggregate
+diff against the intended public base, not only the tip commit. Publish only the
+authorized work item and its reproducible support artifacts. Public specs, ADRs,
+role methods, source code, and reproducible evidence are appropriate. Personal
+handoffs, conversation-derived notes, local experiment diaries, credentials,
+private inputs, and local-only draft evidence stay outside public history.
+
+Once public delivery is authorized, the author pushes its clean feature branch
+and opens or updates its own PR. Do not push `main`, merge, rewrite public
+history, or publish another branch unless that action is separately authorized.
 
 ## Commands
 
 ```bash
-make lint                # Verilator --lint-only + Verible over all hw/rtl/
-make sim MOD=<mod>       # cocotb suite for one module (omit MOD for all)
+make lint                # Verilator lint over RTL
+make sim MOD=<mod>       # cocotb suite for one module; omit MOD for all
+make coverage-report     # diagnostic census of one existing Coverage-3 file
 make formal MOD=<mod>    # SymbiYosys proof for one module
-make synth MOD=<mod>     # Yosys synth + OpenSTA report
-make gds  MOD=<top>      # LibreLane RTL→GDSII (Docker)
-make sw                  # build RISC-V firmware (requires riscv-none-elf-gcc)
-make clean
+make synth MOD=<mod>     # Yosys synthesis + OpenSTA report
+make gds MOD=<top>       # LibreLane RTL-to-GDSII flow
+make sw                  # build available RISC-V firmware
 ```
 
-## RTL conventions (Yosys-safe SystemVerilog subset)
+The public CI workflow currently runs the boundary job plus `make lint`,
+`make sim`, and `make formal`. Other targets are local or milestone-specific
+until a workflow explicitly runs them. `make coverage-report` is diagnostic and
+never declares the coverage gate passed.
 
-- One module per file; filename == module name; lowercase `snake_case` everywhere.
-- `` `default_nettype none `` at top of every file, `` `default_nettype wire `` at bottom.
-- Synchronous, active-low reset named `rst_n`; every flop resets. Clock named `clk`.
-- `always_ff` / `always_comb` only — no plain `always`, no latches, no `initial`
-  (except in testbench/formal code), no delays, no tri-state on internal logic.
-- Stay inside the Yosys-supported SV subset: no classes, no interfaces in
-  synthesizable code, no unpacked-struct ports across the synthesis boundary.
-- Wishbone B4 pipelined is the on-chip bus. Signal prefix `wb_`.
-- Module I/O: `i_` inputs, `o_` outputs (bus ports keep the `wb_` prefix convention).
+## Current reference-design conventions
+
+These conventions govern the reference design in this repository. They are not
+requirements that every design using the OpenChip collaboration framework adopt.
+
+- Use the Yosys-supported SystemVerilog subset: one lowercase `snake_case`
+  module per matching file, `always_ff`/`always_comb`, no internal tri-states,
+  and no unpacked-struct ports at the synthesis boundary.
+- Put `` `default_nettype none `` at the top and
+  `` `default_nettype wire `` at the bottom of synthesizable files.
+- Use `clk` and synchronous active-low `rst_n`; reset every flop.
+- The current on-chip bus is Wishbone B4 pipelined. Bus signals use `wb_`;
+  other module inputs and outputs use `i_` and `o_`.
+
+Changing a reference-design architectural convention requires a spec or ADR
+change before implementation.
 
 ## Verification conventions
 
-- cocotb testbenches in `hw/dv/<mod>/`, one `Makefile` including `flow/sim.mk`.
-- Golden/reference models live in `hw/dv/common/models/` as plain Python;
-  they must cite the spec section they implement in a docstring.
-- Every test suite ends by writing coverage; the gate is ≥ 90% line + toggle
-  (thresholds live in `flow/gates.mk` — never edit them to pass, see Iron Rule 5).
-- The RISC-V core is additionally verified by riscv-arch-test/RISCOF against
-  Spike — architectural compliance is not negotiable.
+- cocotb testbenches live in `hw/dv/<module>/`; their Makefiles include
+  `flow/sim.mk`.
+- Golden models live in `hw/dv/common/models/` and cite the implemented spec
+  section in a docstring.
+- The repository policy target is at least 90% line and toggle coverage per
+  module. Thresholds live in `flow/gates.mk` and may not be edited to pass.
+  Coverage collection and diagnostic reporting do not by themselves enforce
+  that acceptance target.
+- RISC-V architectural compliance, when implemented for a core, is checked with
+  RISCOF/riscv-arch-test against Spike.
 
-## Commit signature convention
+## Commit and manifest identity
 
-Every agent commits its own deliverables with its role signature as the git
-author, format `<role>-agent-<Model><Version>-<effort>`:
+Use a role author such as:
 
+```console
+git commit --author="dv-agent <dv-engineer@agents.openchip>" ...
 ```
-git commit --author="dv-agent-Sonnet5-high <dv-engineer@agents.openchip>" ...
-```
 
-The model/effort in the signature is what the session actually ran on — no
-honorary upgrades. One role's deliverables per commit; don't mix roles.
+Add model and effort to the author string only when the runtime independently
+exposes the actual identity. Otherwise keep generic role attribution. The PR
+manifest records the requested model/effort separately from observed identity;
+write `unattested` when the backend does not expose it. Preserve any real backend
+trailers added by the execution environment. Commit messages also record
+`Requested-Model`, `Requested-Effort`, and `Observed-Runtime` trailers;
+unknown observed identity is `unattested`. Never claim an honorary upgrade.
 
-## Working notes
+## Definition of done
 
-- Everything you need is inside this repo — never scan the filesystem outside it.
-- Flow-level defects you discover (Makefile, flow/, CI) are reported, not fixed:
-  work around inside your own directories and flag it; the orchestrator owns flow/.
-
-## When you finish a task
-
-1. Run the relevant `make` gates locally and include the summary lines in your report.
-2. Open a PR whose description IS the deliverable manifest
-   (.github/PULL_REQUEST_TEMPLATE.md): artifacts, gate numbers, spec refs,
-   open items — key facts only, no narrative. The manifest is the
-   traceability record; one that doesn't match the diff is a false report.
-3. Report honestly: failing gates, skipped checks, and open questions go in the
-   manifest — surfacing a failure is rewarded, hiding one is a protocol breach.
-4. End with two lists, one line per item, no narration:
-   - Friction: tool surprises, workarounds, deprecations.
-   - Skill candidates: anything that would have changed how you STARTED this
-     task. Format: `<target references/ file> — <delta>`. Nominate only —
-     the integrator gates what enters the library.
+1. Run every check applicable to the scoped work item and record exact summary
+   lines. Record other repository gates as `NOT_RUN` with a reason.
+2. Audit the aggregate diff and outgoing ancestry against the public base.
+3. Commit, push the authorized feature branch, and open or update a PR using
+   `.github/PULL_REQUEST_TEMPLATE.md` as the deliverable manifest.
+4. Resolve independent review findings, rerun affected checks, and keep the
+   manifest synchronized with the final diff and current CI state. Pending CI
+   or review is an open item, not `none`.
+5. End the manifest with one-line `Friction` and `Skill candidates` entries.
