@@ -22,6 +22,13 @@ Not run:
 Spec / policy refs:
 - <section or shall ID implemented, tested, or reviewed>
 
+Lifecycle impact:
+- <affected scoped signoff record IDs/candidates, reopened claims and reruns;
+  or not applicable for a framework-only change, with reason>
+- <independently authorized N/A or maintainer-approved waiver links, or none>
+<!-- Use docs/SILICON_LIFECYCLE.md and docs/templates/SIGNOFF_RECORD.md.
+     Link only publication-authorized records; private design evidence stays local. -->
+
 Publication audit:
 - Public base: <ref and commit>
 - Outgoing ancestry: <commit list reviewed>

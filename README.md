@@ -60,7 +60,11 @@ local-only draft evidence do not.
 
 Read [AGENTS.md](AGENTS.md) for the enforceable contract and
 [docs/AGENTS.md](docs/AGENTS.md) for the operating model. The
-[attribution protocol](docs/AGENT_ATTRIBUTION.md) separates requested runtime,
+[silicon lifecycle](docs/SILICON_LIFECYCLE.md) and reusable
+[signoff record](docs/templates/SIGNOFF_RECORD.md) organize workload, block,
+subsystem, SoC, physical and tapeout decisions with incremental evidence.
+These are planning and review procedures; implemented checks are listed below.
+The [attribution protocol](docs/AGENT_ATTRIBUTION.md) separates requested runtime,
 observed runtime, Git identity, platform account, and evidenced outcomes.
 
 ## What the framework automates today

@@ -82,6 +82,18 @@ verdict and resolve every request-changes finding before declaring review clean.
 Automated checks supplement these rules. The author and reviewer remain
 responsible for verifying the full diff, role boundary, and evidence.
 
+## Lifecycle signoff
+
+Use [the silicon lifecycle](docs/SILICON_LIFECYCLE.md) to assign stage-specific
+owners, independent reviewers, approvers and measurable criteria. Maintain
+[scoped signoff records](docs/templates/SIGNOFF_RECORD.md) as development
+progresses. Bind decisions to exact candidates and configurations; retain
+historical acceptance and reopen affected claims after changes. Block readiness,
+DV closure, subsystem/SoC acceptance, physical signoff and tapeout authorization
+are separate decisions. Pending or missing evidence is not PASS. The records
+are a manual process, not an implemented acceptance gate or access-control system.
+Private design records remain outside public history.
+
 ## Publication boundary
 
 Before a public push, audit the entire outgoing commit ancestry and aggregate
