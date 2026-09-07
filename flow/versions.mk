@@ -4,6 +4,7 @@
 # YosysHQ OSS CAD Suite release tag (yosys, verilator, iverilog, sby, verible, gtkwave)
 # https://github.com/YosysHQ/oss-cad-suite-build/releases
 OSS_CAD_SUITE_TAG := 2026-07-26
+OSS_CAD_SUITE_LINUX_X64_SHA256 := 38496835b9c57ffdf8b057c6e2dcd23d2fa0bb043dc49ac13d1296872c81714e
 
 # LibreLane (ex-OpenLane 2) container, https://github.com/librelane/librelane
 # 3.0.5 verified P0 (no `latest` tag exists on ghcr; pinned by digest — tags are mutable)

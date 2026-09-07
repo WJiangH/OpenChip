@@ -63,10 +63,14 @@ Read [AGENTS.md](AGENTS.md) for the enforceable contract and
 
 The public CI workflow currently runs:
 
-- a pull-request boundary job;
-- `make lint`;
-- `make sim`;
-- `make formal`.
+- `boundaries` on pull requests;
+- `framework` regression tests on pull requests and main pushes;
+- `gates` for `make lint`, `make sim`, and `make formal` on pull requests and
+  main pushes.
+
+After `framework` and `gates` pass on a main push, the same workflow archives
+the exact tested Git commit and uploads its manifest and checksums. This is a
+source snapshot, not a release or deployment. See [CI and source delivery](docs/CI_CD.md).
 
 Authors and reviewers still audit publication scope and ownership; automation is
 supporting evidence rather than a substitute for review. Synthesis, STA,

@@ -116,10 +116,15 @@ other branches remain maintainer-controlled actions unless separately authorized
 
 The public CI workflow runs these jobs:
 
-- pull-request boundary script;
-- `make lint`;
-- `make sim`;
-- `make formal`.
+- pull-request `boundaries` checks;
+- `framework` Python and boundary regression tests;
+- `gates` running `make lint`, `make sim`, and `make formal`.
+
+The `framework` and `gates` jobs run on pull requests and main pushes. When both
+pass on a main push, the same workflow uploads an exact tracked-source snapshot
+for that tested commit. [CI_CD.md](CI_CD.md) documents its tool pins, provenance,
+artifact contents, and reproduction steps. Job status is mechanical evidence;
+the substantive reviewer verdict remains a separate readiness requirement.
 
 The checked-in GitHub Agents workflow also supports mentions, issue-label role
 dispatch, PR review, and maintainer-authorized clean integration for its

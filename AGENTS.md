@@ -98,6 +98,8 @@ history, or publish another branch unless that action is separately authorized.
 ## Commands
 
 ```bash
+make framework-test      # framework Python and boundary regression tests
+make source-snapshot     # exact tracked HEAD archive with manifest/checksums
 make lint                # Verilator lint over RTL
 make sim MOD=<mod>       # cocotb suite for one module; omit MOD for all
 make coverage-report     # diagnostic census of one existing Coverage-3 file
@@ -107,10 +109,13 @@ make gds MOD=<top>       # LibreLane RTL-to-GDSII flow
 make sw                  # build available RISC-V firmware
 ```
 
-The public CI workflow currently runs the boundary job plus `make lint`,
-`make sim`, and `make formal`. Other targets are local or milestone-specific
-until a workflow explicitly runs them. `make coverage-report` is diagnostic and
-never declares the coverage gate passed.
+The public CI workflow runs the pull-request `boundaries` job, the `framework`
+regression job, and the `gates` job for lint, simulation, and formal. Successful
+main-branch `framework` and `gates` jobs produce an exact tracked-source artifact
+for the tested commit. See [docs/CI_CD.md](docs/CI_CD.md) for triggers, pins,
+artifacts, and reproduction. Other targets are local or milestone-specific until
+a workflow explicitly runs them. `make coverage-report` is diagnostic and never
+declares the coverage gate passed.
 
 The checked-in GitHub Agents workflow supports mentions, issue-label role
 dispatch, PR review, and maintainer-authorized clean integration for its

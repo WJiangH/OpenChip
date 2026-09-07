@@ -1,3 +1,4 @@
 # Python side of the flow — pinned like everything else (flow/versions.mk).
 cocotb==2.0.1
+find_libpython==0.5.1
 # M2 additions: riscof, riscv-isac, riscv-config (pin exact versions then)
