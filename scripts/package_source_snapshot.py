@@ -10,7 +10,7 @@ import re
 import subprocess
 import sys
 import tarfile
-from typing import Dict, List, Mapping, Optional, Sequence, Tuple
+from typing import Dict, List, Mapping, Optional, Sequence
 
 
 REPORT_SCHEMA = "openchip.source-snapshot.v1"
@@ -80,9 +80,8 @@ def _write_tree_archive(
     source_sha: str,
     entries: Sequence[Mapping[str, str]],
     archive_path: Path,
-) -> Tuple[List[Mapping[str, str]], List[Mapping[str, str]]]:
+) -> None:
     loaded = []
-    excluded: List[Mapping[str, str]] = []
     for entry in entries:
         if entry["type"] != "blob" or entry["mode"] not in ("100644", "100755", "120000"):
             raise SnapshotError(
@@ -91,15 +90,11 @@ def _write_tree_archive(
                 )
             )
         data = _git(repo, "cat-file", "blob", entry["object_sha"], text=False)
-        if entry["mode"] != "120000" and b"\0" in data:
-            excluded.append(dict(entry, reason="binary_nul_byte"))
-        else:
-            loaded.append((entry, data))
+        loaded.append((entry, data))
 
-    included = [entry for entry, _ in loaded]
     prefix = "openchip-source-{}/".format(source_sha)
     directories = {prefix}
-    for entry in included:
+    for entry in entries:
         parts = entry["path"].split("/")[:-1]
         for length in range(1, len(parts) + 1):
             directories.add(prefix + "/".join(parts[:length]) + "/")
@@ -129,7 +124,6 @@ def _write_tree_archive(
                 info.mode = 0o755 if entry["mode"] == "100755" else 0o644
                 info.size = len(data)
                 archive.addfile(info, io.BytesIO(data))
-    return included, excluded
 
 
 def create_snapshot(
@@ -166,16 +160,14 @@ def create_snapshot(
     archive_name = "openchip-source-{}.tar".format(source_sha)
     archive_path = output_dir / archive_name
     try:
-        archived_entries, excluded_entries = _write_tree_archive(
-            repo, source_sha, entries, archive_path
-        )
+        _write_tree_archive(repo, source_sha, entries, archive_path)
     except (OSError, tarfile.TarError) as exc:
         raise SnapshotError("source archive creation failed") from exc
 
     archive_sha256 = _sha256(archive_path)
     manifest: Dict[str, object] = {
         "archive": {
-            "entry_count": len(archived_entries),
+            "entry_count": len(entries),
             "filename": archive_name,
             "sha256": archive_sha256,
             "size_bytes": archive_path.stat().st_size,
@@ -191,8 +183,7 @@ def create_snapshot(
             "tracked_entry_count": len(entries),
             "tree": source_tree,
         },
-        "excluded_entries": excluded_entries,
-        "tracked_entries": archived_entries,
+        "tracked_entries": entries,
     }
     manifest_path = output_dir / "manifest.json"
     manifest_path.write_text(

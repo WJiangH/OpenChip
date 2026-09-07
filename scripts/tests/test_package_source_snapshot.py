@@ -54,7 +54,6 @@ class SourceSnapshotTests(unittest.TestCase):
         (self.repo / "drop.txt").write_text("must remain\n", encoding="utf-8")
         (self.repo / "subst.txt").write_text("$Format:%H$\n", encoding="utf-8")
         (self.repo / "keep.txt").write_text("local attributes cannot hide this\n", encoding="utf-8")
-        (self.repo / "built.sqlite").write_bytes(b"SQLite format 3\0binary")
         run_git(self.repo, "add", ".")
         run_git(self.repo, "commit", "-q", "-m", "fixture")
         self.source_sha = run_git(self.repo, "rev-parse", "HEAD")
@@ -86,7 +85,6 @@ class SourceSnapshotTests(unittest.TestCase):
             names = stream.getnames()
             self.assertIn(prefix + "README.md", names)
             self.assertNotIn(prefix + "private-local-note.txt", names)
-            self.assertNotIn(prefix + "built.sqlite", names)
             self.assertEqual(stream.extractfile(prefix + "drop.txt").read(), b"must remain\n")
             self.assertEqual(stream.extractfile(prefix + "subst.txt").read(), b"$Format:%H$\n")
             self.assertEqual(
@@ -101,18 +99,6 @@ class SourceSnapshotTests(unittest.TestCase):
         self.assertEqual(entries[".claude/skills/demo/SKILL.md"]["mode"], "120000")
         self.assertEqual(manifest["source"]["commit"], self.source_sha)
         self.assertEqual(manifest["ci"], {"run_attempt": "2", "run_id": "1234"})
-        self.assertEqual(
-            manifest["excluded_entries"],
-            [
-                {
-                    "mode": "100644",
-                    "object_sha": run_git(self.repo, "rev-parse", "HEAD:built.sqlite"),
-                    "path": "built.sqlite",
-                    "reason": "binary_nul_byte",
-                    "type": "blob",
-                }
-            ],
-        )
 
     def test_every_manifest_blob_matches_the_archived_git_object(self):
         output, manifest = self.create()
