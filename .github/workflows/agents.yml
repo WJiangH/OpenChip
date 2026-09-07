@@ -117,6 +117,9 @@ jobs:
             Also read /AGENTS.md (iron rules, boundaries, signatures).
 
             Review PR #${{ github.event.pull_request.number }} per your checklist:
+            The reviewed feature-head commit for this event is
+            `${{ github.event.pull_request.head.sha }}`. Record it before review
+            and require the live PR head to match it before any merge.
             1. gh pr view ${{ github.event.pull_request.number }} --comments
                and gh pr diff ${{ github.event.pull_request.number }}
             2. Boundary: infer the author role from the commit author signature,
@@ -128,12 +131,29 @@ jobs:
             5. Evidence: if RTL/DV/formal files changed, re-run the cheap
                gates (make lint MOD=..., make sim MOD=...) and compare with
                the PR's claims.
+            6. Read the substantive independent-review verdicts and confirm
+               every request-changes finding is resolved on the reviewed head.
+            7. Inspect repository-required checks only with
+               `gh pr checks ${{ github.event.pull_request.number }} --required`.
+               Never wait for this `pr-review` job: it is the currently running
+               job and is not a repository-required check. Do not use all-check
+               status as a merge prerequisite. A nonzero command result, an
+               empty required-check set, or any pending, skipped, or failed
+               required check fails closed without a merge.
 
             Deliver the verdict (auto-merge authority granted by the maintainer):
-            - clean: merge it yourself — gh pr merge <N> --merge --delete-branch —
-              then comment a one-line verdict + your spot-check evidence.
+            - clean: first confirm the PR is Ready, its live head still equals
+              `${{ github.event.pull_request.head.sha }}`, and every repository-
+              required check succeeded. Then merge exactly that reviewed head:
+              `gh pr merge ${{ github.event.pull_request.number }} --merge
+              --delete-branch --match-head-commit
+              ${{ github.event.pull_request.head.sha }}`. Comment a one-line
+              verdict plus spot-check evidence.
               (GitHub blocks formal self-approve on same-app PRs; the merge
               itself is the approval record.)
+            - if a required check is pending or failed, or the PR is Draft,
+              comment its exact current state and exit without merging. Do not
+              promise a background watch or future follow-up after this job.
             - otherwise: comment the numbered findings (file:line + rule/§)
               and do NOT merge; the author fixes and pushes, which re-triggers
               this review automatically.
