@@ -158,12 +158,40 @@ class AgentAttributionTests(unittest.TestCase):
         self.assertEqual(validated["pusher_account_ref"], "UNKNOWN")
         self.assertEqual(validated["agent"]["Observed-Identity"], "UNKNOWN")
 
+    def test_validate_range_checks_opted_in_commits_and_skips_legacy(self):
+        attributed = self.attributed_commit()
+        (self.repo / "legacy.txt").write_text("legacy\n", encoding="utf-8")
+        git(self.repo, "add", "legacy.txt")
+        git(self.repo, "commit", "-q", "-m", "human or legacy commit")
+        result = agent_attribution.validate_range(
+            self.repo,
+            self.base,
+            "HEAD",
+            agent_attribution.load_accounts(self.accounts),
+        )
+        self.assertEqual(result["commits_scanned"], 2)
+        self.assertEqual(result["structured_commits_validated"], 1)
+        self.assertEqual(result["validated"][0]["sha"], attributed)
+        self.assertEqual(result["legacy_or_unattributed_commits_skipped"], 1)
+
     def test_duplicate_or_conflicting_provenance_trailers_fail(self):
         message, prepared = self.prepare()
         text = message.read_text(encoding="utf-8")
         message.write_text(text + "Requested-Model: conflicting\n", encoding="utf-8")
         (self.repo / "duplicate.txt").write_text("x\n", encoding="utf-8")
         git(self.repo, "add", "duplicate.txt")
+        git(self.repo, "commit", "-q", "--author", prepared["author"], "-F", str(message))
+        commit = agent_attribution.read_commit(self.repo, git(self.repo, "rev-parse", "HEAD"))
+        with self.assertRaisesRegex(agent_attribution.AttributionError, "duplicate"):
+            agent_attribution.validate_commit(
+                commit, agent_attribution.load_accounts(self.accounts)
+            )
+
+        message, prepared = self.prepare(output=self.root / "case-message.txt")
+        text = message.read_text(encoding="utf-8")
+        message.write_text(text + "requested-model: conflicting\n", encoding="utf-8")
+        (self.repo / "case.txt").write_text("x\n", encoding="utf-8")
+        git(self.repo, "add", "case.txt")
         git(self.repo, "commit", "-q", "--author", prepared["author"], "-F", str(message))
         commit = agent_attribution.read_commit(self.repo, git(self.repo, "rev-parse", "HEAD"))
         with self.assertRaisesRegex(agent_attribution.AttributionError, "duplicate"):
@@ -205,6 +233,22 @@ class AgentAttributionTests(unittest.TestCase):
         record = self.work_item(head, [event, duplicate])
         with self.assertRaisesRegex(agent_attribution.AttributionError, "duplicate evidence"):
             agent_attribution.validate_work_item(record)
+
+        claimed = self.work_item(head)
+        claimed["participants"][0]["agent"]["observed"] = {
+            "identity": "unverified-model",
+            "attestation": "none",
+            "evidence": [],
+        }
+        with self.assertRaisesRegex(agent_attribution.AttributionError, "requires attestation"):
+            agent_attribution.validate_work_item(claimed)
+
+        reordered = copy.deepcopy(event)
+        reordered["id"] = "validation-c"
+        event["evidence"] = ["https://example.invalid/a", "https://example.invalid/b"]
+        reordered["evidence"] = list(reversed(event["evidence"]))
+        with self.assertRaisesRegex(agent_attribution.AttributionError, "duplicate evidence"):
+            agent_attribution.validate_work_item(self.work_item(head, [event, reordered]))
 
     def test_report_uses_reachable_head_only_and_separates_merge_activity(self):
         attributed = self.attributed_commit()
@@ -276,6 +320,25 @@ class AgentAttributionTests(unittest.TestCase):
             report["git_activity"]["structured_commit_attribution"][0]["sha"],
             attributed,
         )
+        details = report["work_item_evidence"]["record_details"]
+        self.assertEqual(details[0]["record"]["events"][2]["outcome"], "merged")
+        self.assertRegex(details[0]["sha256"], r"^[0-9a-f]{64}$")
+        self.assertRegex(
+            report["provenance_inputs"]["platform_accounts"]["sha256"],
+            r"^[0-9a-f]{64}$",
+        )
+
+        outside = copy.deepcopy(record)
+        outside["source"]["base"] = "e" * 40
+        (records / "fixture.json").write_text(json.dumps(outside), encoding="utf-8")
+        with self.assertRaisesRegex(agent_attribution.AttributionError, "base is not reachable"):
+            agent_attribution.build_report(self.repo, selected, self.accounts, records)
+
+        outside = copy.deepcopy(record)
+        outside["events"][0]["subject_sha"] = "f" * 40
+        (records / "fixture.json").write_text(json.dumps(outside), encoding="utf-8")
+        with self.assertRaisesRegex(agent_attribution.AttributionError, "outside work-item"):
+            agent_attribution.build_report(self.repo, selected, self.accounts, records)
 
     def test_legacy_requested_label_is_raw_claim_not_observed_identity(self):
         (self.repo / "legacy.txt").write_text("legacy\n", encoding="utf-8")

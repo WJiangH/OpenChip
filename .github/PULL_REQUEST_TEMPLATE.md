@@ -5,7 +5,9 @@ Role: <role>
 Work item: <issue or concise acceptance scope>
 Delivery state: <Draft | Ready> — <unresolved criterion or all applicable criteria met>
 Runtime requested: <model/effort or not specified>
-Runtime observed: <independently exposed identity or unattested>
+Runtime observed: <identity, attestation, evidence; or UNKNOWN/none/UNKNOWN>
+Provenance: <work-item ID; commit/range validation result>
+Platform publisher: <host/login/account ID and public evidence, or UNKNOWN>
 CI state: <pending | checks and result>
 
 Artifacts:

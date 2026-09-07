@@ -4,6 +4,7 @@
 import argparse
 from collections import Counter, defaultdict
 from datetime import datetime
+import hashlib
 import json
 from pathlib import Path
 import re
@@ -35,6 +36,9 @@ PROVENANCE_KEYS = (
     "Platform-Action",
     "Platform-Evidence",
 )
+CANONICAL_TRAILER_KEYS = {
+    key.lower(): key for key in PROVENANCE_KEYS + ("Agent-Requested-Model",)
+}
 POSITIVE_HEAD_KINDS = {"review", "validation", "integration"}
 POSITIVE_OUTCOMES = {"approve", "pass", "accepted", "merged"}
 
@@ -104,6 +108,7 @@ def parse_trailers(message: str) -> Tuple[Mapping[str, str], Mapping[str, List[s
                 continue
             break
         key, value = match.groups()
+        key = CANONICAL_TRAILER_KEYS.get(key.lower(), key)
         if key in values:
             duplicates[key].extend((value, values[key]))
         else:
@@ -253,17 +258,34 @@ def _timestamp(value: object) -> bool:
         return False
 
 
+def _string_list(value: object, *, allow_empty: bool = False) -> bool:
+    return (
+        isinstance(value, list)
+        and (allow_empty or bool(value))
+        and all(isinstance(item, str) and bool(item) and "\n" not in item and "\r" not in item for item in value)
+    )
+
+
 def validate_work_item(data: object) -> Mapping[str, object]:
     if not isinstance(data, dict) or data.get("schema") != "openchip.work-item-provenance.v1":
         raise AttributionError("unsupported work-item provenance record")
     required = ("work_item_id", "scope", "source", "participants", "events")
-    if any(key not in data for key in required) or WORK_ITEM_RE.fullmatch(str(data["work_item_id"])) is None:
+    if (
+        any(key not in data for key in required)
+        or not isinstance(data["work_item_id"], str)
+        or WORK_ITEM_RE.fullmatch(data["work_item_id"]) is None
+    ):
         raise AttributionError("work-item record is missing required identity")
     source = data["source"]
     if not isinstance(source, dict) or any(FULL_SHA_RE.fullmatch(str(source.get(key, ""))) is None for key in ("base", "head")):
         raise AttributionError("work-item source requires full base and head SHAs")
     scope = data["scope"]
-    if not isinstance(scope, dict) or not scope.get("summary") or not scope.get("acceptance_refs"):
+    if (
+        not isinstance(scope, dict)
+        or not isinstance(scope.get("summary"), str)
+        or not scope["summary"]
+        or not _string_list(scope.get("acceptance_refs"))
+    ):
         raise AttributionError("work-item scope requires summary and acceptance refs")
 
     participants = data["participants"]
@@ -271,7 +293,12 @@ def validate_work_item(data: object) -> Mapping[str, object]:
         raise AttributionError("work-item requires participants")
     participant_ids = set()
     for participant in participants:
-        if not isinstance(participant, dict) or not participant.get("id") or participant["id"] in participant_ids:
+        if (
+            not isinstance(participant, dict)
+            or not isinstance(participant.get("id"), str)
+            or not participant["id"]
+            or participant["id"] in participant_ids
+        ):
             raise AttributionError("participant IDs must be unique and non-empty")
         participant_ids.add(participant["id"])
         agent = participant.get("agent")
@@ -280,17 +307,43 @@ def validate_work_item(data: object) -> Mapping[str, object]:
         for key in ("label", "role", "requested", "observed"):
             if key not in agent:
                 raise AttributionError("agent metadata missing {}".format(key))
+        if not all(isinstance(agent[key], str) and agent[key] for key in ("label", "role")):
+            raise AttributionError("agent label and role must be non-empty strings")
+        for key in ("provider", "client", "backend"):
+            if agent.get(key) is not None and (not isinstance(agent[key], str) or not agent[key]):
+                raise AttributionError("agent {} must be a string or null".format(key))
         if not isinstance(agent["requested"], dict) or any(key not in agent["requested"] for key in ("model", "effort")):
             raise AttributionError("requested model and effort are required")
+        if not all(
+            isinstance(agent["requested"][key], str) and agent["requested"][key]
+            for key in ("model", "effort")
+        ):
+            raise AttributionError("requested model and effort must be non-empty strings")
         observed = agent["observed"]
         if not isinstance(observed, dict) or any(key not in observed for key in ("identity", "attestation", "evidence")):
             raise AttributionError("observed identity, attestation, and evidence are required")
-        if observed["identity"] == UNKNOWN and (observed["attestation"] != "none" or observed["evidence"]):
-            raise AttributionError("unknown observed identity cannot claim attestation evidence")
+        if not isinstance(observed["identity"], str) or not observed["identity"] or not _string_list(
+            observed["evidence"], allow_empty=True
+        ):
+            raise AttributionError("observed identity and evidence have invalid types")
+        if observed["attestation"] not in ("none", "self", "independent"):
+            raise AttributionError("invalid observed-identity attestation")
+        if observed["identity"] == UNKNOWN:
+            if observed["attestation"] != "none" or observed["evidence"]:
+                raise AttributionError("unknown observed identity cannot claim attestation evidence")
+        elif observed["attestation"] == "none" or not observed["evidence"]:
+            raise AttributionError("observed identity requires attestation evidence")
         actor = participant.get("platform_actor")
         if actor is not None:
             actor_keys = ("host", "login", "account_id", "account_type", "action", "evidence")
-            if not isinstance(actor, dict) or any(key not in actor for key in actor_keys) or not actor["evidence"]:
+            if (
+                not isinstance(actor, dict)
+                or any(key not in actor for key in actor_keys)
+                or not all(isinstance(actor[key], str) and actor[key] for key in ("host", "login", "account_type", "action"))
+                or not isinstance(actor["account_id"], int)
+                or actor["account_id"] <= 0
+                or not _string_list(actor["evidence"])
+            ):
                 raise AttributionError("platform actor requires identity, action, and evidence")
 
     events = data["events"]
@@ -302,15 +355,28 @@ def validate_work_item(data: object) -> Mapping[str, object]:
         required_event = ("id", "kind", "participant_ref", "subject_sha", "timestamp", "outcome", "evidence")
         if not isinstance(event, dict) or any(key not in event for key in required_event):
             raise AttributionError("event is missing required fields")
-        if event["id"] in event_ids or event["participant_ref"] not in participant_ids:
+        if (
+            not isinstance(event["id"], str)
+            or not event["id"]
+            or event["id"] in event_ids
+            or not isinstance(event["participant_ref"], str)
+            or event["participant_ref"] not in participant_ids
+        ):
             raise AttributionError("event ID must be unique and participant must exist")
         if event["kind"] not in ("author", "review", "validation", "integration"):
             raise AttributionError("unsupported event kind")
         if FULL_SHA_RE.fullmatch(str(event["subject_sha"])) is None or not _timestamp(event["timestamp"]):
             raise AttributionError("event requires full subject SHA and ISO timestamp")
-        if not isinstance(event["evidence"], list) or not event["evidence"]:
+        if not isinstance(event["outcome"], str) or not event["outcome"] or not _string_list(event["evidence"]):
             raise AttributionError("event requires public evidence")
-        semantic = (event["kind"], event["participant_ref"], event["subject_sha"], event["outcome"], tuple(event["evidence"]))
+        if len(set(event["evidence"])) != len(event["evidence"]):
+            raise AttributionError("event evidence references must be unique")
+        semantic = (
+            event["kind"],
+            event["participant_ref"],
+            event["subject_sha"],
+            event["outcome"],
+        )
         if semantic in semantic_events:
             raise AttributionError("duplicate evidence event")
         event_ids.add(event["id"])
@@ -319,30 +385,79 @@ def validate_work_item(data: object) -> Mapping[str, object]:
             if not isinstance(event["finding_count"], int) or event["finding_count"] < 0:
                 raise AttributionError("finding_count must be nonnegative or UNKNOWN")
         if event["kind"] in POSITIVE_HEAD_KINDS and event["outcome"] in POSITIVE_OUTCOMES:
-            if event["subject_sha"] != source["head"] and not event.get("scope_carryforward_evidence"):
+            carryforward = event.get("scope_carryforward_evidence")
+            if carryforward is not None and not _string_list(carryforward):
+                raise AttributionError("scope carry-forward evidence must be a non-empty reference list")
+            if event["subject_sha"] != source["head"] and not carryforward:
                 raise AttributionError("positive review/validation/integration evidence is stale for source head")
     return data
 
 
-def load_work_items(directory: Path) -> List[Mapping[str, object]]:
+def load_work_items(directory: Path) -> List[Tuple[Path, Mapping[str, object], str]]:
     if not directory.exists():
         return []
     records = []
     ids = set()
     for path in sorted(directory.glob("*.json")):
         try:
-            record = validate_work_item(json.loads(path.read_text(encoding="utf-8")))
-        except (OSError, json.JSONDecodeError) as exc:
+            raw = path.read_bytes()
+            record = validate_work_item(json.loads(raw.decode("utf-8")))
+        except (OSError, UnicodeDecodeError, json.JSONDecodeError) as exc:
             raise AttributionError("cannot read work-item record {}: {}".format(path, exc)) from exc
         if record["work_item_id"] in ids:
             raise AttributionError("duplicate work-item ID: {}".format(record["work_item_id"]))
         ids.add(record["work_item_id"])
-        records.append(record)
+        records.append((path, record, hashlib.sha256(raw).hexdigest()))
     return records
+
+
+def _report_path(path: Path, repo: Path) -> str:
+    try:
+        return path.resolve().relative_to(repo).as_posix()
+    except ValueError:
+        return path.name
+
+
+def validate_range(
+    repo: Path,
+    base: str,
+    head: str,
+    accounts: Mapping[str, Mapping[str, object]],
+) -> Mapping[str, object]:
+    resolved_base = str(_git(repo, "rev-parse", "--verify", "{}^{{commit}}".format(base))).strip()
+    resolved_head = str(_git(repo, "rev-parse", "--verify", "{}^{{commit}}".format(head))).strip()
+    try:
+        _git(repo, "merge-base", "--is-ancestor", resolved_base, resolved_head)
+    except AttributionError as exc:
+        raise AttributionError("range base is not an ancestor of head") from exc
+    commits = [
+        line
+        for line in str(_git(repo, "rev-list", "--reverse", "{}..{}".format(resolved_base, resolved_head))).splitlines()
+        if line
+    ]
+    validated = []
+    skipped = []
+    for sha in commits:
+        commit = read_commit(repo, sha)
+        if commit["trailers"].get("OpenChip-Provenance") == "v1":
+            validated.append(validate_commit(commit, accounts))
+        else:
+            skipped.append(sha)
+    return {
+        "schema": "openchip.provenance-range-validation.v1",
+        "base": resolved_base,
+        "head": resolved_head,
+        "commits_scanned": len(commits),
+        "structured_commits_validated": len(validated),
+        "legacy_or_unattributed_commits_skipped": len(skipped),
+        "validated": validated,
+        "skipped": skipped,
+    }
 
 
 def build_report(repo: Path, source: str, accounts_path: Path, records_dir: Path) -> Mapping[str, object]:
     repo = repo.resolve()
+    accounts_raw = accounts_path.read_bytes()
     accounts = load_accounts(accounts_path)
     resolved = str(_git(repo, "rev-parse", "--verify", "{}^{{commit}}".format(source))).strip()
     if FULL_SHA_RE.fullmatch(resolved) is None:
@@ -378,7 +493,7 @@ def build_report(repo: Path, source: str, accounts_path: Path, records_dir: Path
                 if key in commit["trailers"]:
                     legacy_requested["{}={}".format(key, commit["trailers"][key])] += 1
 
-    work_items = load_work_items(records_dir)
+    work_item_inputs = load_work_items(records_dir)
     event_counts = Counter()
     role_counts: Dict[str, Counter] = defaultdict(Counter)
     accepted = 0
@@ -386,13 +501,33 @@ def build_report(repo: Path, source: str, accounts_path: Path, records_dir: Path
     findings_known = 0
     findings_unknown = 0
     participant_contexts = []
-    for record in work_items:
+    record_details = []
+    for record_path, record, record_digest in work_item_inputs:
         if record["source"]["head"] not in reachable:
             raise AttributionError("work-item head is not reachable from selected source: {}".format(record["work_item_id"]))
+        if record["source"]["base"] not in reachable:
+            raise AttributionError("work-item base is not reachable from selected source: {}".format(record["work_item_id"]))
+        try:
+            _git(repo, "merge-base", "--is-ancestor", record["source"]["base"], record["source"]["head"])
+        except AttributionError as exc:
+            raise AttributionError("work-item base is not an ancestor of head: {}".format(record["work_item_id"])) from exc
+        item_commits = set(
+            line
+            for line in str(
+                _git(repo, "rev-list", "{}..{}".format(record["source"]["base"], record["source"]["head"]))
+            ).splitlines()
+            if line
+        )
         participants = {participant["id"]: participant for participant in record["participants"]}
         participant_event_counts: Dict[str, Counter] = defaultdict(Counter)
         integrated = False
         for event in record["events"]:
+            if event["subject_sha"] not in item_commits:
+                raise AttributionError(
+                    "event subject is outside work-item source range: {}:{}".format(
+                        record["work_item_id"], event["id"]
+                    )
+                )
             event_counts["{}:{}".format(event["kind"], event["outcome"])] += 1
             participant_event_counts[event["participant_ref"]][event["kind"]] += 1
             role = participants[event["participant_ref"]]["agent"]["role"]
@@ -410,11 +545,19 @@ def build_report(repo: Path, source: str, accounts_path: Path, records_dir: Path
             participant_contexts.append(
                 {
                     "work_item_id": record["work_item_id"],
+                    "work_item_scope": record["scope"]["summary"],
                     "participant_id": participant["id"],
                     "agent": participant["agent"],
                     "event_counts": dict(sorted(participant_event_counts[participant["id"]].items())),
                 }
             )
+        record_details.append(
+            {
+                "path": _report_path(record_path, repo),
+                "sha256": record_digest,
+                "record": record,
+            }
+        )
 
     return {
         "schema": "openchip.contribution-report.v1",
@@ -438,8 +581,18 @@ def build_report(repo: Path, source: str, accounts_path: Path, records_dir: Path
             "legacy_requested_labels": dict(sorted(legacy_requested.items())),
             "pusher_accounts": UNKNOWN,
         },
+        "provenance_inputs": {
+            "platform_accounts": {
+                "path": _report_path(accounts_path, repo),
+                "sha256": hashlib.sha256(accounts_raw).hexdigest(),
+            },
+            "work_items": [
+                {"path": item["path"], "sha256": item["sha256"]} for item in record_details
+            ],
+        },
         "work_item_evidence": {
-            "records": len(work_items),
+            "records": len(work_item_inputs),
+            "record_details": record_details,
             "explicitly_accepted": accepted,
             "acceptance_unknown": acceptance_unknown,
             "event_counts": dict(sorted(event_counts.items())),
@@ -466,6 +619,7 @@ def build_report(repo: Path, source: str, accounts_path: Path, records_dir: Path
 
 def render_text(report: Mapping[str, object]) -> str:
     source = report["source"]
+    git_activity = report["git_activity"]
     evidence = report["work_item_evidence"]
     lines = [
         "OpenChip contribution report",
@@ -483,6 +637,45 @@ def render_text(report: Mapping[str, object]) -> str:
     lines.append("role activity (event counts, not capability scores):")
     for role, counts in evidence["role_activity"].items():
         lines.append("  {}: {}".format(role, ", ".join("{}={}".format(key, value) for key, value in counts.items())))
+    lines.append("structured commit attribution:")
+    if not git_activity["structured_commit_attribution"]:
+        lines.append("  none")
+    for commit in git_activity["structured_commit_attribution"]:
+        agent = commit["agent"]
+        lines.append(
+            "  {}: label={}; role={}; requested={}/{}; observed={} ({})".format(
+                commit["sha"],
+                agent["Agent-Label"],
+                agent["Agent-Role"],
+                agent["Requested-Model"],
+                agent["Requested-Effort"],
+                agent["Observed-Identity"],
+                agent["Runtime-Attestation"],
+            )
+        )
+    lines.append("work-item participants:")
+    if not evidence["participant_contexts"]:
+        lines.append("  none")
+    for participant in evidence["participant_contexts"]:
+        agent = participant["agent"]
+        requested = agent["requested"]
+        observed = agent["observed"]
+        counts = ", ".join(
+            "{}={}".format(key, value) for key, value in participant["event_counts"].items()
+        ) or "no events"
+        lines.append(
+            "  {}:{}: scope={}; role={}; requested={}/{}; observed={} ({}); {}".format(
+                participant["work_item_id"],
+                participant["participant_id"],
+                participant["work_item_scope"],
+                agent["role"],
+                requested["model"],
+                requested["effort"],
+                observed["identity"],
+                observed["attestation"],
+                counts,
+            )
+        )
     lines.append("unavailable: ability_score, cost, duration, tokens = UNKNOWN")
     return "\n".join(lines) + "\n"
 
@@ -512,6 +705,13 @@ def _parser() -> argparse.ArgumentParser:
     validate.add_argument("--repo", type=Path, default=Path("."))
     validate.add_argument("--commit", default="HEAD")
 
+    validate_range_parser = subparsers.add_parser(
+        "validate-range", help="validate opted-in v1 commits in a Git revision range"
+    )
+    validate_range_parser.add_argument("--repo", type=Path, default=Path("."))
+    validate_range_parser.add_argument("--base", required=True)
+    validate_range_parser.add_argument("--head", default="HEAD")
+
     report = subparsers.add_parser("report", help="report reachable Git and work-item evidence")
     report.add_argument("--repo", type=Path, default=Path("."))
     report.add_argument("--source", default="HEAD")
@@ -529,6 +729,9 @@ def main(argv: Optional[Sequence[str]] = None) -> int:
         elif args.command == "validate-commit":
             sha = str(_git(args.repo, "rev-parse", "--verify", "{}^{{commit}}".format(args.commit))).strip()
             result = validate_commit(read_commit(args.repo, sha), load_accounts(args.accounts))
+            print(json.dumps(result, indent=2, sort_keys=True))
+        elif args.command == "validate-range":
+            result = validate_range(args.repo, args.base, args.head, load_accounts(args.accounts))
             print(json.dumps(result, indent=2, sort_keys=True))
         else:
             result = build_report(args.repo, args.source, args.accounts, args.records_dir)

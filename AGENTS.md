@@ -99,6 +99,8 @@ history, or publish another branch unless that action is separately authorized.
 
 ```bash
 make framework-test      # framework Python and boundary regression tests
+make attribution-validate # validate one opted-in provenance commit
+make contribution-report # report reachable Git and public work-item evidence
 make source-snapshot     # exact tracked HEAD archive with manifest/checksums
 make lint                # Verilator lint over RTL
 make sim MOD=<mod>       # cocotb suite for one module; omit MOD for all
@@ -154,19 +156,27 @@ change before implementation.
 
 ## Commit and manifest identity
 
-Use a role author such as:
+Agent identity, Git identity, and platform identity are separate. Prepare new
+agent-authored commits with the registered platform account that will publish
+them:
 
 ```console
-git commit --author="dv-agent <dv-engineer@agents.openchip>" ...
+python3 scripts/agent_attribution.py prepare <identity arguments> --output /tmp/message.txt
+git -c user.name=<account-login> -c user.email=<registered-email> \
+  commit --author="ROLE_AGENT <REGISTERED_EMAIL>" -F /tmp/message.txt
+python3 scripts/agent_attribution.py validate-commit --commit HEAD
 ```
 
-Add model and effort to the author string only when the runtime independently
-exposes the actual identity. Otherwise keep generic role attribution. The PR
-manifest records the requested model/effort separately from observed identity;
-write `unattested` when the backend does not expose it. Preserve any real backend
-trailers added by the execution environment. Commit messages also record
-`Requested-Model`, `Requested-Effort`, and `Observed-Runtime` trailers;
-unknown observed identity is `unattested`. Never claim an honorary upgrade.
+The preparation command writes the complete `OpenChip-Provenance: v1` trailer
+block and prints the author and committer identity selected from
+`provenance/platform-accounts.json`. Use command-scoped Git configuration; do
+not change a user's global settings. A registered email maps a commit identity
+to a platform account but does not prove the historic pusher or agent runtime.
+Record requested model and effort separately from observed identity. Use
+`UNKNOWN`, `Runtime-Attestation: none`, and `Runtime-Evidence: UNKNOWN` when the
+runtime does not independently expose its identity. Do not fabricate an agent
+account, provider, model, or attestation. See
+[docs/AGENT_ATTRIBUTION.md](docs/AGENT_ATTRIBUTION.md).
 
 ## Definition of done
 

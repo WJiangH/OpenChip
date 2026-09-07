@@ -24,6 +24,8 @@ OpenChip provides a reusable collaboration system for chip projects:
 - independent, citation-based review with author-owned fixes;
 - maintainer supervision of task decomposition, context, skills, model fit, and
   review quality;
+- structured agent, account, review, and integration provenance with local
+  contribution reports;
 - common open-source EDA entrypoints and reference silicon artifacts.
 
 The checked-in `blink` module validates parts of this workflow and toolchain.
@@ -57,7 +59,9 @@ conversation-derived notes, local experiment diaries, private inputs, and
 local-only draft evidence do not.
 
 Read [AGENTS.md](AGENTS.md) for the enforceable contract and
-[docs/AGENTS.md](docs/AGENTS.md) for the operating model.
+[docs/AGENTS.md](docs/AGENTS.md) for the operating model. The
+[attribution protocol](docs/AGENT_ATTRIBUTION.md) separates requested runtime,
+observed runtime, Git identity, platform account, and evidenced outcomes.
 
 ## What the framework automates today
 
@@ -156,6 +160,7 @@ hw/pd/           physical-design configuration and signoff summaries
 sw/ and sim/     software and models
 flow/            shared EDA make fragments, versions, and thresholds
 scripts/         framework diagnostics and their tests
+provenance/      verified platform mappings and public work-item evidence
 evidence/        scoped, reproducible evidence packages
 ```
 
