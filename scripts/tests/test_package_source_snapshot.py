@@ -19,11 +19,16 @@ import package_source_snapshot  # noqa: E402
 
 def run_git(repo, *args):
     return subprocess.run(
-        ["git", "-C", str(repo), *args],
+        ["git", "--no-replace-objects", "-C", str(repo), *args],
         check=True,
         stdout=subprocess.PIPE,
         text=True,
     ).stdout.strip()
+
+
+def git_blob_sha(data):
+    header = "blob {}\0".format(len(data)).encode("ascii")
+    return hashlib.sha1(header + data).hexdigest()
 
 
 class SourceSnapshotTests(unittest.TestCase):
@@ -49,6 +54,7 @@ class SourceSnapshotTests(unittest.TestCase):
         (self.repo / "drop.txt").write_text("must remain\n", encoding="utf-8")
         (self.repo / "subst.txt").write_text("$Format:%H$\n", encoding="utf-8")
         (self.repo / "keep.txt").write_text("local attributes cannot hide this\n", encoding="utf-8")
+        (self.repo / "built.sqlite").write_bytes(b"SQLite format 3\0binary")
         run_git(self.repo, "add", ".")
         run_git(self.repo, "commit", "-q", "-m", "fixture")
         self.source_sha = run_git(self.repo, "rev-parse", "HEAD")
@@ -80,6 +86,7 @@ class SourceSnapshotTests(unittest.TestCase):
             names = stream.getnames()
             self.assertIn(prefix + "README.md", names)
             self.assertNotIn(prefix + "private-local-note.txt", names)
+            self.assertNotIn(prefix + "built.sqlite", names)
             self.assertEqual(stream.extractfile(prefix + "drop.txt").read(), b"must remain\n")
             self.assertEqual(stream.extractfile(prefix + "subst.txt").read(), b"$Format:%H$\n")
             self.assertEqual(
@@ -94,6 +101,18 @@ class SourceSnapshotTests(unittest.TestCase):
         self.assertEqual(entries[".claude/skills/demo/SKILL.md"]["mode"], "120000")
         self.assertEqual(manifest["source"]["commit"], self.source_sha)
         self.assertEqual(manifest["ci"], {"run_attempt": "2", "run_id": "1234"})
+        self.assertEqual(
+            manifest["excluded_entries"],
+            [
+                {
+                    "mode": "100644",
+                    "object_sha": run_git(self.repo, "rev-parse", "HEAD:built.sqlite"),
+                    "path": "built.sqlite",
+                    "reason": "binary_nul_byte",
+                    "type": "blob",
+                }
+            ],
+        )
 
     def test_every_manifest_blob_matches_the_archived_git_object(self):
         output, manifest = self.create()
@@ -109,15 +128,59 @@ class SourceSnapshotTests(unittest.TestCase):
             self.assertEqual(archived_paths, manifest_paths)
             for entry in manifest["tracked_entries"]:
                 expected = subprocess.run(
-                    ["git", "-C", str(self.repo), "cat-file", "blob", entry["object_sha"]],
+                    [
+                        "git",
+                        "--no-replace-objects",
+                        "-C",
+                        str(self.repo),
+                        "cat-file",
+                        "blob",
+                        entry["object_sha"],
+                    ],
                     check=True,
                     stdout=subprocess.PIPE,
                 ).stdout
+                self.assertEqual(git_blob_sha(expected), entry["object_sha"])
                 member = archive.getmember(prefix + entry["path"])
                 if entry["mode"] == "120000":
                     self.assertEqual(member.linkname.encode("utf-8"), expected)
                 else:
                     self.assertEqual(archive.extractfile(member).read(), expected)
+
+    def test_replacement_refs_cannot_change_blob_or_commit_bytes(self):
+        baseline, _ = self.create("baseline")
+        baseline_files = {path.name: path.read_bytes() for path in baseline.iterdir()}
+
+        original_blob = run_git(self.repo, "rev-parse", "{}:README.md".format(self.source_sha))
+        replacement_blob = subprocess.run(
+            ["git", "-C", str(self.repo), "hash-object", "-w", "--stdin"],
+            check=True,
+            input=b"replacement absent from source commit\n",
+            stdout=subprocess.PIPE,
+        ).stdout.decode("ascii").strip()
+        subprocess.run(
+            ["git", "-C", str(self.repo), "replace", original_blob, replacement_blob], check=True
+        )
+        blob_replaced, _ = self.create("blob-replaced")
+        self.assertEqual(
+            baseline_files, {path.name: path.read_bytes() for path in blob_replaced.iterdir()}
+        )
+        subprocess.run(
+            ["git", "-C", str(self.repo), "replace", "-d", original_blob], check=True
+        )
+
+        (self.repo / "README.md").write_text("alternate commit\n", encoding="utf-8")
+        run_git(self.repo, "add", "README.md")
+        run_git(self.repo, "commit", "-q", "-m", "alternate")
+        alternate_commit = run_git(self.repo, "rev-parse", "HEAD")
+        run_git(self.repo, "checkout", "-q", "--detach", self.source_sha)
+        subprocess.run(
+            ["git", "-C", str(self.repo), "replace", self.source_sha, alternate_commit], check=True
+        )
+        commit_replaced, _ = self.create("commit-replaced")
+        self.assertEqual(
+            baseline_files, {path.name: path.read_bytes() for path in commit_replaced.iterdir()}
+        )
 
     def test_manifest_and_checksums_match_bytes(self):
         output, manifest = self.create()
