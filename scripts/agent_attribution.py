@@ -227,6 +227,10 @@ def prepare_message(args: argparse.Namespace, accounts: Mapping[str, Mapping[str
     if args.account not in accounts:
         raise AttributionError("unknown platform account ref: {}".format(args.account))
     account = accounts[args.account]
+    committer_ref = args.committer_account or args.account
+    if committer_ref not in accounts:
+        raise AttributionError("unknown committer platform account ref: {}".format(committer_ref))
+    committer_account = accounts[committer_ref]
     if args.observed_identity == UNKNOWN:
         if args.attestation != "none" or args.runtime_evidence != UNKNOWN:
             raise AttributionError("UNKNOWN observed identity requires --attestation none and UNKNOWN evidence")
@@ -257,12 +261,15 @@ def prepare_message(args: argparse.Namespace, accounts: Mapping[str, Mapping[str
     message = summary + "\n\n" + "\n".join("{}: {}".format(key, values[key]) for key in PROVENANCE_KEYS) + "\n"
     args.output.write_text(message, encoding="utf-8")
     email = account["verified_commit_emails"][0]
+    committer_email = committer_account["verified_commit_emails"][0]
     return {
         "message_file": str(args.output),
         "author": "{} <{}>".format(args.author_name, email),
-        "committer_name": str(account["login"]),
-        "committer_email": str(email),
+        "committer_name": str(committer_account["login"]),
+        "committer_email": str(committer_email),
         "platform_account_ref": str(account["ref"]),
+        "author_account_ref": str(account["ref"]),
+        "committer_account_ref": str(committer_account["ref"]),
     }
 
 
@@ -708,6 +715,10 @@ def _parser() -> argparse.ArgumentParser:
     prepare.add_argument("--summary", required=True)
     prepare.add_argument("--output", required=True, type=Path)
     prepare.add_argument("--account", required=True)
+    prepare.add_argument(
+        "--committer-account",
+        help="verified committer account; defaults to the author account",
+    )
     prepare.add_argument("--author-name", required=True)
     prepare.add_argument("--agent-label", required=True)
     prepare.add_argument("--role", required=True)

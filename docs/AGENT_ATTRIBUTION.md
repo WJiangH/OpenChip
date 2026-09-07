@@ -60,6 +60,41 @@ git -c user.name=WJiangH \
 make attribution-validate ATTRIBUTION_SOURCE=HEAD
 ```
 
+When Codex owns the complete deliverable, use its verified GitHub-linked author
+identity and keep the authenticated publisher as the committer:
+
+```bash
+python3 scripts/agent_attribution.py prepare \
+  --summary "framework: describe the Codex-authored change" \
+  --output /tmp/openchip-commit-message.txt \
+  --account github-codex \
+  --committer-account github-wjiangh \
+  --author-name Codex \
+  --agent-label framework-author \
+  --role orchestrator \
+  --provider UNKNOWN \
+  --client codex \
+  --backend codex-app \
+  --requested-model GPT-5.6-Sol \
+  --requested-effort high \
+  --observed-identity UNKNOWN \
+  --attestation none \
+  --runtime-evidence UNKNOWN
+
+git -c user.name=WJiangH \
+  -c user.email=45132014+WJiangH@users.noreply.github.com \
+  commit --author="Codex <noreply@openai.com>" \
+  -F /tmp/openchip-commit-message.txt
+```
+
+The immutable OpenAI Codex source specifies `Codex <noreply@openai.com>` for
+its Git attribution trailer, and public GitHub commit evidence maps that email
+to the `codex` user recorded in the registry. OpenChip uses the same verified
+identity as primary author only for an actual Codex-owned deliverable. This does
+not mean the `codex` GitHub account authenticated, pushed, or attested the
+runtime. Mixed authorship should retain the primary human or agent author and
+use an appropriate co-author record rather than reallocating ownership.
+
 For a PR range, validate every commit that opts into v1 metadata while leaving
 legacy, merge, and human commits compatible:
 

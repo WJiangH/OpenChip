@@ -157,21 +157,24 @@ change before implementation.
 ## Commit and manifest identity
 
 Agent identity, Git identity, and platform identity are separate. Prepare new
-agent-authored commits with the registered platform account that will publish
-them:
+agent-authored commits with a registered author account. When the authenticated
+publisher is different, select its verified account separately as the committer:
 
 ```console
-python3 scripts/agent_attribution.py prepare <identity arguments> --output /tmp/message.txt
+python3 scripts/agent_attribution.py prepare <identity arguments> \
+  --committer-account <publisher-account> --output /tmp/message.txt
 git -c user.name=<account-login> -c user.email=<registered-email> \
   commit --author="ROLE_AGENT <REGISTERED_EMAIL>" -F /tmp/message.txt
 python3 scripts/agent_attribution.py validate-commit --commit HEAD
 ```
 
 The preparation command writes the complete `OpenChip-Provenance: v1` trailer
-block and prints the author and committer identity selected from
+block and prints the separate author and committer identities selected from
 `provenance/platform-accounts.json`. Use command-scoped Git configuration; do
 not change a user's global settings. A registered email maps a commit identity
 to a platform account but does not prove the historic pusher or agent runtime.
+Use an agent account as primary author only when that agent owns the actual
+deliverable; the authenticated account remains the committer and publisher.
 Record requested model and effort separately from observed identity. Use
 `UNKNOWN`, `Runtime-Attestation: none`, and `Runtime-Evidence: UNKNOWN` when the
 runtime does not independently expose its identity. Do not fabricate an agent

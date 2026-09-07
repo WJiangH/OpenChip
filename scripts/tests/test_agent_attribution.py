@@ -54,6 +54,17 @@ class AgentAttributionTests(unittest.TestCase):
                                 "45132014+WJiangH@users.noreply.github.com"
                             ],
                             "evidence": ["https://api.github.com/users/WJiangH"],
+                        },
+                        {
+                            "ref": "github-codex",
+                            "host": "github.com",
+                            "login": "codex",
+                            "account_id": 267193182,
+                            "account_type": "User",
+                            "verified_commit_emails": ["noreply@openai.com"],
+                            "evidence": [
+                                "https://api.github.com/repos/example/project/commits/codex"
+                            ],
                         }
                     ],
                 }
@@ -73,6 +84,7 @@ class AgentAttributionTests(unittest.TestCase):
             "summary": "framework: attributed change",
             "output": self.root / "message.txt",
             "account": "github-wjiangh",
+            "committer_account": None,
             "author_name": "orchestrator-agent",
             "agent_label": "framework-author",
             "role": "orchestrator",
@@ -157,6 +169,32 @@ class AgentAttributionTests(unittest.TestCase):
         self.assertEqual(validated["committer_account_ref"], "github-wjiangh")
         self.assertEqual(validated["pusher_account_ref"], "UNKNOWN")
         self.assertEqual(validated["agent"]["Observed-Identity"], "UNKNOWN")
+
+    def test_prepare_separates_codex_author_from_verified_committer(self):
+        message, prepared = self.prepare(
+            account="github-codex",
+            committer_account="github-wjiangh",
+            author_name="Codex",
+        )
+        self.assertEqual(prepared["author"], "Codex <noreply@openai.com>")
+        self.assertEqual(prepared["author_account_ref"], "github-codex")
+        self.assertEqual(prepared["committer_name"], "WJiangH")
+        self.assertEqual(
+            prepared["committer_email"],
+            "45132014+WJiangH@users.noreply.github.com",
+        )
+        self.assertEqual(prepared["committer_account_ref"], "github-wjiangh")
+
+        (self.repo / "codex.txt").write_text("codex-authored\n", encoding="utf-8")
+        git(self.repo, "add", "codex.txt")
+        git(self.repo, "commit", "-q", "--author", prepared["author"], "-F", str(message))
+        commit = agent_attribution.read_commit(self.repo, git(self.repo, "rev-parse", "HEAD"))
+        validated = agent_attribution.validate_commit(
+            commit, agent_attribution.load_accounts(self.accounts)
+        )
+        self.assertEqual(validated["author_account_ref"], "github-codex")
+        self.assertEqual(validated["committer_account_ref"], "github-wjiangh")
+        self.assertEqual(validated["pusher_account_ref"], "UNKNOWN")
 
     def test_validate_range_checks_opted_in_commits_and_skips_legacy(self):
         attributed = self.attributed_commit()
