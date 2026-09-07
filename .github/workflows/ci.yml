@@ -13,8 +13,13 @@ jobs:
       - uses: actions/checkout@v4
         with:
           fetch-depth: 0
+      - name: Boundary checker regression tests
+        run: bash flow/tests/test_check_boundaries.sh
       - name: Iron Rule 2 — role/directory boundaries
-        run: bash flow/check_boundaries.sh origin/${{ github.base_ref }}
+        env:
+          BOUNDARY_BASE_REF: ${{ github.event.pull_request.base.sha }}
+          BOUNDARY_ROLE_BRANCH: ${{ github.head_ref }}
+        run: bash flow/check_boundaries.sh "$BOUNDARY_BASE_REF" "$BOUNDARY_ROLE_BRANCH"
 
   gates:
     runs-on: ubuntu-latest
