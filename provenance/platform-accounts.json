@@ -13,6 +13,21 @@
       "evidence": [
         "https://api.github.com/users/WJiangH"
       ]
+    },
+    {
+      "ref": "github-codex",
+      "host": "github.com",
+      "login": "codex",
+      "account_id": 267193182,
+      "account_type": "User",
+      "verified_commit_emails": [
+        "noreply@openai.com"
+      ],
+      "evidence": [
+        "https://api.github.com/repos/jonnipm-web/ai-social-copilot/commits/184e0599a6d5f2c50776a998bcd9a8bf5fa41ab1",
+        "https://api.github.com/users/codex",
+        "https://github.com/openai/codex/blob/daca1fab840303152d7b488a4b403dee2f85b62f/codex-rs/ext/git-attribution/src/world_state.rs"
+      ]
     }
   ]
 }
