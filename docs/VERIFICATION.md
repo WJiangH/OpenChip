@@ -46,8 +46,9 @@ every repository design or every framework stage has passed.
 - Testbenches live in `hw/dv/<module>/`, with shared drivers, monitors,
   scoreboards, and golden models in `hw/dv/common/`.
 - Golden-model docstrings cite the implemented spec section.
-- Every normative spec requirement gets a directed or formal check where
-  practical. Random tests use logged seeds so failures can be replayed.
+- Every normative spec requirement maps to a directed test, formal property, or
+  explicit open item. Any exception records its rationale and approval. Random
+  tests use logged seeds so failures can be replayed.
 - A test needs an explicit checker. A waveform or completed process alone is
   not a functional pass.
 - DV reports a failure with a reproduction command, expected-per-spec behavior,

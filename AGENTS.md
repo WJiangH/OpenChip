@@ -112,6 +112,11 @@ The public CI workflow currently runs the boundary job plus `make lint`,
 until a workflow explicitly runs them. `make coverage-report` is diagnostic and
 never declares the coverage gate passed.
 
+The checked-in GitHub Agents workflow supports mentions, issue-label role
+dispatch, PR review, and maintainer-authorized clean integration for its
+configured provider. Assignment and model selection remain orchestrator
+decisions; the repository does not implement automatic cross-provider routing.
+
 ## Current reference-design conventions
 
 These conventions govern the reference design in this repository. They are not

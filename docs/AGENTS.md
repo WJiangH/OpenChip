@@ -121,6 +121,11 @@ The public CI workflow runs these jobs:
 - `make sim`;
 - `make formal`.
 
+The checked-in GitHub Agents workflow also supports mentions, issue-label role
+dispatch, PR review, and maintainer-authorized clean integration for its
+configured provider. Assignment and model selection remain orchestrator
+decisions; no automatic cross-provider scheduler is implemented.
+
 Synthesis, STA, compliance, full-SoC simulation, GDS, and gate-level simulation
 are local or milestone-specific until CI contains jobs for them. Coverage
 collection may occur during simulation, but the diagnostic reporter documented

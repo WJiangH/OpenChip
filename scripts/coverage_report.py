@@ -75,7 +75,7 @@ def _parse_metadata(encoded: str, input_line: int) -> Dict[str, str]:
     if fields["t"] not in KNOWN_KINDS:
         raise _error(input_line, "unsupported coverage kind {!r}".format(fields["t"]))
     for key in ("l", "n"):
-        if not fields[key].isdigit():
+        if re.fullmatch(r"[0-9]+", fields[key]) is None:
             raise _error(input_line, "metadata field {!r} must be a non-negative integer".format(key))
 
     return fields

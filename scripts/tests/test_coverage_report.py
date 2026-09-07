@@ -107,6 +107,19 @@ class CoverageReportTests(unittest.TestCase):
         with self.assertRaisesRegex(coverage_report.CoverageFormatError, "duplicate metadata key"):
             coverage_report.parse_coverage(coverage_file(record(BASE + (("t", "line"),), 1)))
 
+    def test_rejects_non_ascii_numeric_metadata_for_hit_and_uncovered_points(self):
+        for key in ("l", "n"):
+            for hits in (0, 1):
+                fields = tuple(
+                    (field, "²" if field == key else value) for field, value in BASE
+                )
+                with self.subTest(key=key, hits=hits):
+                    with self.assertRaisesRegex(
+                        coverage_report.CoverageFormatError,
+                        "must be a non-negative integer",
+                    ):
+                        coverage_report.parse_coverage(coverage_file(record(fields, hits)))
+
     def test_rejects_empty_header_only_and_malformed_inputs(self):
         invalid = (
             b"",

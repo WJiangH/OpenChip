@@ -81,8 +81,11 @@ make agents-sync   # mirror canonical role methods into supported CLI locations
 ```
 
 These commands inventory clients and synchronize methods. Model selection and
-agent dispatch remain orchestrator procedures. OpenChip does not currently
-provide an automatic cross-provider scheduler.
+cross-provider assignment remain orchestrator procedures. The checked-in GitHub
+Agents workflow supports mentions, issue-label role dispatch, PR review, and
+maintainer-authorized clean integration for its configured provider. It is not
+an automatic cross-provider scheduler, and the shared role methods do not depend
+on that provider.
 
 ## Reference evidence: `blink`
 
