@@ -43,9 +43,17 @@ class SourceSnapshotTests(unittest.TestCase):
         mirror.mkdir(parents=True)
         os.symlink("../../../.agents/skills/demo/SKILL.md", mirror / "SKILL.md")
         (self.repo / "README.md").write_text("tracked\n", encoding="utf-8")
+        (self.repo / ".gitattributes").write_text(
+            "drop.txt export-ignore\nsubst.txt export-subst\n", encoding="utf-8"
+        )
+        (self.repo / "drop.txt").write_text("must remain\n", encoding="utf-8")
+        (self.repo / "subst.txt").write_text("$Format:%H$\n", encoding="utf-8")
+        (self.repo / "keep.txt").write_text("local attributes cannot hide this\n", encoding="utf-8")
         run_git(self.repo, "add", ".")
         run_git(self.repo, "commit", "-q", "-m", "fixture")
         self.source_sha = run_git(self.repo, "rev-parse", "HEAD")
+        info_attributes = self.repo / ".git" / "info" / "attributes"
+        info_attributes.write_text("keep.txt export-ignore\n", encoding="utf-8")
         (self.repo / "private-local-note.txt").write_text("untracked\n", encoding="utf-8")
 
     def tearDown(self):
@@ -72,6 +80,12 @@ class SourceSnapshotTests(unittest.TestCase):
             names = stream.getnames()
             self.assertIn(prefix + "README.md", names)
             self.assertNotIn(prefix + "private-local-note.txt", names)
+            self.assertEqual(stream.extractfile(prefix + "drop.txt").read(), b"must remain\n")
+            self.assertEqual(stream.extractfile(prefix + "subst.txt").read(), b"$Format:%H$\n")
+            self.assertEqual(
+                stream.extractfile(prefix + "keep.txt").read(),
+                b"local attributes cannot hide this\n",
+            )
             link = stream.getmember(prefix + ".claude/skills/demo/SKILL.md")
             self.assertTrue(link.issym())
             self.assertEqual(link.linkname, "../../../.agents/skills/demo/SKILL.md")
@@ -81,6 +95,30 @@ class SourceSnapshotTests(unittest.TestCase):
         self.assertEqual(manifest["source"]["commit"], self.source_sha)
         self.assertEqual(manifest["ci"], {"run_attempt": "2", "run_id": "1234"})
 
+    def test_every_manifest_blob_matches_the_archived_git_object(self):
+        output, manifest = self.create()
+        archive_path = output / manifest["archive"]["filename"]
+        prefix = "openchip-source-{}/".format(self.source_sha)
+        with tarfile.open(archive_path) as archive:
+            archived_paths = {
+                member.name[len(prefix) :]
+                for member in archive.getmembers()
+                if member.name.startswith(prefix) and not member.isdir()
+            }
+            manifest_paths = {entry["path"] for entry in manifest["tracked_entries"]}
+            self.assertEqual(archived_paths, manifest_paths)
+            for entry in manifest["tracked_entries"]:
+                expected = subprocess.run(
+                    ["git", "-C", str(self.repo), "cat-file", "blob", entry["object_sha"]],
+                    check=True,
+                    stdout=subprocess.PIPE,
+                ).stdout
+                member = archive.getmember(prefix + entry["path"])
+                if entry["mode"] == "120000":
+                    self.assertEqual(member.linkname.encode("utf-8"), expected)
+                else:
+                    self.assertEqual(archive.extractfile(member).read(), expected)
+
     def test_manifest_and_checksums_match_bytes(self):
         output, manifest = self.create()
         manifest_bytes = (output / "manifest.json").read_bytes()
@@ -88,9 +126,14 @@ class SourceSnapshotTests(unittest.TestCase):
         self.assertEqual(parsed, manifest)
 
         expected = {
-            manifest["archive"]["filename"]: manifest["archive"]["sha256"],
+            manifest["archive"]["filename"]: hashlib.sha256(
+                (output / manifest["archive"]["filename"]).read_bytes()
+            ).hexdigest(),
             "manifest.json": hashlib.sha256(manifest_bytes).hexdigest(),
         }
+        self.assertEqual(
+            manifest["archive"]["sha256"], expected[manifest["archive"]["filename"]]
+        )
         actual = {}
         for line in (output / "SHA256SUMS").read_text(encoding="ascii").splitlines():
             digest, filename = line.split("  ", 1)
@@ -99,6 +142,9 @@ class SourceSnapshotTests(unittest.TestCase):
 
     def test_same_commit_and_identity_produce_identical_outputs(self):
         first, _ = self.create("first")
+        (self.repo / ".git" / "info" / "attributes").write_text(
+            "drop.txt -export-ignore\nsubst.txt -export-subst\n", encoding="utf-8"
+        )
         second, _ = self.create("second")
         first_files = {path.name: path.read_bytes() for path in first.iterdir()}
         second_files = {path.name: path.read_bytes() for path in second.iterdir()}

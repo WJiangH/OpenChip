@@ -3,11 +3,13 @@
 
 import argparse
 import hashlib
+import io
 import json
 from pathlib import Path
 import re
 import subprocess
 import sys
+import tarfile
 from typing import Dict, List, Mapping, Optional, Sequence
 
 
@@ -73,6 +75,53 @@ def _tracked_entries(repo: Path, source_sha: str) -> List[Mapping[str, str]]:
     return entries
 
 
+def _write_tree_archive(
+    repo: Path,
+    source_sha: str,
+    entries: Sequence[Mapping[str, str]],
+    archive_path: Path,
+) -> None:
+    prefix = "openchip-source-{}/".format(source_sha)
+    directories = {prefix}
+    for entry in entries:
+        parts = entry["path"].split("/")[:-1]
+        for length in range(1, len(parts) + 1):
+            directories.add(prefix + "/".join(parts[:length]) + "/")
+
+    with tarfile.open(str(archive_path), mode="w", format=tarfile.PAX_FORMAT) as archive:
+        for directory in sorted(directories):
+            info = tarfile.TarInfo(directory)
+            info.type = tarfile.DIRTYPE
+            info.mode = 0o755
+            info.mtime = 0
+            archive.addfile(info)
+
+        for entry in entries:
+            if entry["type"] != "blob" or entry["mode"] not in ("100644", "100755", "120000"):
+                raise SnapshotError(
+                    "unsupported tracked entry {} {} at {}".format(
+                        entry["mode"], entry["type"], entry["path"]
+                    )
+                )
+            data = _git(repo, "cat-file", "blob", entry["object_sha"], text=False)
+            info = tarfile.TarInfo(prefix + entry["path"])
+            info.mtime = 0
+            if entry["mode"] == "120000":
+                try:
+                    info.linkname = data.decode("utf-8")
+                except UnicodeDecodeError as exc:
+                    raise SnapshotError(
+                        "symlink target is not UTF-8 at {}".format(entry["path"])
+                    ) from exc
+                info.type = tarfile.SYMTYPE
+                info.mode = 0o777
+                archive.addfile(info)
+            else:
+                info.mode = 0o755 if entry["mode"] == "100755" else 0o644
+                info.size = len(data)
+                archive.addfile(info, io.BytesIO(data))
+
+
 def create_snapshot(
     repo: Path,
     source_sha: str,
@@ -106,25 +155,10 @@ def create_snapshot(
     entries = _tracked_entries(repo, source_sha)
     archive_name = "openchip-source-{}.tar".format(source_sha)
     archive_path = output_dir / archive_name
-    prefix = "openchip-source-{}/".format(source_sha)
     try:
-        subprocess.run(
-            [
-                "git",
-                "-C",
-                str(repo),
-                "archive",
-                "--format=tar",
-                "--prefix={}".format(prefix),
-                "--output={}".format(archive_path.resolve()),
-                source_sha,
-            ],
-            check=True,
-            stdout=subprocess.PIPE,
-            stderr=subprocess.PIPE,
-        )
-    except (OSError, subprocess.CalledProcessError) as exc:
-        raise SnapshotError("git archive failed") from exc
+        _write_tree_archive(repo, source_sha, entries, archive_path)
+    except (OSError, tarfile.TarError) as exc:
+        raise SnapshotError("source archive creation failed") from exc
 
     archive_sha256 = _sha256(archive_path)
     manifest: Dict[str, object] = {
