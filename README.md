@@ -95,6 +95,23 @@ maintainer-authorized clean integration for its configured provider. It is not
 an automatic cross-provider scheduler, and the shared role methods do not depend
 on that provider.
 
+## Public verification status
+
+At source [`1f92f2c`](https://github.com/WJiangH/OpenChip/commit/1f92f2cfaab6163283f39018a48ce3d13e8f6795),
+[CI run 34155797584](https://github.com/WJiangH/OpenChip/actions/runs/34155797584)
+passed lint for both public RTL modules, 7/7 `blink` simulations, 20/20
+`npu` simulations, and all 9 configured `blink` formal tasks.
+
+| Target | Executable tests | Plan, model, and formal assets | Current boundary |
+|---|---|---|---|
+| `blink` | [`test_blink.py`](hw/dv/blink/test_blink.py): 7 tests, PASS | [8-row vplan](hw/dv/blink/vplan.md), [golden model](hw/dv/common/models/blink.py), [formal job](hw/formal/blink/blink.sby), [recorded evidence](evidence/blink/README.md) | Historical evidence records 100% line and toggle observations; current CI does not collect or enforce coverage |
+| `npu` | [`test_npu.py`](hw/dv/npu/test_npu.py): 20 tests, PASS | [23-row vplan](hw/dv/npu/vplan.md), [golden model](hw/dv/common/models/npu.py), [bug/open-item log](hw/dv/npu/BUGS.md) | No public formal job or accepted evidence package; recorded manual toggle coverage is 38.5%, below the declared 90% target |
+| SoC-1 | No public full-system testbench | [draft integration spec](docs/spec/soc_1.md) | No public integrated full-SoC or model-runtime result |
+
+The vplan row counts are requirement mappings, not executed-test counts or a
+claim of full functional coverage. See the [verification status matrix](docs/VERIFICATION_STATUS.md)
+for exact scope, coverage provenance, and open items.
+
 ## Reference evidence: `blink`
 
 The committed [`blink` evidence package](evidence/blink/README.md) records this
