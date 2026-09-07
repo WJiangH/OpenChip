@@ -15,10 +15,12 @@ SIM_MODS := $(notdir $(patsubst %/Makefile,%,$(wildcard hw/dv/*/Makefile)))
 SBY_MODS := $(notdir $(patsubst %.sby,%,$(wildcard hw/formal/*/*.sby)))
 MOD      ?=
 
-.PHONY: help lint sim coverage-report formal synth compliance soc-sim gds glsim sw agents agents-sync clean
+.PHONY: help framework-test source-snapshot lint sim coverage-report formal synth compliance soc-sim gds glsim sw agents agents-sync clean print-oss-cad-suite-tag print-oss-cad-suite-linux-x64-sha256
 
 help:
 	@echo "OpenChip flow targets:"
+	@echo "  make framework-test     framework Python + boundary regression tests"
+	@echo "  make source-snapshot    package exact tracked HEAD with manifest/checksums"
 	@echo "  make lint   [MOD=<m>]   Verilator --lint-only over hw/rtl/"
 	@echo "  make sim    [MOD=<m>]   cocotb unit suites (COVERAGE=1, SEED=, TEST=)"
 	@echo "  make coverage-report    diagnostic census of one existing Coverage-3 file"
@@ -31,6 +33,30 @@ help:
 	@echo "  make sw                 build RISC-V firmware (M3)"
 	@echo "  make agents             list coding-agent CLIs installed here"
 	@echo "  make agents-sync        mirror .agents/skills into every CLI (--all)"
+
+# --- Framework checks and delivery -----------------------------------------
+framework-test:
+	@python3 -m unittest discover -s scripts/tests -v
+	@bash flow/tests/test_check_boundaries.sh
+
+SOURCE_SHA ?= $(shell git rev-parse HEAD)
+SOURCE_REPOSITORY ?= local/OpenChip
+SOURCE_RUN_ID ?= 0
+SOURCE_RUN_ATTEMPT ?= 0
+SOURCE_SNAPSHOT_DIR ?= _ci_artifacts/source-snapshot
+source-snapshot:
+	@python3 scripts/package_source_snapshot.py \
+		--source-sha "$(SOURCE_SHA)" \
+		--repository "$(SOURCE_REPOSITORY)" \
+		--run-id "$(SOURCE_RUN_ID)" \
+		--run-attempt "$(SOURCE_RUN_ATTEMPT)" \
+		--output-dir "$(SOURCE_SNAPSHOT_DIR)"
+
+print-oss-cad-suite-tag:
+	@printf '%s\n' "$(OSS_CAD_SUITE_TAG)"
+
+print-oss-cad-suite-linux-x64-sha256:
+	@printf '%s\n' "$(OSS_CAD_SUITE_LINUX_X64_SHA256)"
 
 # --- Gate 1: lint -----------------------------------------------------------
 LINT_MODS = $(if $(MOD),$(MOD),$(MODULES))
