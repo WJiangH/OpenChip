@@ -31,6 +31,9 @@ __pycache__/
 # local toolchain cache (fetched RISC-V GCC, not a repo artifact)
 .toolcache/
 
+# local agent worktrees and unpublished design experiments
+.local-designs/
+
 # editors / os
 .DS_Store
 .vscode/
