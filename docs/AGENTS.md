@@ -44,7 +44,10 @@ specialist's deliverable or replace independent review.
 
 Requested runtime settings and observed identity are separate facts. Record the
 requested model and effort. Record an observed model only when the runtime
-independently exposes it; otherwise use `unattested`. Role methods and acceptance
+independently exposes it; otherwise use `UNKNOWN` with no attestation. Git
+author, Git committer, platform publisher, and agent runtime are also separate
+facts; use public evidence for each mapping rather than inferring one from
+another. Role methods and acceptance
 criteria must not change merely because a different model executes them.
 
 ## Delivery and review loop
@@ -130,6 +133,12 @@ The checked-in GitHub Agents workflow also supports mentions, issue-label role
 dispatch, PR review, and maintainer-authorized clean integration for its
 configured provider. Assignment and model selection remain orchestrator
 decisions; no automatic cross-provider scheduler is implemented.
+
+`scripts/agent_attribution.py` prepares and validates opted-in commit metadata
+and reports reachable Git activity together with typed public work-item events.
+The report keeps merge, implementation, review, validation, and integration
+activity separate. It reports missing evidence as `UNKNOWN` and does not compute
+an ability score. See [AGENT_ATTRIBUTION.md](AGENT_ATTRIBUTION.md).
 
 Synthesis, STA, compliance, full-SoC simulation, GDS, and gate-level simulation
 are local or milestone-specific until CI contains jobs for them. Coverage

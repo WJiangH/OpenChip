@@ -1,0 +1,18 @@
+{
+  "schema": "openchip.platform-accounts.v1",
+  "accounts": [
+    {
+      "ref": "github-wjiangh",
+      "host": "github.com",
+      "login": "WJiangH",
+      "account_id": 45132014,
+      "account_type": "User",
+      "verified_commit_emails": [
+        "45132014+WJiangH@users.noreply.github.com"
+      ],
+      "evidence": [
+        "https://api.github.com/users/WJiangH"
+      ]
+    }
+  ]
+}

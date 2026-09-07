@@ -15,11 +15,14 @@ SIM_MODS := $(notdir $(patsubst %/Makefile,%,$(wildcard hw/dv/*/Makefile)))
 SBY_MODS := $(notdir $(patsubst %.sby,%,$(wildcard hw/formal/*/*.sby)))
 MOD      ?=
 
-.PHONY: help framework-test source-snapshot lint sim coverage-report formal synth compliance soc-sim gds glsim sw agents agents-sync clean print-oss-cad-suite-tag print-oss-cad-suite-linux-x64-sha256
+.PHONY: help framework-test attribution-validate attribution-validate-range contribution-report source-snapshot lint sim coverage-report formal synth compliance soc-sim gds glsim sw agents agents-sync clean print-oss-cad-suite-tag print-oss-cad-suite-linux-x64-sha256
 
 help:
 	@echo "OpenChip flow targets:"
 	@echo "  make framework-test     framework Python + boundary regression tests"
+	@echo "  make attribution-validate [ATTRIBUTION_SOURCE=<sha>]"
+	@echo "  make attribution-validate-range ATTRIBUTION_BASE=<sha>"
+	@echo "  make contribution-report [ATTRIBUTION_SOURCE=<ref>]"
 	@echo "  make source-snapshot    package exact tracked HEAD with manifest/checksums"
 	@echo "  make lint   [MOD=<m>]   Verilator --lint-only over hw/rtl/"
 	@echo "  make sim    [MOD=<m>]   cocotb unit suites (COVERAGE=1, SEED=, TEST=)"
@@ -38,6 +41,19 @@ help:
 framework-test:
 	@python3 -m unittest discover -s scripts/tests -v
 	@bash flow/tests/test_check_boundaries.sh
+
+ATTRIBUTION_SOURCE ?= HEAD
+ATTRIBUTION_BASE ?=
+ATTRIBUTION_REPORT ?= contribution-report.json
+attribution-validate:
+	@python3 scripts/agent_attribution.py validate-commit --commit "$(ATTRIBUTION_SOURCE)"
+
+attribution-validate-range:
+	@test -n "$(ATTRIBUTION_BASE)" || { echo "usage: make attribution-validate-range ATTRIBUTION_BASE=<sha> [ATTRIBUTION_SOURCE=<sha>]"; exit 1; }
+	@python3 scripts/agent_attribution.py validate-range --base "$(ATTRIBUTION_BASE)" --head "$(ATTRIBUTION_SOURCE)"
+
+contribution-report:
+	@python3 scripts/agent_attribution.py report --source "$(ATTRIBUTION_SOURCE)" --json-output "$(ATTRIBUTION_REPORT)"
 
 SOURCE_SHA ?= $(shell git rev-parse HEAD)
 SOURCE_REPOSITORY ?= local/OpenChip

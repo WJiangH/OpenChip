@@ -1,0 +1,166 @@
+{
+  "schema": "openchip.work-item-provenance.v1",
+  "work_item_id": "openchip-pr-19",
+  "scope": {
+    "summary": "Reproducible framework CI and exact-source delivery baseline",
+    "acceptance_refs": [
+      "https://github.com/WJiangH/OpenChip/pull/19",
+      "https://github.com/WJiangH/OpenChip/blob/02cd7bdd00dc26e43c711b34ac8688839c8f103c/docs/CI_CD.md"
+    ]
+  },
+  "source": {
+    "base": "5f1bb2bda9132ece5635d2e36990b0f052f17c03",
+    "head": "ed0cd8135b4b7fd7fadb942f6ba77f6d25c4b659"
+  },
+  "participants": [
+    {
+      "id": "framework-author",
+      "agent": {
+        "label": "framework-author",
+        "role": "orchestrator",
+        "provider": null,
+        "client": "codex",
+        "backend": null,
+        "requested": {
+          "model": "GPT-5.6-Sol",
+          "effort": "high"
+        },
+        "observed": {
+          "identity": "UNKNOWN",
+          "attestation": "none",
+          "evidence": []
+        }
+      },
+      "platform_actor": {
+        "host": "github.com",
+        "login": "WJiangH",
+        "account_id": 45132014,
+        "account_type": "User",
+        "action": "commit-committer-and-pr-publisher",
+        "evidence": [
+          "https://api.github.com/repos/WJiangH/OpenChip/commits/ed0cd8135b4b7fd7fadb942f6ba77f6d25c4b659",
+          "https://github.com/WJiangH/OpenChip/pull/19"
+        ]
+      }
+    },
+    {
+      "id": "independent-reviewer",
+      "agent": {
+        "label": "independent-reviewer",
+        "role": "integrator",
+        "provider": null,
+        "client": null,
+        "backend": null,
+        "requested": {
+          "model": "UNKNOWN",
+          "effort": "UNKNOWN"
+        },
+        "observed": {
+          "identity": "UNKNOWN",
+          "attestation": "none",
+          "evidence": []
+        }
+      },
+      "platform_actor": {
+        "host": "github.com",
+        "login": "WJiangH",
+        "account_id": 45132014,
+        "account_type": "User",
+        "action": "review-comment-publisher",
+        "evidence": [
+          "https://github.com/WJiangH/OpenChip/pull/19#issuecomment-5573284309"
+        ]
+      }
+    },
+    {
+      "id": "configured-integrator",
+      "agent": {
+        "label": "configured-integrator",
+        "role": "integrator",
+        "provider": null,
+        "client": "claude-code-action",
+        "backend": null,
+        "requested": {
+          "model": "UNKNOWN",
+          "effort": "UNKNOWN"
+        },
+        "observed": {
+          "identity": "UNKNOWN",
+          "attestation": "none",
+          "evidence": []
+        }
+      },
+      "platform_actor": {
+        "host": "github.com",
+        "login": "claude[bot]",
+        "account_id": 209825114,
+        "account_type": "Bot",
+        "action": "merge-author",
+        "evidence": [
+          "https://api.github.com/repos/WJiangH/OpenChip/commits/02cd7bdd00dc26e43c711b34ac8688839c8f103c",
+          "https://github.com/WJiangH/OpenChip/pull/19#issuecomment-5573440783"
+        ]
+      }
+    }
+  ],
+  "events": [
+    {
+      "id": "author-ed0cd81",
+      "kind": "author",
+      "participant_ref": "framework-author",
+      "subject_sha": "ed0cd8135b4b7fd7fadb942f6ba77f6d25c4b659",
+      "timestamp": "2026-09-07T16:23:42Z",
+      "outcome": "authored",
+      "evidence": [
+        "https://github.com/WJiangH/OpenChip/commit/ed0cd8135b4b7fd7fadb942f6ba77f6d25c4b659"
+      ]
+    },
+    {
+      "id": "review-request-61d4b12",
+      "kind": "review",
+      "participant_ref": "independent-reviewer",
+      "subject_sha": "61d4b12cf56627cd24a9315e0d83368b8e049b06",
+      "timestamp": "2026-09-07T16:08:52Z",
+      "outcome": "request_changes",
+      "finding_count": 1,
+      "evidence": [
+        "https://github.com/WJiangH/OpenChip/pull/19#issuecomment-5573226353"
+      ]
+    },
+    {
+      "id": "review-approve-ed0cd81",
+      "kind": "review",
+      "participant_ref": "independent-reviewer",
+      "subject_sha": "ed0cd8135b4b7fd7fadb942f6ba77f6d25c4b659",
+      "timestamp": "2026-09-07T16:27:14Z",
+      "outcome": "approve",
+      "finding_count": 0,
+      "evidence": [
+        "https://github.com/WJiangH/OpenChip/pull/19#issuecomment-5573409136"
+      ]
+    },
+    {
+      "id": "validation-ed0cd81",
+      "kind": "validation",
+      "participant_ref": "framework-author",
+      "subject_sha": "ed0cd8135b4b7fd7fadb942f6ba77f6d25c4b659",
+      "timestamp": "2026-09-07T16:25:08Z",
+      "outcome": "pass",
+      "evidence": [
+        "https://github.com/WJiangH/OpenChip/actions/runs/34143060728"
+      ]
+    },
+    {
+      "id": "integration-ed0cd81",
+      "kind": "integration",
+      "participant_ref": "configured-integrator",
+      "subject_sha": "ed0cd8135b4b7fd7fadb942f6ba77f6d25c4b659",
+      "timestamp": "2026-09-07T16:31:19Z",
+      "outcome": "merged",
+      "evidence": [
+        "https://github.com/WJiangH/OpenChip/pull/19",
+        "https://github.com/WJiangH/OpenChip/commit/02cd7bdd00dc26e43c711b34ac8688839c8f103c"
+      ]
+    }
+  ]
+}
