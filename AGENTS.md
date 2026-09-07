@@ -55,6 +55,10 @@ checks, update the same branch and manifest, and request another review. A clean
 candidate checkout or neutral test run is evidence for review; it is not an
 accepted merge or permission to publish.
 
+A successful review-automation job means the job completed; it does not mean
+the substantive verdict was approval. Authors and integrators read the posted
+verdict and resolve every request-changes finding before declaring review clean.
+
 ## Iron rules
 
 1. **The spec is the source of product behavior.** RTL, DV, formal, software,

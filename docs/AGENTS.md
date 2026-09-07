@@ -78,6 +78,10 @@ not make a merge accepted. Review findings cite a file and line plus the violate
 rule or spec. The author, rather than the reviewer or manager, owns fixes and PR
 updates.
 
+Automation status and review verdict are separate evidence. A completed review
+job can still post a request-changes verdict; authors and integrators must read
+that verdict and resolve its findings before treating review as clean.
+
 ## Independence and escalation
 
 - RTL and DV for one module use separate authors, contexts, branches, and

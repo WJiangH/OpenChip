@@ -26,7 +26,7 @@ Publication audit:
 - Aggregate diff: <path list reviewed; no unrelated or local-only artifacts>
 
 Independent review:
-- <pending | reviewer/verdict and reproduced checks>
+- <pending | substantive verdict, findings status, and reproduced checks>
 
 Open items:
 - <pending CI/review/finding, or none only when resolved>
