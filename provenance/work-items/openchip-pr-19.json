@@ -101,6 +101,26 @@
           "https://github.com/WJiangH/OpenChip/pull/19#issuecomment-5573440783"
         ]
       }
+    },
+    {
+      "id": "ci-runner",
+      "agent": {
+        "label": "github-actions-ci",
+        "role": "validation-infrastructure",
+        "provider": null,
+        "client": "github-actions",
+        "backend": null,
+        "requested": {
+          "model": "UNKNOWN",
+          "effort": "UNKNOWN"
+        },
+        "observed": {
+          "identity": "UNKNOWN",
+          "attestation": "none",
+          "evidence": []
+        }
+      },
+      "platform_actor": null
     }
   ],
   "events": [
@@ -142,7 +162,7 @@
     {
       "id": "validation-ed0cd81",
       "kind": "validation",
-      "participant_ref": "framework-author",
+      "participant_ref": "ci-runner",
       "subject_sha": "ed0cd8135b4b7fd7fadb942f6ba77f6d25c4b659",
       "timestamp": "2026-09-07T16:25:08Z",
       "outcome": "pass",
