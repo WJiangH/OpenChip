@@ -174,6 +174,23 @@ class AgentAttributionTests(unittest.TestCase):
         self.assertEqual(result["validated"][0]["sha"], attributed)
         self.assertEqual(result["legacy_or_unattributed_commits_skipped"], 1)
 
+    def test_standard_tab_and_folded_git_trailer_remains_structured(self):
+        message, prepared = self.prepare(output=self.root / "standard-footer.txt")
+        with message.open("a", encoding="utf-8") as stream:
+            stream.write("Signed-off-by:\tExample <example@example.com>\n continuation text\n")
+        (self.repo / "footer.txt").write_text("footer\n", encoding="utf-8")
+        git(self.repo, "add", "footer.txt")
+        git(self.repo, "commit", "-q", "--author", prepared["author"], "-F", str(message))
+        result = agent_attribution.validate_range(
+            self.repo,
+            self.base,
+            "HEAD",
+            agent_attribution.load_accounts(self.accounts),
+        )
+        self.assertEqual(result["commits_scanned"], 1)
+        self.assertEqual(result["structured_commits_validated"], 1)
+        self.assertEqual(result["legacy_or_unattributed_commits_skipped"], 0)
+
     def test_duplicate_or_conflicting_provenance_trailers_fail(self):
         message, prepared = self.prepare()
         text = message.read_text(encoding="utf-8")

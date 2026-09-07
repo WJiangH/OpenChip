@@ -15,7 +15,8 @@ from typing import Dict, Iterable, List, Mapping, Optional, Sequence, Tuple
 
 UNKNOWN = "UNKNOWN"
 FULL_SHA_RE = re.compile(r"^[0-9a-f]{40}$")
-TRAILER_RE = re.compile(r"^([A-Za-z][A-Za-z0-9-]*): (\S(?:.*\S)?)$")
+TRAILER_RE = re.compile(r"^([A-Za-z][A-Za-z0-9-]*)[ \t]*:[ \t]*(\S(?:.*\S)?)[ \t]*$")
+RAW_PROVENANCE_RE = re.compile(r"^OpenChip-Provenance[ \t]*:", re.IGNORECASE | re.MULTILINE)
 WORK_ITEM_RE = re.compile(r"^[a-z0-9][a-z0-9._-]*$")
 PROVENANCE_KEYS = (
     "OpenChip-Provenance",
@@ -99,20 +100,37 @@ def load_accounts(path: Path) -> Mapping[str, Mapping[str, object]]:
 
 def parse_trailers(message: str) -> Tuple[Mapping[str, str], Mapping[str, List[str]]]:
     lines = message.rstrip().splitlines()
+    block = []
+    for line in reversed(lines):
+        if TRAILER_RE.fullmatch(line) or (line.startswith((" ", "\t")) and line.strip()):
+            block.append(line)
+            continue
+        if not line.strip() and block:
+            break
+        break
+    block.reverse()
+    unfolded: List[str] = []
+    for line in block:
+        if line.startswith((" ", "\t")):
+            if not unfolded:
+                raise AttributionError("trailer continuation has no preceding trailer")
+            unfolded[-1] += " " + line.strip()
+        else:
+            unfolded.append(line)
     values: Dict[str, str] = {}
     duplicates: Dict[str, List[str]] = defaultdict(list)
-    for line in reversed(lines):
+    for line in unfolded:
         match = TRAILER_RE.fullmatch(line)
         if match is None:
-            if line.strip() == "" and values:
-                continue
-            break
+            raise AttributionError("malformed Git trailer block")
         key, value = match.groups()
         key = CANONICAL_TRAILER_KEYS.get(key.lower(), key)
         if key in values:
             duplicates[key].extend((value, values[key]))
         else:
             values[key] = value
+    if RAW_PROVENANCE_RE.search(message) and "OpenChip-Provenance" not in values:
+        raise AttributionError("OpenChip provenance marker is outside a valid Git trailer block")
     return values, duplicates
 
 
@@ -627,9 +645,10 @@ def render_text(report: Mapping[str, object]) -> str:
         "reachable history: {} commits ({} non-merge, {} merge)".format(
             source["reachable_commits"], source["non_merge_commits"], source["merge_commits"]
         ),
-        "work-item evidence: {} records; {} explicitly accepted; {} acceptance UNKNOWN".format(
+        "work-item evidence: {} records; {} with cited acceptance events; {} acceptance UNKNOWN".format(
             evidence["records"], evidence["explicitly_accepted"], evidence["acceptance_unknown"]
         ),
+        "evidence status: cited record claims; URLs and runtime identity are not authenticated offline",
         "events:",
     ]
     for key, count in evidence["event_counts"].items():
