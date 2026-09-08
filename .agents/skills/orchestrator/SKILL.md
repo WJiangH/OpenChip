@@ -66,9 +66,11 @@ moving meanwhile. State is a record of authority, never a new authority source.
    independently reviewed skill change; integrator curates accepted additions.
 6. Update durable state after dispatch, receipts, decisions, blockers and
    handoffs. Keep historical signoff decisions immutable and reopen affected
-   claims after changes. Report outcome, evidence, blocker and next action
-   concisely. Finish when the agreed acceptance is evidenced, or checkpoint a
-   precise remaining dependency/authority blocker; task counts are not closure.
+   claims after changes. Default status updates to at most four short bullets:
+   outcome, evidence, blocker and next action. Expand only when requested or
+   when a decision needs the detail. Finish when the agreed acceptance is
+   evidenced, or checkpoint a precise remaining dependency/authority blocker;
+   task counts are not closure.
 
 ## Persistence and operating limits
 
