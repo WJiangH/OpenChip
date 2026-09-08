@@ -42,6 +42,23 @@ need the pinned EDA tools and Python dependencies described in
 [CI and toolchain](docs/CI_CD.md). Imported IP may retain its native build,
 verification and implementation tools.
 
+## Repository map
+
+| Directory | Purpose | Primary owner |
+|---|---|---|
+| [`docs/`](docs/) | Framework guidance, specifications and architecture decisions | Orchestrator for navigation; architects and verification specialists retain contract ownership |
+| [`hw/`](hw/), [`sw/`](sw/) | Reference RTL, DV, formal, implementation flows and software | Assigned RTL, verification, backend and software specialists |
+| [`workloads/`](workloads/), [`explore/`](explore/) | Workload profiles and reproducible architecture cost models/results cited by specs and ADRs | Chief architect with workload specialists |
+| [`flow/`](flow/) | Shared Make recipes, tool pins, policy thresholds and boundary checks used by builds and CI | Assigned framework/flow author; independent integration review |
+| [`provenance/`](provenance/) | Registered account mappings and public work-item evidence used by attribution/reporting tools | Assigned framework author; independent identity/evidence review |
+| [`evidence/`](evidence/) | Reproducible evidence packages for explicitly scoped engineering claims | Specialist producers; integrator assembles and audits |
+| [`scripts/`](scripts/), [`tools/`](tools/) | Framework validation/reporting utilities and agent-client setup | Assigned framework/flow author |
+| [`.agents/`](.agents/), [`.github/`](.github/) | Canonical role methods and repository automation | Assigned framework author; integrator reviews |
+
+`explore/` retains engineering rationale, `provenance/` records attribution, and
+`flow/` executes shared checks; all have live consumers. Private project state
+and experiment receipts stay in the approved local store, outside public history.
+
 ## Direction and documentation
 
 The next engineering direction is to evaluate and adapt upstream CoralNPU,

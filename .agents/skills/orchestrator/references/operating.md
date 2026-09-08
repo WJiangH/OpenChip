@@ -20,7 +20,10 @@ Freeze the independent DV context from the approved spec and golden-model
 sources; do not copy implementation-derived answers. Sparse worktrees or another
 provider do not enforce a clean room. Where enforcement matters, verify actual
 permissions and inputs. Respect imported IP's native tools/conventions and
-identify real versus surrogate implementations.
+identify real versus surrogate implementations. When reusing a clone or cache,
+distinguish available source objects from its checked-out revision and local
+modifications: materialize the pinned upstream candidate separately and identify
+adaptations instead of inheriting an unrelated working tree.
 
 If a spec gap blocks behavior, route it to the architect before implementing the
 affected behavior; continue only independent authorized work. Authors use the
@@ -56,6 +59,9 @@ The cleanup owner then checks PR/head mapping, remote state, active workers and
 jobs, dependent worktrees/branches, dirty/untracked files and retained evidence.
 Record any squash/rebase mapping, preserved artifacts and remaining dependency.
 Retire only unused branches/worktrees; do not force-delete to make an inventory
-look clean. Keep this receipt in existing state/PR, and start the next item from
+look clean. The author updates the final PR manifest after integration or terminal
+close with the actual status, delivery/check receipts and cleanup outcome or
+blocker; do not leave a completed item described as Draft/pending. Keep this
+receipt in existing state/PR, and start the next item from
 fresh main. One designated writer reconciles project-state changes; simultaneous
 managers must agree ownership rather than overwrite each other's decisions.
