@@ -82,7 +82,7 @@ def check(root, names):
                 errors.append(f"{name}: local link escapes repository: {target}")
                 continue
             # A local untracked file cannot make a public link valid.
-            present = relative in names or any(n.startswith(relative.rstrip("/") + "/") for n in names)
+            present = relative == "." or relative in names or any(n.startswith(relative.rstrip("/") + "/") for n in names)
             if not destination.exists() or not present:
                 errors.append(f"{name}: missing public link target: {target}")
     for name in sorted(names):

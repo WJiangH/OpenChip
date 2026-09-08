@@ -42,6 +42,13 @@ class DocumentationTests(unittest.TestCase):
         self.assertEqual(len(errors), 2)
         self.assertTrue(all("missing public link target" in e for e in errors))
 
+    def test_repository_root_links_pass_but_parent_escape_fails(self):
+        self.put("README.md", "[root](.) [root anchor](./#intro) [escape](../outside.md)")
+        self.put("docs/guide.md", "[repo root](..) [absolute repo root](/)")
+        errors = self.check()
+        self.assertEqual(len(errors), 1)
+        self.assertIn("local link escapes repository", errors[0])
+
     def test_duplicate_constitution_and_task_diary_fail(self):
         self.put("docs/AGENTS.md")
         self.put("hw/unit/task-001.md")

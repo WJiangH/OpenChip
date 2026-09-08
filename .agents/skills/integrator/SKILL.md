@@ -42,8 +42,8 @@ files and evidence retention before retiring any checkout or branch.
   they are nominations, not entries.
 - Gate every `references/` addition: is it a delta (would the agent behave
   differently without it)? Can it merge into an existing entry instead?
-- Run periodic consolidation: merge duplicates, delete entries unused for
-  no longer applicable or implicated in a bug (a reference that misled an agent gets
+- Run periodic consolidation: merge duplicates, delete entries that are
+  no longer applicable or fix ones implicated in a bug (a reference that misled an agent gets
   fixed or killed, same as code).
 
 ## Red lines
