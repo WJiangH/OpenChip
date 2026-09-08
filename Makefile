@@ -19,7 +19,7 @@ MOD      ?=
 
 help:
 	@echo "OpenChip flow targets:"
-	@echo "  make framework-test     framework Python + boundary regression tests"
+	@echo "  make framework-test     framework Python + documentation + boundary checks"
 	@echo "  make attribution-validate [ATTRIBUTION_SOURCE=<sha>]"
 	@echo "  make attribution-validate-range ATTRIBUTION_BASE=<sha>"
 	@echo "  make contribution-report [ATTRIBUTION_SOURCE=<ref>]"
@@ -28,12 +28,12 @@ help:
 	@echo "  make sim    [MOD=<m>]   cocotb unit suites (COVERAGE=1, SEED=, TEST=)"
 	@echo "  make coverage-report    diagnostic census of one existing Coverage-3 file"
 	@echo "  make formal [MOD=<m>]   SymbiYosys proofs"
-	@echo "  make synth   MOD=<m>    Yosys synthesis + OpenSTA (M0)"
-	@echo "  make compliance         riscv-arch-test via RISCOF vs Spike (M2)"
-	@echo "  make soc-sim [APP=<a>]  full-SoC firmware simulation (M3)"
-	@echo "  make gds     MOD=<top>  LibreLane RTL->GDSII via Docker (M0/M4)"
-	@echo "  make glsim   MOD=<top>  gate-level sim with SDF (M4)"
-	@echo "  make sw                 build RISC-V firmware (M3)"
+	@echo "  make synth   MOD=<m>    Yosys synthesis + OpenSTA"
+	@echo "  make compliance         riscv-arch-test via RISCOF vs Spike (not implemented)"
+	@echo "  make soc-sim [APP=<a>]  full-SoC firmware simulation (not implemented)"
+	@echo "  make gds     MOD=<top>  LibreLane RTL->GDSII via Docker"
+	@echo "  make glsim   MOD=<top>  gate-level sim with SDF (not implemented)"
+	@echo "  make sw                 build RISC-V firmware"
 	@echo "  make agents             list coding-agent CLIs installed here"
 	@echo "  make agents-sync        mirror .agents/skills into every CLI (--all)"
 
@@ -41,6 +41,7 @@ help:
 framework-test:
 	@python3 -m unittest discover -s scripts/tests -v
 	@bash flow/tests/test_check_boundaries.sh
+	@python3 scripts/check_docs.py
 
 ATTRIBUTION_SOURCE ?= HEAD
 ATTRIBUTION_BASE ?=
@@ -123,13 +124,13 @@ synth:
 	@test -f hw/syn/$(MOD).ys || { echo "synth: hw/syn/$(MOD).ys not found (P0 task)"; exit 1; }
 	PATH="$(TOOLPATH):$$PATH" yosys -c hw/syn/$(MOD).ys
 
-# --- Gate 5: ISA compliance (M2) --------------------------------------------
+# --- Gate 5: ISA compliance --------------------------------------------
 compliance:
-	@echo "compliance: RISCOF flow lands in M2 (docs/ROADMAP.md)"; exit 1
+	@echo "compliance: not implemented; see docs/ROADMAP.md"; exit 1
 
-# --- Gate 6: full-SoC firmware sim (M3) -------------------------------------
+# --- Gate 6: full-SoC firmware sim -------------------------------------
 soc-sim:
-	@echo "soc-sim: SoC testbench lands in M3 (docs/ROADMAP.md)"; exit 1
+	@echo "soc-sim: not implemented; see docs/ROADMAP.md"; exit 1
 
 # --- Gate: RTL->GDSII (M0 tracer bullet / M4) -------------------------------
 gds:
@@ -139,11 +140,11 @@ gds:
 		-v $(HOME)/.ciel:/root/.ciel $(LIBRELANE_IMAGE) \
 		librelane --pdk-root /root/.ciel hw/pd/$(MOD)/config.yaml
 
-# --- Gate 9: gate-level sim (M4) --------------------------------------------
+# --- Gate 9: gate-level sim --------------------------------------------
 glsim:
-	@echo "glsim: post-layout netlist sim lands in M4 (docs/ROADMAP.md)"; exit 1
+	@echo "glsim: not implemented; see docs/ROADMAP.md"; exit 1
 
-# --- Firmware (M3) ----------------------------------------------------------
+# --- Firmware ----------------------------------------------------------
 sw:
 	@test -f sw/Makefile && $(MAKE) -C sw || echo "sw: firmware tree lands in M3"
 

@@ -217,7 +217,3 @@ jobs:
           path: _ci_artifacts/delivery
           if-no-files-found: error
           retention-days: 14
-
-  # M0 TODO: nightly job running `make gds MOD=blink` (LibreLane container)
-  # M2 TODO: compliance job (RISCOF + Spike)
-  # M3 TODO: soc-sim job (firmware boot + CoreMark)
