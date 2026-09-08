@@ -1,4 +1,4 @@
-# sw/ — RISC-V firmware. Written ONLY by the firmware-engineer role.
+# sw/ — RISC-V firmware. Written ONLY by the sw-engineer role.
 
 Lands in M3: crt0.S, link.ld (from the spec memory map), libminic/ (uart_putc,
 printf-lite, timer), apps/hello, apps/irq_test, apps/coremark. Programs against

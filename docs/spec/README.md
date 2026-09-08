@@ -1,7 +1,7 @@
 # Specifications — the single source of truth
 
 One file per architectural unit (`uart.md`, `rv32_core.md`, `soc_1.md`, …),
-written and owned by the **spec-architect** role. RTL, DV, formal, and firmware
+written and owned by the **chief-architect** role. RTL, DV, formal, and firmware
 all derive from these files and cite sections by number ("spec §3.2").
 
 Rules:
