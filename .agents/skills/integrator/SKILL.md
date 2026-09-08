@@ -26,6 +26,24 @@ Review is citation-based, not taste-based. Per PR, in order:
 Verdict format: approve / request-changes + numbered findings, each with
 file:line and the rule or § violated. Praise is not a finding.
 
+## Return findings to the author
+
+The reviewer owns returning request-changes to the assigned author and checking
+that the revision work resumes within its existing scope and authority. Inspect
+the current author handle/status: deliver findings to a running author without
+starting duplicate work; for an idle or completed author, use an available,
+supported resume/dispatch mechanism that starts execution. Verify resumed status
+or a subsequent execution receipt. A delivered notification or dispatch
+acknowledgment alone does not establish that work resumed.
+
+If the handle is unavailable or resumption cannot be confirmed, retain the
+pending return, attempted action and observed status in the existing work-item
+record; escalate the specific handle/capability blocker to the orchestrator.
+Do not silently replace the author or do its fixes. The original author owns
+fixes, affected reruns and refreezing the candidate; the reviewer owns re-review
+of that exact revision. These are responsibilities to check with available
+runtime capabilities, not a scheduler or a guarantee of liveness.
+
 ## Integration and retirement
 
 Review the final head and aggregate diff after fixes; distinguish CI completion
