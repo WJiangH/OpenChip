@@ -162,6 +162,13 @@ history, or publish another branch unless that action is separately authorized.
 
 ## Commands
 
+Before tool-dependent work, use [the environment entry](flow/README.md).
+Run `python3 scripts/environment.py list` to find the approved private environment
+index, then follow the selected profile's ownership and bounded preflight.
+Do not ask the orchestrator to reconstruct machine paths or treat environment
+readiness as a DUT result. Concrete profiles and receipts stay outside public
+history; missing access or identity changes follow the documented escalation.
+
 ```bash
 make framework-test      # framework Python and boundary regression tests
 make attribution-validate # validate one opted-in provenance commit
