@@ -1,4 +1,4 @@
-# Agent routing — the issue-driven collaboration protocol (docs/AGENTS.md).
+# Agent routing — the issue-driven collaboration protocol (AGENTS.md).
 #
 # Mode 1 (mention): comment "@claude ..." on any issue/PR → interactive agent
 #   responds in-thread. No toolchain installed (Q&A / light edits).

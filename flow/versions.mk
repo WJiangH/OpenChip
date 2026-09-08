@@ -1,4 +1,4 @@
-# Pinned tool versions — the reproducibility contract (docs/ARCHITECTURE.md).
+# Pinned tool versions — the reproducibility contract (docs/CI_CD.md).
 # Change only in a dedicated PR with all gates green. "Works on my machine" is banned.
 
 # YosysHQ OSS CAD Suite release tag (yosys, verilator, iverilog, sby, verible, gtkwave)

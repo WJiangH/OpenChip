@@ -6,7 +6,7 @@ It runs against the checked-out event commit:
 | Job | Trigger | Work |
 |---|---|---|
 | `boundaries` | pull request | boundary-tool tests and aggregate role/path check |
-| `framework` | pull request and main push | coverage reporter, source-packaging, and boundary-tool tests |
+| `framework` | pull request and main push | framework unit tests, public documentation/entrypoint checks, and boundary-tool tests |
 | `gates` | pull request and main push | RTL lint, unit simulation, and formal jobs |
 | `delivery` | successful `framework` and `gates` on a main push | exact tracked-source snapshot |
 
@@ -67,9 +67,29 @@ sha256sum -c SHA256SUMS
 python3 -c 'import json; print(json.load(open("manifest.json"))["source"]["commit"])'
 tar -xf openchip-source-<sha>.tar
 cd openchip-source-<sha>
+git init
+git add .
 make framework-test
 ```
 
 The checksum validates downloaded bytes. Match the printed manifest commit to
 the tested workflow SHA before using the snapshot. `make framework-test` needs
 Python 3.9 or newer and standard shell/Git tools; it does not run the EDA gates.
+The archive has no Git metadata. The local index above supplies the documentation
+checker with the extracted public file inventory; it creates no commit or remote.
+
+## Documentation and toolchain scope
+
+`make framework-test` also runs `scripts/check_docs.py`: a standard-library
+check of tracked repository-authored Markdown links, the single root
+constitution, engineering prose placement and canonical Claude skill mirrors.
+Vendored, generated and private trees are outside its documentation policy;
+explicit engineering report exceptions retain reproducible evidence. It checks
+local link paths, not external availability, anchor semantics or technical truth.
+
+Reference hardware recipes use `flow/versions.mk`, `requirements.txt` and the
+workflow setup. Synthesis/GDS need their module configurations and additional
+local tools; `compliance`, `soc-sim` and `glsim` currently fail as unimplemented
+entrypoints. Imported IP can retain native toolchains pinned in its intake
+record. Neither a reference-tool installation nor a green framework job proves
+those upstream flows or a future signoff tool are available and qualified.

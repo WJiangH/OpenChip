@@ -68,28 +68,10 @@ responses. Physical claims require their own timing and signoff artifacts; an
 RTL simulation result cannot substitute for them.
 
 Gate-level simulation should rerun the same decision-bearing firmware or tests
-against the post-layout netlist with the declared timing annotation. Until that
-rung passes, describe physical results as implementation signoff rather than
-post-layout functional verification.
-
-## Coverage policy and diagnostics
-
-`flow/gates.mk` declares the repository target of at least 90% line and toggle
-coverage per module. Existing simulation can collect Coverage-3 data, but the
-public flow does not currently turn the diagnostic report into an automatic
-coverage acceptance decision.
-
-`make coverage-report` reads one existing Coverage-3 `coverage.dat` and
-produces a deterministic point census. It reports per-kind counts, uncovered
-points, hierarchies, and the input hash. It rejects malformed, duplicate,
-missing-field, and unknown-kind records and refuses to overwrite its input.
-It does not apply exclusions or waivers and always records
-`coverage_gate: "not_evaluated"`. See
-[COVERAGE_REPORT.md](COVERAGE_REPORT.md).
-
-A `t=line` record is an instrumented code-flow point rather than one physical
-source line. Toggle points cover only signals instrumented by the producer.
-Raw diagnostic percentages therefore cannot be relabeled as a 90% gate pass.
+against the post-layout netlist with the declared timing annotation. Use the [lifecycle](SILICON_LIFECYCLE.md) and backend method to approve the
+selected same-binary suite before execution; an undeclared exclusion does not
+discharge a software or workload obligation. Physical-check evidence and
+post-layout functional acceptance remain separate claims.
 
 ## Review record
 
@@ -97,3 +79,115 @@ The author records exact commands and summary output in the PR manifest. An
 independent reviewer checks the aggregate diff, gate integrity, cited spec or
 policy, and a proportionate set of reproduced commands. Checks outside the work
 item are recorded as `NOT_RUN` with a reason rather than implied by a green PR.
+
+## Recorded public verification snapshot
+
+This source-bound snapshot preserves public engineering evidence. It is not a
+claim about the latest branch or every later CI run.
+
+### Recorded CI snapshot
+
+- Source: [`1f92f2cfaab6163283f39018a48ce3d13e8f6795`](https://github.com/WJiangH/OpenChip/commit/1f92f2cfaab6163283f39018a48ce3d13e8f6795)
+- Workflow: [CI run 34155797584](https://github.com/WJiangH/OpenChip/actions/runs/34155797584), `SUCCESS`
+- Lint: `blink` and `npu` passed.
+- Simulation: `blink` passed 7/7 cocotb tests; `npu` passed 20/20.
+- Formal: all 9 configured `blink` tasks passed (`n1`, `n2`, and `n3`, each
+  with `bmc`, `prove`, and `cover`). No `npu` formal job is checked in.
+
+The CI run used `make sim` without `COVERAGE=1`. Its green simulation result
+therefore contains no line or toggle coverage measurement.
+
+### Module matrix
+
+| Target | Specification | Executable DV | Requirement plan | Independent model | Formal | Recorded evidence and open items |
+|---|---|---|---|---|---|---|
+| `blink` | [`docs/spec/blink.md`](spec/blink.md) | [`hw/dv/blink/test_blink.py`](../hw/dv/blink/test_blink.py), 7 tests | [`hw/dv/blink/vplan.md`](../hw/dv/blink/vplan.md), 8 requirement rows | [`BlinkModel`](../hw/dv/common/models/blink.py) | [`blink.sby`](../hw/formal/blink/blink.sby) and [`blink_fv.sv`](../hw/formal/blink/blink_fv.sv), 9 configured tasks | [`evidence/blink/README.md`](../evidence/blink/README.md); gate-level simulation remains open |
+| `npu` | [`docs/spec/npu.md`](spec/npu.md) | [`hw/dv/npu/test_npu.py`](../hw/dv/npu/test_npu.py), 20 tests | [`hw/dv/npu/vplan.md`](../hw/dv/npu/vplan.md), 23 requirement rows | [`NpuModel`](../hw/dv/common/models/npu.py) | None checked in | [`hw/dv/npu/BUGS.md`](../hw/dv/npu/BUGS.md) records a cold-start activation-path gap, limited observable numeric behavior, coverage shortfall, and an inter-group latency clarification |
+| SoC-1 | [`docs/spec/soc_1.md`](spec/soc_1.md), draft | None checked in | None checked in | None checked in | None checked in | Full-system simulation, software boot, and model-runtime results are not public verification results at this snapshot |
+
+The 8 and 23 vplan rows map numbered specification requirements. They are not
+8 or 23 independently executed tests, and a passing cocotb suite does not by
+itself establish that every planned coverage point or formal-tagged property is
+closed.
+
+### Coverage status
+
+`flow/gates.mk` declares 90% minimum line and toggle coverage per module.
+Current `make sim` and public CI do not collect coverage unless `COVERAGE=1` is
+requested, and no automated target compares collected data with those minima.
+The declared thresholds are therefore policy targets, not currently enforced
+CI gates.
+
+| Target | Public record | Interpretation |
+|---|---|---|
+| `blink` | The historical [`blink` evidence package](../evidence/blink/README.md) records 4/4 line points and 10/10 toggle points (100% each) from a manually annotated run. | Evidence for that recorded run. It is not a measurement from CI run 34155797584 and does not prove automatic threshold enforcement. |
+| `npu` | The [`npu` bug log](../hw/dv/npu/BUGS.md) records a manual run at line 95.0% (57/60) and toggle 38.5% (1430/3714). | Line exceeded the declared target in that run; toggle did not. The open activation-path gap limits observable nonzero datapath behavior, so numeric bit-exact and toggle closure remain open. |
+
+`make coverage-report` reads one existing Verilator Coverage-3 file and reports
+the input hash, point counts, and uncovered points. It is diagnostic: every
+report says `coverage_gate: not_evaluated`, and it never turns these observations
+into a passing gate. The input contract follows below.
+
+### Reproduce the executable scope
+
+```bash
+make lint
+make sim MOD=blink
+make sim MOD=npu
+make formal MOD=blink
+```
+
+These commands reproduce the executable public module scope when the pinned
+toolchain is available. Coverage requires a separate `COVERAGE=1` run and
+manual evaluation; no command above establishes the 90% coverage targets.
+
+## Diagnostic Verilator coverage report
+
+`scripts/coverage_report.py` inventories every instrumented point in one
+existing Verilator Coverage-3 `coverage.dat`. It reports hit, total, and
+percentage separately for `branch`, `expr`, `line`, and `toggle`, first
+across the input and then per source and `h` hierarchy. It lists every
+zero-count point with its complete metadata.
+
+Run it through the repository entrypoint:
+
+```bash
+make coverage-report \
+  COVERAGE_DATA=path/to/coverage.dat \
+  COVERAGE_REPORT=path/to/coverage-report.json
+```
+
+Both variables name one file. The command does not accept a directory, glob, or
+set of files because combining independent coverage outputs requires proof that
+their builds and point identities match.
+
+The report records the input SHA-256, the exact Coverage-3 format header,
+record counts, and `coverage_closure: false`. Missing, empty, malformed, or
+duplicate records fail. Required metadata must be present, and a `t` kind
+outside the four reported kinds fails instead of silently changing a
+denominator. The output path may not resolve to the input path.
+
+This parser supports the Coverage-3 record form exercised by its tests. The file
+format does not encode a producer version, so the report records
+`producer_version: "not encoded in input"` and makes no broader version
+compatibility claim.
+
+### Interpretation limits
+
+This output is a diagnostic point census. A `t=line` record is a Verilator
+code-flow point, not one physical source line; several points can map to one
+line. Toggle records cover only instrumented bits. Startup and reset activity
+can also contribute to cumulative counters, depending on the producing
+testbench.
+
+The percentages are advisory raw-point ratios. The reporter does not evaluate
+or close the thresholds in `flow/gates.mk`, apply exclusions or waivers, or
+produce a signoff verdict. Its JSON always contains
+`coverage_gate: "not_evaluated"`. Use the official `verilator_coverage`
+annotation workflow when source annotation is required, and use separately
+reviewed acceptance logic for a coverage gate.
+
+References:
+
+- [Verilator coverage analysis](https://verilator.org/guide/latest/simulating.html#coverage-analysis)
+- [`verilator_coverage` command](https://verilator.org/guide/latest/exe_verilator_coverage.html)

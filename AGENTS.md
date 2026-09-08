@@ -10,11 +10,20 @@ vendor-specific entrypoints mirror or point to those methods.
 
 ## Choose one role per work item
 
+At the start of a project session, an explicit specialist assignment takes
+precedence. Otherwise use the **orchestrator** role for project coordination:
+read its method and the configured durable project state (default
+`.local-designs/orchestration/STATE.md`), then reconcile actual Git, assignments,
+jobs and receipts before dispatch. Resume the agreed goal within existing
+authorization; a new conversation does not require agreeing to it again.
+A standalone question does not require creating a project plan or state.
+
 Before the first edit, name the role and read its method file. Load a method's
 `references/` entries only when the task needs them.
 
 | Role | Method | Writes to | Never touches |
 |---|---|---|---|
+| Orchestrator | `.agents/skills/orchestrator/SKILL.md` | approved project state; assigned framework policy/tooling | specialists' product artifacts and independent review |
 | Chief architect | `.agents/skills/chief-architect/SKILL.md` | `docs/spec/`, `docs/adr/`, `workloads/`, `explore/` | `hw/`, `sw/`, `sim/` |
 | Verification architect | `.agents/skills/verif-architect/SKILL.md` | `hw/dv/` plans, models, infrastructure | `hw/rtl/` |
 | DV engineer | `.agents/skills/dv-engineer/SKILL.md` | `hw/dv/` | `hw/rtl/` |
@@ -34,7 +43,8 @@ infrastructure use the assigned orchestrator or flow-owner role.
 
 ## Ownership and supervision
 
-The manager represents the maintainer and supervises system quality. It defines
+The orchestrator is the manager representing the maintainer within delegated
+authority; it is distinct from the independent integrator. It defines
 the work item and acceptance criteria, assigns an independent specialist and
 reviewer, and selects a configured model according to uncertainty and impact.
 It examines both the deliverable and the quality of the review. When results are
@@ -59,6 +69,49 @@ A successful review-automation job means the job completed; it does not mean
 the substantive verdict was approval. Authors and integrators read the posted
 verdict and resolve every request-changes finding before declaring review clean.
 
+## Documentation stewardship
+
+The orchestrator stewards public documentation structure, navigation and shared
+workflow guidance. This does not transfer semantic ownership: the chief
+architect owns specifications and ADRs; verification specialists own testplans,
+properties, golden models and coverage intent. Changes to those contracts require
+their assigned author and independent review even when the file is under `docs/`.
+
+Keep `docs/` a small set of stable framework references. Use `README.md` for
+ordinary prose in engineering directories. Keep domain artifacts such as specs,
+testplans, constraints, formal descriptions, register maps, IP/license notices,
+role `SKILL.md` files and reproducible engineering reports where their tools and
+owners need them. Do not add per-task summaries, phase diaries or duplicate
+constitutions. Use the PR manifest and private durable state for delivery status.
+Preserve evidence/source links and historical signoff when consolidating prose;
+only reviewed dependency impact can carry forward or reopen a claim.
+
+## Branch lifecycle
+
+Start each bounded work item from fresh `origin/main` in a short-lived branch and
+worktree. A dependent stack needs an explicit dependency and an ancestry audit
+against both its stack base and public main. The author runs applicable checks,
+commits with registered attribution, pushes the authorized branch and opens a
+manifest PR. Independent review leads to fixes and re-review on that same PR.
+**Request-changes is not terminal rejection.** A PR ends in authorized merge or
+an explicit terminal close (for example superseded or withdrawn), with a recorded
+reason and disposition of any useful work/evidence.
+
+Keep the PR Draft until the required review and checks are satisfied and a Ready
+transition stays within integration authority. The manager/integrator verifies
+the actual final head, tested candidate, substantive approval and configured
+required checks before authorized integration. Do not infer approval from a
+successful bot job or change branch settings to bypass a hold.
+
+After merge or terminal close, the assigned cleanup owner verifies remote PR
+state and exact head, merge reachability (or recorded squash/rebase mapping),
+active workers/jobs, dependent branches, dirty/untracked files and evidence
+retention. Preserve anything still needed; retire worktrees and local/remote
+branches only when these checks show they are unused and disposition is
+recorded. Never force-delete a dirty worktree or abandon unpublished changes
+because its PR is closed. Record cleanup or its blocker in existing state/PR,
+not a new public Markdown report. Begin the next item from current main.
+
 ## Iron rules
 
 1. **The spec is the source of product behavior.** RTL, DV, formal, software,
@@ -81,6 +134,18 @@ verdict and resolve every request-changes finding before declaring review clean.
 
 Automated checks supplement these rules. The author and reviewer remain
 responsible for verifying the full diff, role boundary, and evidence.
+
+## Lifecycle signoff
+
+Use [the silicon lifecycle](docs/SILICON_LIFECYCLE.md) to assign stage-specific
+owners, independent reviewers, approvers and measurable criteria. Maintain
+[scoped signoff records](docs/templates/SIGNOFF_RECORD.md) as development
+progresses. Bind decisions to exact candidates and configurations; retain
+historical acceptance and reopen affected claims after changes. Block readiness,
+DV closure, subsystem/SoC acceptance, physical signoff and tapeout authorization
+are separate decisions. Pending or missing evidence is not PASS. The records
+are a manual process, not an implemented acceptance gate or access-control system.
+Private design records remain outside public history.
 
 ## Publication boundary
 
@@ -139,7 +204,13 @@ requirements that every design using the OpenChip collaboration framework adopt.
   other module inputs and outputs use `i_` and `o_`.
 
 Changing a reference-design architectural convention requires a spec or ADR
-change before implementation.
+change before implementation. Imported IP may retain upstream coding, interface,
+reset and toolchain conventions; document its pinned source and approved adapter
+boundaries. Reference Yosys/Wishbone rules do not mandate rewriting upstream IP.
+
+Independent contexts reduce shared mistakes; different vendors, sparse checkouts
+and worktrees do not enforce read isolation. Record actual runtime permissions
+when enforcement is required and disclose convention-only separation otherwise.
 
 ## Verification conventions
 
@@ -191,4 +262,6 @@ account, provider, model, or attestation. See
 4. Resolve independent review findings, rerun affected checks, and keep the
    manifest synchronized with the final diff and current CI state. Pending CI
    or review is an open item, not `none`.
-5. End the manifest with one-line `Friction` and `Skill candidates` entries.
+5. Track authorized integration or terminal close and safe branch/worktree
+   cleanup; unresolved dependencies remain explicit blockers.
+6. End the manifest with one-line `Friction` and `Skill candidates` entries.

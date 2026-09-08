@@ -43,7 +43,11 @@ sync_cli() {
   for role in $(roles); do
     mkdir -p "$dir/$role"
     link "../../../$CANON/$role/SKILL.md" "$dir/$role/SKILL.md"
-    link "../../../$CANON/$role/references" "$dir/$role/references"
+    if [ -d "$CANON/$role/references" ]; then
+      link "../../../$CANON/$role/references" "$dir/$role/references"
+    elif [ -L "$dir/$role/references" ]; then
+      rm "$dir/$role/references"
+    fi
   done
   echo "  synced $dir  ($(roles | wc -l | tr -d ' ') roles)"
 }
