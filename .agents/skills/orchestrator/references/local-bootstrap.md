@@ -36,6 +36,9 @@ Use this routing text, adapting the project entrypoint only when needed:
 ```markdown
 # Local OpenChip startup
 
+All paths below are relative to the repository root, even when the session
+starts in a subdirectory. Resolve that root before reading them.
+
 Read ./AGENTS.md explicitly and follow the repository constitution. This local
 entrypoint supplements it; Codex may otherwise skip that same-directory file.
 An explicit specialist assignment takes precedence: use its assigned role and
