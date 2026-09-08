@@ -19,6 +19,7 @@ the common policy and directory boundaries.
 
 | Role | Primary responsibility | Product paths |
 |---|---|---|
+| Orchestrator | agreed goal, milestone dependencies, specialist/model assignment, progress and durable resume | approved project state; explicitly assigned framework work |
 | Chief architect | specs, ADRs, design-space decisions | `docs/spec/`, `docs/adr/`, `workloads/`, `explore/` |
 | Verification architect | vplan, independent golden models, DV infrastructure | `hw/dv/` |
 | RTL engineer | synthesizable implementation from an approved spec | `hw/rtl/` |
@@ -36,11 +37,37 @@ The assignment fixes the active author role. Reading another role's method to
 apply its criteria does not change authorship. Shared flow infrastructure uses
 the assigned orchestrator or flow-owner role.
 
-The manager represents the maintainer. It defines acceptance criteria, decomposes
+The orchestrator is the manager representing the maintainer within delegated
+authority. It defines acceptance criteria, decomposes
 work, chooses specialists and configured models according to uncertainty and
 impact, and checks the quality of both output and review. It corrects missing
 skills, context, decomposition, or model fit. It normally does not implement the
 specialist's deliverable or replace independent review.
+
+## Start a session and resume a goal
+
+An explicitly assigned specialist starts in its own role. Otherwise project
+coordination defaults to the [orchestrator method](../.agents/skills/orchestrator/SKILL.md).
+Read the root constitution, method and configured state entrypoint before
+dispatch. The default `.local-designs/orchestration/STATE.md` is private and
+ignored; initialize it from the [blank state template](templates/ORCHESTRATION_STATE.md)
+when adopting the workflow. Record the agreed goal, authority, acceptance DAG,
+assignments, requested runtimes, candidate/branch/worktree identities, durable
+job handles and evidence, plus a short checkpoint with the next action.
+
+On a new session, reconcile live Git/PR state, workers, jobs and final receipts
+before relying on saved status or creating another worker. Keep existing
+authorization and qualified signoff decisions; record unavailable tools/access
+and continue unaffected work. State does not create a daemon, cross-provider
+scheduler, enforced clean room or background notification. The integrator still
+owns independent review; the orchestrator supervises the process and routes fixes
+back to authors.
+
+For activation on an older checkout, see the narrow
+[local bootstrap](../.agents/skills/orchestrator/references/local-bootstrap.md).
+It preserves the current branch and explicitly loads the constitution when a
+local override takes discovery precedence. Validate startup in a fresh context;
+a valid skill file alone does not prove that a client loaded it.
 
 Requested runtime settings and observed identity are separate facts. Record the
 requested model and effort. Record an observed model only when the runtime
@@ -68,7 +95,9 @@ manager audits output and review quality -> maintainer-controlled integration
 
 The author owns delivery after public publication is authorized. It chooses Draft
 while scoped acceptance criteria or known review findings remain unresolved, and
-marks the PR ready when all applicable criteria are met. A future milestone's
+marks the PR ready when all applicable criteria are met and that transition
+stays within the authorized workflow. Keep review-only delivery Draft when a
+Ready PR would trigger integration that has not been authorized. A future milestone's
 unimplemented chip gates do not block a framework-only change; the manifest marks
 them `NOT_RUN` and explains why they are inapplicable.
 

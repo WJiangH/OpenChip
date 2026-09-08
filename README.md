@@ -9,7 +9,7 @@ verification. Tools and cited review bound every claim.
 
 [![CI](https://github.com/WJiangH/OpenChip/actions/workflows/ci.yml/badge.svg)](https://github.com/WJiangH/OpenChip/actions/workflows/ci.yml)
 [![License](https://img.shields.io/badge/license-Apache--2.0-888780)](LICENSE)
-[![Agent roles](https://img.shields.io/badge/agent%20roles-9-534AB7)](AGENTS.md)
+[![Agent roles](https://img.shields.io/badge/agent%20roles-10-534AB7)](AGENTS.md)
 
 </div>
 
@@ -17,7 +17,7 @@ verification. Tools and cited review bound every claim.
 
 OpenChip provides a reusable collaboration system for chip projects:
 
-- a shared agent constitution and nine model-independent specialist methods;
+- a shared constitution, an orchestrator and nine independent specialist methods;
 - spec authority and separate RTL/DV authorship contexts;
 - one owned work item per branch and worktree;
 - author-owned checks, commits, feature-branch pushes, and manifest PRs;
@@ -64,6 +64,11 @@ Read [AGENTS.md](AGENTS.md) for the enforceable contract and
 [signoff record](docs/templates/SIGNOFF_RECORD.md) organize workload, block,
 subsystem, SoC, physical and tapeout decisions with incremental evidence.
 These are planning and review procedures; implemented checks are listed below.
+New project sessions default to the [orchestrator](.agents/skills/orchestrator/SKILL.md),
+which resumes the agreed goal and reconciles saved assignments and live evidence.
+Explicit specialist assignments keep their own role. See
+[session setup](docs/AGENTS.md#start-a-session-and-resume-a-goal) for private state
+and local activation.
 The [attribution protocol](docs/AGENT_ATTRIBUTION.md) separates requested runtime,
 observed runtime, Git identity, platform account, and evidenced outcomes.
 

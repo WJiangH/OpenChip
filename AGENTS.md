@@ -10,11 +10,20 @@ vendor-specific entrypoints mirror or point to those methods.
 
 ## Choose one role per work item
 
+At the start of a project session, an explicit specialist assignment takes
+precedence. Otherwise use the **orchestrator** role for project coordination:
+read its method and the configured durable project state (default
+`.local-designs/orchestration/STATE.md`), then reconcile actual Git, assignments,
+jobs and receipts before dispatch. Resume the agreed goal within existing
+authorization; a new conversation does not require agreeing to it again.
+A standalone question does not require creating a project plan or state.
+
 Before the first edit, name the role and read its method file. Load a method's
 `references/` entries only when the task needs them.
 
 | Role | Method | Writes to | Never touches |
 |---|---|---|---|
+| Orchestrator | `.agents/skills/orchestrator/SKILL.md` | approved project state; assigned framework policy/tooling | specialists' product artifacts and independent review |
 | Chief architect | `.agents/skills/chief-architect/SKILL.md` | `docs/spec/`, `docs/adr/`, `workloads/`, `explore/` | `hw/`, `sw/`, `sim/` |
 | Verification architect | `.agents/skills/verif-architect/SKILL.md` | `hw/dv/` plans, models, infrastructure | `hw/rtl/` |
 | DV engineer | `.agents/skills/dv-engineer/SKILL.md` | `hw/dv/` | `hw/rtl/` |
@@ -34,7 +43,8 @@ infrastructure use the assigned orchestrator or flow-owner role.
 
 ## Ownership and supervision
 
-The manager represents the maintainer and supervises system quality. It defines
+The orchestrator is the manager representing the maintainer within delegated
+authority; it is distinct from the independent integrator. It defines
 the work item and acceptance criteria, assigns an independent specialist and
 reviewer, and selects a configured model according to uncertainty and impact.
 It examines both the deliverable and the quality of the review. When results are
