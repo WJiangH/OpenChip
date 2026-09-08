@@ -34,9 +34,13 @@ not a substitute for the source-bound receipts needed for a verification claim.
    directory and candidate/run nonce. A reused PID alone proves nothing. Read
    last-progress units/time and final receipts, tool exit and semantic verdict,
    selected/executed/checked counts, output hashes and source/binary identity.
-   An alive or quiet process is not PASS. An unverified receipt or false
-   verification flag is not a known failure; report it as unverified until a
-   checked criterion establishes the result. Missing terminal evidence means
+   An alive or quiet process is not PASS. Interpret flags using their defined
+   receipt semantics and execution state: missing evidence or a flag explicitly
+   meaning "not yet verified" remains unverified; a false aggregate-closure
+   flag alone may mean incomplete work. Preserve an executed check's explicit
+   failed verdict (including `passed: false` when defined that way) as FAIL;
+   do not relabel it UNKNOWN because another review is pending.
+   Missing terminal evidence means
    RUNNING/UNKNOWN as supported by observation, not a fabricated completion.
    A missing process without a receipt needs investigation; do not immediately
    rerun an expensive or externally mutating job. Retry only after ruling out
