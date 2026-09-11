@@ -1,0 +1,66 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1120" height="650" viewBox="0 0 1120 650" role="img" aria-labelledby="title desc">
+  <title id="title">OpenChip: CoralNPU integration architecture</title>
+  <desc id="desc">The selected imported RvvCoreMiniHighmemAxi contains RV32 and RVV execution with a 128-bit vector length, 1 MiB instruction TCM and 1 MiB data TCM. A host-control simulation adapter connects to its native AXI subordinate port. Its native AXI manager port connects to a behavioral external-memory responder for code and data. The separate dashed band lists future SoC requirements, not selected hardware: boot and host interface, system interconnect, external memory interface, clock, reset and interrupts.</desc>
+  <defs>
+    <marker id="arrow" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+      <path d="M 1 1 L 9 5 L 1 9 Z" fill="#346f60"/>
+    </marker>
+    <style>
+      text { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif; }
+      .ink { fill: #182f29; }
+      .muted { fill: #53675f; }
+      .mono { font-family: "SFMono-Regular", Consolas, "Liberation Mono", monospace; }
+    </style>
+  </defs>
+
+  <rect x="1" y="1" width="1118" height="648" rx="18" fill="#f8faf9" stroke="#dce5df"/>
+  <text x="30" y="45" font-size="14" font-weight="600" letter-spacing="1.4" class="muted">OPENCHIP / SYSTEM VIEW</text>
+  <text x="28" y="91" font-size="34" font-weight="650" class="ink">CoralNPU at the core.</text>
+  <text x="30" y="119" font-size="17" class="muted">Current integration baseline</text>
+
+  <!-- Imported core boundary. Nested memories denote membership, not bus topology. -->
+  <rect x="340" y="133" width="438" height="327" rx="16" fill="#e8f3ed" stroke="#2a8064" stroke-width="2"/>
+  <text x="365" y="176" font-size="31" font-weight="650" class="ink">CoralNPU</text>
+  <rect x="644" y="152" width="109" height="28" rx="7" fill="#d0e9db"/>
+  <text x="698" y="171" font-size="14" font-weight="600" text-anchor="middle" fill="#205b43">Imported IP</text>
+  <text x="365" y="204" font-size="18" class="mono muted">RvvCoreMiniHighmemAxi</text>
+
+  <rect x="365" y="226" width="388" height="91" rx="10" fill="#ffffff" stroke="#adcdbd"/>
+  <text x="387" y="264" font-size="29" font-weight="600" class="ink">RV32 + RVV</text>
+  <text x="387" y="293" font-size="18" class="muted">128-bit vector length</text>
+
+  <rect x="365" y="337" width="183" height="98" rx="10" fill="#ffffff" stroke="#adcdbd"/>
+  <text x="382" y="371" font-size="19" font-weight="500" class="ink">Instruction TCM</text>
+  <text x="382" y="407" font-size="27" font-weight="600" class="ink">1 MiB</text>
+  <rect x="570" y="337" width="183" height="98" rx="10" fill="#ffffff" stroke="#adcdbd"/>
+  <text x="587" y="371" font-size="19" font-weight="500" class="ink">Data TCM</text>
+  <text x="587" y="407" font-size="27" font-weight="600" class="ink">1 MiB</text>
+
+  <!-- Simulation adapters sit outside the imported core. -->
+  <rect x="28" y="241" width="194" height="129" rx="12" fill="#eef1ef" stroke="#bcc8c0"/>
+  <text x="46" y="281" font-size="24" font-weight="600" class="ink">Host control</text>
+  <text x="46" y="312" font-size="17" class="muted">Simulation adapter</text>
+  <text x="46" y="344" font-size="16" class="muted">Load · configure · start</text>
+  <path d="M 226 306 H 335" stroke="#346f60" stroke-width="2" fill="none" marker-start="url(#arrow)" marker-end="url(#arrow)"/>
+  <text x="281" y="263" font-size="18" font-weight="600" text-anchor="middle" class="ink">AXI</text>
+  <text x="281" y="285" font-size="16" text-anchor="middle" class="muted">subordinate</text>
+  <text x="281" y="337" font-size="14" text-anchor="middle" class="muted">control / status</text>
+
+  <rect x="898" y="241" width="194" height="129" rx="12" fill="#eef1ef" stroke="#bcc8c0"/>
+  <text x="916" y="275" font-size="24" font-weight="600" class="ink">External</text>
+  <text x="916" y="302" font-size="24" font-weight="600" class="ink">memory model</text>
+  <text x="916" y="344" font-size="16" class="muted">Behavioral responder</text>
+  <path d="M 783 306 H 893" stroke="#346f60" stroke-width="2" fill="none" marker-start="url(#arrow)" marker-end="url(#arrow)"/>
+  <text x="838" y="263" font-size="18" font-weight="600" text-anchor="middle" class="ink">AXI</text>
+  <text x="838" y="285" font-size="16" text-anchor="middle" class="muted">manager</text>
+  <text x="838" y="337" font-size="15" text-anchor="middle" class="muted">code + data</text>
+
+  <!-- Future requirements are visually separate, without invented electrical links. -->
+  <rect x="28" y="499" width="1064" height="123" rx="12" fill="none" stroke="#94aaa0" stroke-width="1.5" stroke-dasharray="7 5"/>
+  <text x="50" y="535" font-size="23" font-weight="600" class="ink">Next: SoC integration</text>
+  <text x="50" y="563" font-size="17" class="muted">Architecture to define and qualify</text>
+  <text x="50" y="598" font-size="18" class="ink">Boot &amp; host interface</text>
+  <text x="326" y="598" font-size="18" class="ink">System interconnect</text>
+  <text x="585" y="598" font-size="18" class="ink">Memory interface</text>
+  <text x="821" y="598" font-size="18" class="ink">Clock · reset · interrupts</text>
+</svg>

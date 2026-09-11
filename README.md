@@ -1,15 +1,26 @@
 # OpenChip
 
-OpenChip is an open framework for developing silicon with collaborating agents.
-It gives architecture, RTL, verification, software and physical design separate
-owners, connects their work through reviewed contracts, and binds acceptance to
-reproducible evidence.
+OpenChip is an open framework for building silicon with collaborating engineering
+agents. Our current chip direction brings **CoralNPU** into a system for complete
+LLM workloads.
 
-An orchestrator manages the agreed goal and dependencies. Specialists own their
-work from implementation through a manifest pull request; independent reviewers
-check behavior, evidence and scope before authorized integration. The canonical
-methods in [`.agents/skills/`](.agents/skills/) work across coding-agent clients.
-Start with the [agent constitution](AGENTS.md).
+## Chip architecture
+
+![OpenChip architecture: the selected CoralNPU core contains RV32/RVV execution and 1 MiB each of instruction and data TCM. Native AXI connects it to host-control and external-memory simulation adapters. A separate band lists the SoC integration work ahead.](docs/images/chip-architecture.svg)
+
+The selected core combines **RV32 + RVV** execution with **1 MiB instruction TCM**
+and **1 MiB data TCM**. Host control and external memory are simulation adapters
+today; the production SoC interfaces remain to be defined and qualified.
+
+[Native IP](hw/ip/coralnpu/README.md) ·
+[Integration contract](docs/spec/coralnpu_external_memory.md) ·
+[Complete tiny-LM workload](workloads/coralnpu_llm/README.md) (draft)
+
+Architecture, RTL, verification, software and physical design have separate
+owners. An orchestrator manages the goal and dependencies; specialists deliver
+through manifest pull requests, and independent reviewers check behavior,
+evidence and scope before integration. The canonical [role methods](.agents/skills/)
+work across coding-agent clients. Start with the [agent constitution](AGENTS.md).
 
 ## What works today
 
@@ -22,8 +33,9 @@ readiness. Coverage reporting is diagnostic; lifecycle signoff is a manual,
 independently reviewed process.
 
 The GitHub agent workflow supports its configured provider's dispatch and review.
-Methods and local durable state support session resumption; they do not implement
-a cross-provider scheduler, enforced workspace isolation or background monitoring.
+Methods, a [local dispatch ledger](flow/README.md#local-orchestration-ledger) and
+durable state support session resumption. They do not implement a cross-provider
+scheduler, enforced workspace isolation or background monitoring.
 
 ## Run the framework and reference checks
 
@@ -61,10 +73,11 @@ and experiment receipts stay in the approved local store, outside public history
 
 ## Direction and documentation
 
-The next engineering direction is to evaluate and adapt upstream CoralNPU,
-starting with a pinned, reproducible upstream baseline and a workload acceptance
-contract. This integration has not been executed here. The current tinyNPU stays
-a fast framework regression. See the [roadmap](docs/ROADMAP.md).
+The [CoralNPU native IP entry](hw/ip/coralnpu/README.md) now provides pinned source
+acquisition, native model generation and runtime tooling. The next engineering
+steps are complete target LLM execution and SoC integration; the
+[full-model contract](docs/spec/coralnpu_llm.md) remains a draft. The smaller
+tinyNPU stays a fast framework regression. See the [roadmap](docs/ROADMAP.md).
 
 - [Constitution and ownership](AGENTS.md): startup, independent roles and branch delivery.
 - [Silicon lifecycle](docs/SILICON_LIFECYCLE.md): incremental, scoped signoff from feasibility through production validation.
