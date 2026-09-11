@@ -1,0 +1,344 @@
+{
+  "upstream_commit": "561c59d33fea8a02e7f1062956ec77740e0eb955",
+  "method": "Immutable upstream source citations; not an exhaustive build dependency or license manifest.",
+  "sources": [
+    {
+      "id": "S01",
+      "path": "hdl/chisel/src/coralnpu/Parameters.scala",
+      "sha256": "fb2c2a57e04f8b169d3f62f819dc4b645a36a28c6497f71d00c5df017ae9c3b5",
+      "line_ranges": [
+        [
+          43,
+          62
+        ],
+        [
+          79,
+          117
+        ],
+        [
+          139,
+          196
+        ]
+      ],
+      "url": "https://github.com/google-coral/coralnpu/blob/561c59d33fea8a02e7f1062956ec77740e0eb955/hdl/chisel/src/coralnpu/Parameters.scala"
+    },
+    {
+      "id": "S02",
+      "path": "hdl/chisel/src/coralnpu/flags.bzl",
+      "sha256": "93d38d312d92316a6332bd581e6b13797e9d43755c6c22a0d3c1d1755cff75c1",
+      "line_ranges": [
+        [
+          17,
+          30
+        ]
+      ],
+      "url": "https://github.com/google-coral/coralnpu/blob/561c59d33fea8a02e7f1062956ec77740e0eb955/hdl/chisel/src/coralnpu/flags.bzl"
+    },
+    {
+      "id": "S03",
+      "path": "hdl/chisel/src/coralnpu/BUILD",
+      "sha256": "572db2ff8f2776d47409c6e98b1de5e8818c32e7fd55492f3f8b960f35d9ebb8",
+      "line_ranges": [
+        [
+          755,
+          767
+        ]
+      ],
+      "url": "https://github.com/google-coral/coralnpu/blob/561c59d33fea8a02e7f1062956ec77740e0eb955/hdl/chisel/src/coralnpu/BUILD"
+    },
+    {
+      "id": "S04",
+      "path": "hdl/chisel/src/coralnpu/CoreAxi.scala",
+      "sha256": "f2d32fa1015cc35cc179cbf8f436955f15f1ee284db77e021f1178f14c61e212",
+      "line_ranges": [
+        [
+          23,
+          131
+        ],
+        [
+          150,
+          209
+        ],
+        [
+          253,
+          304
+        ]
+      ],
+      "url": "https://github.com/google-coral/coralnpu/blob/561c59d33fea8a02e7f1062956ec77740e0eb955/hdl/chisel/src/coralnpu/CoreAxi.scala"
+    },
+    {
+      "id": "S05",
+      "path": "hdl/chisel/src/bus/Axi.scala",
+      "sha256": "22f350e291c6ab5c6162ec8fd39d3b053fc8383811a00b647d59f75f99a4b05f",
+      "line_ranges": [
+        [
+          20,
+          115
+        ],
+        [
+          137,
+          188
+        ]
+      ],
+      "url": "https://github.com/google-coral/coralnpu/blob/561c59d33fea8a02e7f1062956ec77740e0eb955/hdl/chisel/src/bus/Axi.scala"
+    },
+    {
+      "id": "S06",
+      "path": "hdl/chisel/src/coralnpu/DBus2Axi.scala",
+      "sha256": "9edf458fc7cba57c06579e92a7b4f1d42073c3b3dc2b6157eac0151478354605",
+      "line_ranges": [
+        [
+          26,
+          158
+        ]
+      ],
+      "url": "https://github.com/google-coral/coralnpu/blob/561c59d33fea8a02e7f1062956ec77740e0eb955/hdl/chisel/src/coralnpu/DBus2Axi.scala"
+    },
+    {
+      "id": "S07",
+      "path": "hdl/chisel/src/coralnpu/IBus2Axi.scala",
+      "sha256": "4a96ee2a74444875b06db5ab398206dd9dfe629b128cee19b088660680a14330",
+      "line_ranges": [
+        [
+          28,
+          84
+        ]
+      ],
+      "url": "https://github.com/google-coral/coralnpu/blob/561c59d33fea8a02e7f1062956ec77740e0eb955/hdl/chisel/src/coralnpu/IBus2Axi.scala"
+    },
+    {
+      "id": "S08",
+      "path": "hdl/chisel/src/coralnpu/CoreAxiCSR.scala",
+      "sha256": "0d2506cebbc4a91b84a58d79375b9fed75200c2281df9d225761e8344120a29f",
+      "line_ranges": [
+        [
+          47,
+          54
+        ],
+        [
+          86,
+          163
+        ],
+        [
+          188,
+          195
+        ]
+      ],
+      "url": "https://github.com/google-coral/coralnpu/blob/561c59d33fea8a02e7f1062956ec77740e0eb955/hdl/chisel/src/coralnpu/CoreAxiCSR.scala"
+    },
+    {
+      "id": "S09",
+      "path": "hdl/chisel/src/coralnpu/AxiSlave.scala",
+      "sha256": "e28b6c297452c80469f81e6756f425bbc6ba3002306a8b75e8f40bb6334808c9",
+      "line_ranges": [
+        [
+          52,
+          136
+        ]
+      ],
+      "url": "https://github.com/google-coral/coralnpu/blob/561c59d33fea8a02e7f1062956ec77740e0eb955/hdl/chisel/src/coralnpu/AxiSlave.scala"
+    },
+    {
+      "id": "S10",
+      "path": "hdl/verilog/RstSync.sv",
+      "sha256": "4404b970732c8671a7b78d085bdb76f6462e9b9260c6ce38afcd1599a417867c",
+      "line_ranges": [
+        [
+          15,
+          55
+        ]
+      ],
+      "url": "https://github.com/google-coral/coralnpu/blob/561c59d33fea8a02e7f1062956ec77740e0eb955/hdl/verilog/RstSync.sv"
+    },
+    {
+      "id": "S11",
+      "path": "coralnpu_test_utils/core_mini_axi_interface.py",
+      "sha256": "3c213f74c7f02726bcd2ad20ea79f1378ff7d2e85c64efedd327ce1060f02d82",
+      "line_ranges": [
+        [
+          194,
+          203
+        ],
+        [
+          537,
+          579
+        ],
+        [
+          1001,
+          1058
+        ],
+        [
+          1101,
+          1109
+        ]
+      ],
+      "url": "https://github.com/google-coral/coralnpu/blob/561c59d33fea8a02e7f1062956ec77740e0eb955/coralnpu_test_utils/core_mini_axi_interface.py"
+    },
+    {
+      "id": "S12",
+      "path": "hdl/chisel/src/coralnpu/scalar/Lsu.scala",
+      "sha256": "0c9a6100cf4096f02d8e9ce8b5cac92ca6a581d95e48d0ff2c1820d902beb091",
+      "line_ranges": [
+        [
+          68,
+          73
+        ],
+        [
+          3519,
+          3562
+        ]
+      ],
+      "url": "https://github.com/google-coral/coralnpu/blob/561c59d33fea8a02e7f1062956ec77740e0eb955/hdl/chisel/src/coralnpu/scalar/Lsu.scala"
+    },
+    {
+      "id": "S13",
+      "path": "hdl/chisel/src/coralnpu/scalar/FaultManager.scala",
+      "sha256": "ca39f126218c67e57be3c16d91b3f8a2ff3587cdd2d3c814eb22ca56fcdc135e",
+      "line_ranges": [
+        [
+          100,
+          150
+        ]
+      ],
+      "url": "https://github.com/google-coral/coralnpu/blob/561c59d33fea8a02e7f1062956ec77740e0eb955/hdl/chisel/src/coralnpu/scalar/FaultManager.scala"
+    },
+    {
+      "id": "S14",
+      "path": "hdl/chisel/src/coralnpu/scalar/Bru.scala",
+      "sha256": "fbea2a624b1d3cef73e6e3926caec15543dfeaebbae5046da32abd4c96af989d",
+      "line_ranges": [
+        [
+          130,
+          148
+        ],
+        [
+          250,
+          303
+        ]
+      ],
+      "url": "https://github.com/google-coral/coralnpu/blob/561c59d33fea8a02e7f1062956ec77740e0eb955/hdl/chisel/src/coralnpu/scalar/Bru.scala"
+    },
+    {
+      "id": "S15",
+      "path": "hdl/chisel/src/coralnpu/scalar/Csr.scala",
+      "sha256": "3bcffdc4eeb83bc0e68ae606ed294496e3398de66d6eaadf09e0410687d6b566",
+      "line_ranges": [
+        [
+          275,
+          295
+        ],
+        [
+          414,
+          431
+        ]
+      ],
+      "url": "https://github.com/google-coral/coralnpu/blob/561c59d33fea8a02e7f1062956ec77740e0eb955/hdl/chisel/src/coralnpu/scalar/Csr.scala"
+    },
+    {
+      "id": "S16",
+      "path": "toolchain/crt/coralnpu_start.S",
+      "sha256": "a40507d856afc9ee18b0da9baca6cbe2e7383fcb371db8499a098c7d13f2743a",
+      "line_ranges": [
+        [
+          87,
+          145
+        ]
+      ],
+      "url": "https://github.com/google-coral/coralnpu/blob/561c59d33fea8a02e7f1062956ec77740e0eb955/toolchain/crt/coralnpu_start.S"
+    },
+    {
+      "id": "S17",
+      "path": "hdl/chisel/src/coralnpu/scalar/Debug.scala",
+      "sha256": "46ae0df79b86a36c835d22edf66528a5dc16c8a42db00f7e9332b9cc4e39d401",
+      "line_ranges": [
+        [
+          21,
+          30
+        ],
+        [
+          53,
+          91
+        ]
+      ],
+      "url": "https://github.com/google-coral/coralnpu/blob/561c59d33fea8a02e7f1062956ec77740e0eb955/hdl/chisel/src/coralnpu/scalar/Debug.scala"
+    },
+    {
+      "id": "S18",
+      "path": "hdl/chisel/src/soc/CoralNPUChiselSubsystem.scala",
+      "sha256": "05ed88688f120e3d0990b915e32a6989ab2b0d2e08b8e38200477eae9b8c0d35",
+      "line_ranges": [
+        [
+          75,
+          94
+        ],
+        [
+          159,
+          246
+        ],
+        [
+          360,
+          423
+        ]
+      ],
+      "url": "https://github.com/google-coral/coralnpu/blob/561c59d33fea8a02e7f1062956ec77740e0eb955/hdl/chisel/src/soc/CoralNPUChiselSubsystem.scala"
+    },
+    {
+      "id": "S19",
+      "path": "hdl/chisel/src/soc/SoCChiselConfig.scala",
+      "sha256": "cd28be6fa685075bd5c1c6157a068554d72ad1e0bfff5a7c655457528a314fd5",
+      "line_ranges": [
+        [
+          143,
+          173
+        ],
+        [
+          225,
+          267
+        ]
+      ],
+      "url": "https://github.com/google-coral/coralnpu/blob/561c59d33fea8a02e7f1062956ec77740e0eb955/hdl/chisel/src/soc/SoCChiselConfig.scala"
+    },
+    {
+      "id": "S20",
+      "path": "doc/integration_guide.md",
+      "sha256": "e8c15e79dd90189094e5c64b23f806d8ef21f53f7c57138dac7d2702bd77f75c",
+      "line_ranges": [],
+      "url": "https://github.com/google-coral/coralnpu/blob/561c59d33fea8a02e7f1062956ec77740e0eb955/doc/integration_guide.md"
+    },
+    {
+      "id": "S21",
+      "path": "doc/overview.md",
+      "sha256": "9e0cc05ebb04413041e8cbe3afe6b2837e45b66042681b9b292bc4c3c9556f9f",
+      "line_ranges": [],
+      "url": "https://github.com/google-coral/coralnpu/blob/561c59d33fea8a02e7f1062956ec77740e0eb955/doc/overview.md"
+    },
+    {
+      "id": "S22",
+      "path": "README.md",
+      "sha256": "92e907c5dddea265a7bb39f797ffc67b61fdcb0e26a0bc23b49768504f970bc7",
+      "line_ranges": [],
+      "url": "https://github.com/google-coral/coralnpu/blob/561c59d33fea8a02e7f1062956ec77740e0eb955/README.md"
+    },
+    {
+      "id": "S23",
+      "path": ".bazelversion",
+      "sha256": "4a0dcdd04283b2bb2122080f03d0058cf6ad7a98731afab1530d59a7f3737dfe",
+      "line_ranges": [],
+      "url": "https://github.com/google-coral/coralnpu/blob/561c59d33fea8a02e7f1062956ec77740e0eb955/.bazelversion"
+    },
+    {
+      "id": "S24",
+      "path": "tests/cocotb/rvv/ml_ops/gemma_kernels/rvv_int8_matmul.cc",
+      "sha256": "a4edcac0d2792af5458b51f77d4139ae28ff286970439f52080b14a127a68653",
+      "line_ranges": [],
+      "url": "https://github.com/google-coral/coralnpu/blob/561c59d33fea8a02e7f1062956ec77740e0eb955/tests/cocotb/rvv/ml_ops/gemma_kernels/rvv_int8_matmul.cc"
+    },
+    {
+      "id": "S25",
+      "path": "tests/cocotb/rvv/ml_ops/gemma_kernels/rvv_int8_matmul_runner.cc",
+      "sha256": "9e1b7b54433a4f4774066c9f1247b245f7f029d67ec44c4fe4a98d09ec07443e",
+      "line_ranges": [],
+      "url": "https://github.com/google-coral/coralnpu/blob/561c59d33fea8a02e7f1062956ec77740e0eb955/tests/cocotb/rvv/ml_ops/gemma_kernels/rvv_int8_matmul_runner.cc"
+    }
+  ]
+}

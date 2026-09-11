@@ -1,0 +1,136 @@
+{
+  "schema_version": 1,
+  "contract_version": "0.4",
+  "status": "candidate",
+  "cases": [
+    {
+      "case": 0,
+      "m": 1,
+      "k": 64,
+      "n": 64,
+      "a_bytes": 64,
+      "b_bytes": 4096,
+      "c_bytes": 256,
+      "macs": 4096,
+      "minimum_useful_data_bytes": 4416
+    },
+    {
+      "case": 1,
+      "m": 1,
+      "k": 5,
+      "n": 33,
+      "a_bytes": 5,
+      "b_bytes": 165,
+      "c_bytes": 132,
+      "macs": 165,
+      "minimum_useful_data_bytes": 302
+    }
+  ],
+  "salts": [
+    0,
+    17
+  ],
+  "external_aperture": {
+    "base": "0x20000000",
+    "bytes": 1048576
+  },
+  "stack_bytes": 16384,
+  "area_target": "OPEN",
+  "frequency_target": "OPEN",
+  "power_target": "OPEN",
+  "process_target": "OPEN",
+  "full_model_target": "OPEN",
+  "cost_model": "static useful bytes and operations; no runtime or physical estimates",
+  "guards": {
+    "initial_byte": "0xa5",
+    "total_checked_bytes": 64,
+    "intervals_inclusive": [
+      [
+        "0x20012ff0",
+        "0x20012fff"
+      ],
+      [
+        "0x20013100",
+        "0x2001310f"
+      ],
+      [
+        "0x20015ff0",
+        "0x20015fff"
+      ],
+      [
+        "0x20016084",
+        "0x20016093"
+      ]
+    ]
+  },
+  "coverage_bytes": {
+    "input_read_unique": 4330,
+    "c_write_unique": 388,
+    "probe_write_offsets": [
+      1,
+      6,
+      7,
+      12,
+      13,
+      14,
+      15
+    ],
+    "probe_retained_bytes": 25,
+    "record_final_compared_bytes": 64,
+    "positive_record_mandatory_write_offsets_inclusive": [
+      [
+        0,
+        27
+      ],
+      [
+        44,
+        47
+      ]
+    ],
+    "positive_record_optional_zero_store_offsets_inclusive": [
+      [
+        28,
+        43
+      ],
+      [
+        48,
+        63
+      ]
+    ],
+    "negative_record_mandatory_write_offsets_inclusive": [
+      [
+        0,
+        15
+      ],
+      [
+        28,
+        47
+      ]
+    ],
+    "negative_record_optional_zero_store_offsets_inclusive": [
+      [
+        16,
+        27
+      ],
+      [
+        48,
+        63
+      ]
+    ]
+  },
+  "software_boundary": "separately authored tail-bounded RVV kernel adaptation; hardware and generator source unchanged",
+  "negative_terminal": {
+    "requirement": "CNEM-31",
+    "profile_count": 7,
+    "startup_return_sentinel": "0x0badd00d",
+    "handler_return": 1,
+    "terminal_deadline_cycle_inclusive": 1000000,
+    "release_cycle_zero": "CNEM-10 RESET_CONTROL=0 B handshake",
+    "observation_edges_after_terminal": 32,
+    "latest_observation_end_cycle": 1000032,
+    "record_mandatory_write_bytes": 36,
+    "record_compared_bytes": 64,
+    "requires_positive_gemv_or_probe_coverage": false,
+    "reset_aborted_epoch_applies": false
+  }
+}
