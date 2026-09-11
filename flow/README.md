@@ -80,3 +80,9 @@ When registering or changing a profile, an independent agent starts from this
 entry alone, reproduces the real no-DUT preflight and checks failure
 classification. Framework unit tests use synthetic adapters only to test the
 launcher contract; they never substitute for that real consumer demonstration.
+
+## Imported native flows
+
+[CoralNPU](../hw/ip/coralnpu/README.md) provides an explicit pinned-source and
+native Chisel/Bazel model build entry. Its dependencies and acceptance are
+separate from the reference RTL gates.
