@@ -108,6 +108,21 @@ actual-child environment probe or a DUT result. Downstream launchers must check
 the hashes, perform their bounded preflight and pass the library directory to
 the actual runner child.
 
+The native bootstrap prepends Bazel runfiles package paths. Its generated empty
+`rules_hdl/cocotb/__init__.py` can shadow the complete pinned cocotb package.
+The runner replaces child `PYTHONPATH` with the wrapper interpreter's `sys.path`,
+so setting `--extra_env PYTHONPATH` does not correct that order. A downstream
+launcher must create a deterministic `sitecustomize.py` in its fresh run
+output, prepend the validated package roots from `environment.PYTHONPATH` to
+`sys.path` while retaining all other entries, and put that output directory
+first in the outer `PYTHONPATH`. This preserves the native bootstrap and applies
+the same ordering at wrapper and child interpreter startup. Record the generated
+hook's bytes and hash; do not overwrite an existing run output or silently
+replace another selected startup hook. The bounded actual-runner-child preflight
+must import `cocotb` and `cocotb.logging` from the hash-bound wheel and record
+their origins and hashes. Loader inspection alone does not establish Python
+package resolution or embedded simulator startup.
+
 ## Dependencies and licenses
 
 [LICENSE.upstream](LICENSE.upstream) is the unchanged upstream Apache-2.0
