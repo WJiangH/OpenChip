@@ -1,66 +1,67 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="1120" height="650" viewBox="0 0 1120 650" role="img" aria-labelledby="title desc">
-  <title id="title">OpenChip: CoralNPU integration architecture</title>
-  <desc id="desc">The selected imported RvvCoreMiniHighmemAxi contains RV32 and RVV execution with a 128-bit vector length, 1 MiB instruction TCM and 1 MiB data TCM. A host-control simulation adapter connects to its native AXI subordinate port. Its native AXI manager port connects to a behavioral external-memory responder for code and data. The separate dashed band lists future SoC requirements, not selected hardware: boot and host interface, system interconnect, external memory interface, clock, reset and interrupts.</desc>
-  <defs>
-    <marker id="arrow" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
-      <path d="M 1 1 L 9 5 L 1 9 Z" fill="#346f60"/>
-    </marker>
-    <style>
-      text { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif; }
-      .ink { fill: #182f29; }
-      .muted { fill: #53675f; }
-      .mono { font-family: "SFMono-Regular", Consolas, "Liberation Mono", monospace; }
-    </style>
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="780" viewBox="0 0 1200 780" role="img" aria-labelledby="title desc">
+<title id="title">OpenChip target SoC architecture</title>
+  <desc id="desc">A standalone chip running the complete stories260K FP32 model at a 40-token runtime context. The autonomous boot sequencer has a separate path to the core subordinate CSR and reset controls. Inside the chip are CoralNPU, boot ROM, working SRAM, AXI fabric, flash controller, UART, system control, debug and test. External NOR flash stores firmware and the complete model. A serial terminal provides input and output. Boot proceeds from reset to ROM to checked flash firmware and inference without a host loader. Logical target architecture; implementation and physical qualification are tracked separately.</desc>
+<defs>
+  <style>text{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Arial,sans-serif;fill:#183c30}.muted{fill:#50695e}.line{stroke:#35785c;stroke-width:2;fill:none}.block{fill:white;stroke:#adc6b9}.small{font-size:16px}.label{font-size:21px;font-weight:600}</style>
+  <marker id="a" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+  <path d="M1 1L9 5L1 9Z" fill="#35785c"/>
+  </marker>
   </defs>
-
-  <rect x="1" y="1" width="1118" height="648" rx="18" fill="#f8faf9" stroke="#dce5df"/>
-  <text x="30" y="45" font-size="14" font-weight="600" letter-spacing="1.4" class="muted">OPENCHIP / SYSTEM VIEW</text>
-  <text x="28" y="91" font-size="34" font-weight="650" class="ink">CoralNPU at the core.</text>
-  <text x="30" y="119" font-size="17" class="muted">Current integration baseline</text>
-
-  <!-- Imported core boundary. Nested memories denote membership, not bus topology. -->
-  <rect x="340" y="133" width="438" height="327" rx="16" fill="#e8f3ed" stroke="#2a8064" stroke-width="2"/>
-  <text x="365" y="176" font-size="31" font-weight="650" class="ink">CoralNPU</text>
-  <rect x="644" y="152" width="109" height="28" rx="7" fill="#d0e9db"/>
-  <text x="698" y="171" font-size="14" font-weight="600" text-anchor="middle" fill="#205b43">Imported IP</text>
-  <text x="365" y="204" font-size="18" class="mono muted">RvvCoreMiniHighmemAxi</text>
-
-  <rect x="365" y="226" width="388" height="91" rx="10" fill="#ffffff" stroke="#adcdbd"/>
-  <text x="387" y="264" font-size="29" font-weight="600" class="ink">RV32 + RVV</text>
-  <text x="387" y="293" font-size="18" class="muted">128-bit vector length</text>
-
-  <rect x="365" y="337" width="183" height="98" rx="10" fill="#ffffff" stroke="#adcdbd"/>
-  <text x="382" y="371" font-size="19" font-weight="500" class="ink">Instruction TCM</text>
-  <text x="382" y="407" font-size="27" font-weight="600" class="ink">1 MiB</text>
-  <rect x="570" y="337" width="183" height="98" rx="10" fill="#ffffff" stroke="#adcdbd"/>
-  <text x="587" y="371" font-size="19" font-weight="500" class="ink">Data TCM</text>
-  <text x="587" y="407" font-size="27" font-weight="600" class="ink">1 MiB</text>
-
-  <!-- Simulation adapters sit outside the imported core. -->
-  <rect x="28" y="241" width="194" height="129" rx="12" fill="#eef1ef" stroke="#bcc8c0"/>
-  <text x="46" y="281" font-size="24" font-weight="600" class="ink">Host control</text>
-  <text x="46" y="312" font-size="17" class="muted">Simulation adapter</text>
-  <text x="46" y="344" font-size="16" class="muted">Load · configure · start</text>
-  <path d="M 226 306 H 335" stroke="#346f60" stroke-width="2" fill="none" marker-start="url(#arrow)" marker-end="url(#arrow)"/>
-  <text x="281" y="263" font-size="18" font-weight="600" text-anchor="middle" class="ink">AXI</text>
-  <text x="281" y="285" font-size="16" text-anchor="middle" class="muted">subordinate</text>
-  <text x="281" y="337" font-size="14" text-anchor="middle" class="muted">control / status</text>
-
-  <rect x="898" y="241" width="194" height="129" rx="12" fill="#eef1ef" stroke="#bcc8c0"/>
-  <text x="916" y="275" font-size="24" font-weight="600" class="ink">External</text>
-  <text x="916" y="302" font-size="24" font-weight="600" class="ink">memory model</text>
-  <text x="916" y="344" font-size="16" class="muted">Behavioral responder</text>
-  <path d="M 783 306 H 893" stroke="#346f60" stroke-width="2" fill="none" marker-start="url(#arrow)" marker-end="url(#arrow)"/>
-  <text x="838" y="263" font-size="18" font-weight="600" text-anchor="middle" class="ink">AXI</text>
-  <text x="838" y="285" font-size="16" text-anchor="middle" class="muted">manager</text>
-  <text x="838" y="337" font-size="15" text-anchor="middle" class="muted">code + data</text>
-
-  <!-- Future requirements are visually separate, without invented electrical links. -->
-  <rect x="28" y="499" width="1064" height="123" rx="12" fill="none" stroke="#94aaa0" stroke-width="1.5" stroke-dasharray="7 5"/>
-  <text x="50" y="535" font-size="23" font-weight="600" class="ink">Next: SoC integration</text>
-  <text x="50" y="563" font-size="17" class="muted">Architecture to define and qualify</text>
-  <text x="50" y="598" font-size="18" class="ink">Boot &amp; host interface</text>
-  <text x="326" y="598" font-size="18" class="ink">System interconnect</text>
-  <text x="585" y="598" font-size="18" class="ink">Memory interface</text>
-  <text x="821" y="598" font-size="18" class="ink">Clock · reset · interrupts</text>
+<rect x="1" y="1" width="1198" height="778" rx="16" fill="#f8faf9" stroke="#dce5df"/>
+<text x="30" y="42" font-size="14" letter-spacing="1.4" class="muted">OPENCHIP / TARGET SOC</text>
+<text x="30" y="88" font-size="35" font-weight="650">A complete model. An autonomous chip.</text>
+<text x="30" y="119" font-size="18" class="muted">Complete stories260K · FP32 · 40-token runtime context</text>
+<rect x="30" y="153" width="899" height="516" rx="18" fill="#eaf3ee" stroke="#2a8064" stroke-width="2"/>
+<text x="53" y="187" font-size="15" font-weight="600" letter-spacing="1.3">ON CHIP</text>
+<rect x="55" y="212" width="325" height="142" rx="10" class="block"/>
+  <text x="76" y="249" font-size="29" font-weight="650">CoralNPU</text>
+  <text x="76" y="279" font-size="18">RV32 + RVV · control and inference</text>
+  <text x="76" y="311" class="small muted">8 KiB ITCM · 32 KiB DTCM</text>
+  <text x="76" y="336" class="small muted">Model execution + tokenization</text>
+<rect x="408" y="212" width="217" height="142" rx="10" class="block"/>
+  <text x="429" y="249" class="label">Boot ROM</text>
+  <text x="429" y="280" font-size="25" font-weight="600">16 KiB</text>
+  <text x="429" y="312" class="small muted">Check · boot · recover</text>
+<rect x="653" y="212" width="251" height="142" rx="10" class="block"/>
+  <text x="674" y="249" class="label">Working SRAM</text>
+  <text x="674" y="280" font-size="25" font-weight="600">64 KiB</text>
+  <text x="674" y="312" class="small muted">KV · input · output · status</text>
+<path d="M218 357V386" class="line" marker-start="url(#a)" marker-end="url(#a)"/>
+  <path d="M516 357V386" class="line" marker-start="url(#a)" marker-end="url(#a)"/>
+  <path d="M779 357V386" class="line" marker-start="url(#a)" marker-end="url(#a)"/>
+<rect x="55" y="389" width="849" height="49" rx="8" fill="#2c6e53"/>
+  <text x="479" y="420" text-anchor="middle" font-size="20" style="fill:white">Native AXI fabric + peripheral bridge</text>
+<path d="M184 442V471" class="line" marker-start="url(#a)" marker-end="url(#a)"/>
+  <path d="M480 442V471" class="line" marker-start="url(#a)" marker-end="url(#a)"/>
+  <path d="M778 442V471" class="line" marker-start="url(#a)" marker-end="url(#a)"/>
+<rect x="55" y="474" width="258" height="96" rx="10" class="block"/>
+  <text x="76" y="510" class="label">System control</text>
+  <text x="76" y="541" class="small muted">Timer · IRQ · watchdog</text>
+<rect x="351" y="474" width="258" height="96" rx="10" class="block"/>
+  <text x="372" y="510" class="label">UART + GPIO</text>
+  <text x="372" y="541" class="small muted">Prompt in · generated text out</text>
+<rect x="647" y="474" width="257" height="96" rx="10" class="block"/>
+  <text x="668" y="510" class="label">Flash controller</text>
+  <text x="668" y="541" class="small muted">Memory-mapped QSPI reads</text>
+<rect x="55" y="597" width="407" height="46" rx="8" fill="#dcebe2"/>
+  <text x="259" y="616" text-anchor="middle" font-size="15">Clock / reset / autonomous boot</text>
+  <text x="259" y="636" text-anchor="middle" font-size="15">Boot sequencer → core subordinate CSR / reset</text>
+<path d="M53 620H42V279H51" class="line" marker-end="url(#a)"/>
+<rect x="480" y="597" width="424" height="46" rx="8" fill="#dcebe2"/>
+  <text x="692" y="625" text-anchor="middle" font-size="17">Test: JTAG / scan · SRAM BIST</text>
+<text x="978" y="188" font-size="14" class="muted">OFF CHIP / BOARD</text>
+<text x="978" y="236" font-size="18">Reference clock</text>
+  <text x="978" y="266" font-size="18">Reset · power</text>
+  <text x="978" y="296" font-size="18">Test / debug pins</text>
+<rect x="976" y="452" width="195" height="118" rx="10" fill="#eef1ef" stroke="#bcc8c0"/>
+  <text x="994" y="485" class="label">NOR Flash</text>
+  <text x="994" y="515" font-size="23" font-weight="600">4 MiB</text>
+  <text x="994" y="544" class="small muted">Firmware + full model</text>
+  <path d="M908 522H971" class="line" marker-start="url(#a)" marker-end="url(#a)"/>
+<rect x="976" y="601" width="195" height="68" rx="10" fill="#eef1ef" stroke="#bcc8c0"/>
+  <text x="994" y="629" class="label">Serial terminal</text>
+  <text x="994" y="654" class="small muted">Text input / output</text>
+  <path d="M480 574V583H946V636H971" class="line" marker-start="url(#a)" marker-end="url(#a)"/>
+<text x="53" y="711" font-size="20" font-weight="600">Power on → boot ROM → validated firmware → complete inference → text output</text>
+<text x="53" y="745" font-size="16" class="muted">Target architecture · implementation and physical qualification are tracked separately.</text>
 </svg>
