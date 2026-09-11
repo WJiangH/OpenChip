@@ -86,3 +86,96 @@ launcher contract; they never substitute for that real consumer demonstration.
 [CoralNPU](../hw/ip/coralnpu/README.md) provides an explicit pinned-source and
 native Chisel/Bazel model build entry. Its dependencies and acceptance are
 separate from the reference RTL gates.
+
+## Local orchestration ledger
+
+The manager can guard covered dispatches with the standard-library
+`scripts/orchestration_ledger.py` entry. Choose one durable private database
+per project in its existing orchestration store and record that location in
+its fixed state entry. All managers must use the same database. Do not select
+another path or initialize a replacement during recovery. This helper does not
+launch workers, schedule wakeups, write `STATE.md`, enforce resource budgets,
+or authenticate caller observations and grants.
+
+```bash
+python3 scripts/orchestration_ledger.py --ledger /absolute/private/ledger.sqlite init
+python3 scripts/orchestration_ledger.py --ledger /absolute/private/ledger.sqlite inspect
+python3 scripts/orchestration_ledger.py --ledger /absolute/private/ledger.sqlite admit request.json --expected-revision 0
+```
+
+`init` is an explicit first-use action and refuses an existing path. Every other
+command refuses a missing database. `inspect` returns the ledger ID, revision,
+runs and retained events. Every mutation requires the observed **ledger**
+revision; a conflict means inspect and reconcile, never blindly repeat dispatch.
+SQLite transactions protect this local ledger only. The root manager remains
+the sole `STATE.md` writer and manually checks its expected state revision when
+applying a proposed delta. Atomic protection across the ledger and `STATE.md`,
+distributed locking, and protection for launches bypassing the helper are not
+implemented. Do not place the database on an unvalidated shared filesystem.
+
+An `admit` request contains exactly `identity` and `grant`. The identity has
+`work_item`, `owner` (nonempty strings), `candidate` (Git SHA or SHA256),
+`dependencies` (explicit name-to-SHA256 object; `{}` means none), and positive
+integer `attempt`. The grant is an artifact reference: an absolute `path` and
+its `sha256`. Its JSON body contains exactly the same `identity`,
+`action: "dispatch"`, and a nonempty `authority` reference. The manager must
+verify that reference against actual delegated authority; a matching hash is
+not permission. No resource or submission authority is inferred.
+
+Admission commits an **UNKNOWN** intent before the manager calls the external
+dispatch tool. It returns a `binding` with those identity fields plus `ledger_id`,
+`epoch`, `run_id`, and `grant_sha256`. Preserve that entire object. An unresolved
+work item excludes another admission even with a changed owner, attempt or
+candidate. A subsequent admitted attempt must increase its number and needs
+its own matching grant. There is no timeout-based release or reset command.
+
+The remaining commands take a request file and `--expected-revision`:
+
+| Command | Request fields | Evidence JSON body and result |
+|---|---|---|
+| `attach` | `binding`, `handle`, `evidence` artifact reference | Exact `binding`, `handle`, `observation: "HANDLE_RETURNED"`; records ACKNOWLEDGED, never PASS |
+| `observe` | `binding`, `handle`, `observation`, `evidence` | Exact same binding/handle/observation; LIVE or UNKNOWN remain unresolved. A missing handle is allowed only for UNKNOWN |
+| `finish` | `binding`, `handle`, `evidence` | Exact binding/handle, disposition, exit_code, result, checked_scope and artifacts as described below |
+
+A worker handle is exactly `kind: "worker"`, `host`, and the actual returned
+`id`. A process handle is exactly `kind: "process"`, `host`, positive `pid`,
+`start_time`, `command_sha256`, absolute `cwd`, and run `nonce`. Strings must be
+nonempty. Recover the actual handle after an ambiguous external call before
+attaching it; do not invent one. A crash between the intent and handle recording
+cannot provide exactly-once external execution. This first slice has no abandon
+operation for an intent proven never dispatched: without an actual returned
+handle it remains held, pending a separately reviewed reconciliation extension.
+Do not invent a handle or erase the ledger to release it. Missing live information stays
+UNKNOWN and blocks a replacement. Expired handles, lease times, PID reuse and
+clock jumps do not establish completion.
+
+A completion body requires `result: "PASS"` or `"FAIL"`, a nonempty list of
+`checked_scope` strings, and nonempty `artifacts` containing verified file
+references. Processes require `disposition: "EXITED"` and an integer
+`exit_code`; PASS also requires zero. A worker API that does not expose process
+exit codes uses `disposition: "COMPLETED"` and `exit_code: null`; the manager must
+observe actual task completion and independently check its semantic result.
+Worker completion additionally requires an explicit `owned_jobs` list. An empty
+list declares the manager checked that there are no owned external jobs; it is
+not automatic discovery. Each nonempty entry has a process `handle` and an
+`evidence` file reference whose JSON contains the parent `binding`, that handle,
+`disposition: "EXITED"`, and an actual integer `exit_code`. LIVE, UNKNOWN or
+unavailable job identity prevents completion and keeps the work item held.
+Unsupported external scheduler identities require manual reconciliation before
+this contract can be extended; never represent them as invented process IDs.
+The caller remains responsible for complete job enumeration.
+Neither ACK nor exit zero alone is completion. FAIL is retained as a failure
+terminal, not approval. Missing fields, altered hashes, mismatched handles and
+old bindings are rejected. Normalized evidence JSON is retained in the event
+journal; preserve the referenced raw tool outputs and result artifacts in the
+private evidence store as well. This is a trusted-caller identity guard, not an
+independent verifier of a remote process or its checker semantics.
+
+Independent exact-candidate review, resource accounting, cause-specific retry,
+manual stage acceptance and maintainer tapeout authorization remain binding.
+A merged PR does not terminate a long-term task; its configured maintainer
+acceptance condition does. Local scenario tests run in `make framework-test`.
+They do not prove live dispatch protection: record a real operation through this
+entry after independent acceptance before claiming covered operational use.
+Native wake delivery, app/host availability and 24-hour/7-day endurance require
+separate observations.
