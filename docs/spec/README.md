@@ -13,3 +13,8 @@ Rules:
   complete golden model from it alone.
 
 Start from [TEMPLATE.md](TEMPLATE.md).
+
+The [CoralNPU autonomous small-model SoC](coralnpu_soc.md) defines the complete
+logical chip target; its detailed executable and physical qualification remain
+open. The [CoreAXI](coralnpu_external_memory.md) and [tiny-model](coralnpu_llm.md)
+experiments retain their separate contracts.
