@@ -1,20 +1,26 @@
 # OpenChip
 
 OpenChip is an open framework for building silicon with collaborating engineering
-agents. Our current chip direction brings **CoralNPU** into a system for complete
-LLM workloads.
+agents. Our chip target is **autonomous execution of a complete small language
+model**, built with open hardware and carried through to working silicon.
 
-## Chip architecture
+## Target chip architecture
 
-![OpenChip architecture: the selected CoralNPU core contains RV32/RVV execution and 1 MiB each of instruction and data TCM. Native AXI connects it to host-control and external-memory simulation adapters. A separate band lists the SoC integration work ahead.](docs/images/chip-architecture.svg)
+![OpenChip target SoC: CoralNPU executes complete stories260K in FP32 at a 40-token runtime context and performs tokenization. Boot ROM, working SRAM, an AXI fabric, a Flash controller, UART, system control and manufacturing-test functions form the chip. External NOR Flash stores firmware and model weights. The chip boots and runs autonomously; a serial terminal supplies text input and receives output.](docs/images/chip-architecture.svg)
 
-The selected core combines **RV32 + RVV** execution with **1 MiB instruction TCM**
-and **1 MiB data TCM**. Host control and external memory are simulation adapters
-today; the production SoC interfaces remain to be defined and qualified.
+The target chip boots from its own ROM, checks firmware and model images in
+external Flash, and runs the complete prefill and decode loop on CoralNPU.
+Tokenization, model execution and text generation run on the chip. A serial
+terminal provides input and output. Automatic boot and fixture execution work
+without a connected host.
 
-[Native IP](hw/ip/coralnpu/README.md) ·
-[Integration contract](docs/spec/coralnpu_external_memory.md) ·
-[Complete tiny-LM workload](workloads/coralnpu_llm/README.md) (draft)
+**First-silicon workload:** the complete stories260K model in FP32, with a
+40-token runtime context. This architecture is a design target; implementation
+and physical qualification are tracked separately from this system view.
+
+[Target contract](docs/spec/coralnpu_soc.md) ·
+[Architecture decision](docs/adr/0006-autonomous-small-model-soc.md) ·
+[Native IP](hw/ip/coralnpu/README.md)
 
 Architecture, RTL, verification, software and physical design have separate
 owners. An orchestrator manages the goal and dependencies; specialists deliver
@@ -74,10 +80,12 @@ and experiment receipts stay in the approved local store, outside public history
 ## Direction and documentation
 
 The [CoralNPU native IP entry](hw/ip/coralnpu/README.md) now provides pinned source
-acquisition, native model generation and runtime tooling. The next engineering
-steps are complete target LLM execution and SoC integration; the
-[full-model contract](docs/spec/coralnpu_llm.md) remains a draft. The smaller
-tinyNPU stays a fast framework regression. See the [roadmap](docs/ROADMAP.md).
+acquisition, native model generation and runtime tooling. The complete-model
+[engineering contract](docs/spec/coralnpu_llm.md) remains a draft and supplies
+workload evidence for the target SoC. Autonomous boot, real memory/peripheral
+integration and physical qualification follow their own reviewed contracts.
+The smaller tinyNPU stays a fast framework regression. See the
+[roadmap](docs/ROADMAP.md).
 
 - [Constitution and ownership](AGENTS.md): startup, independent roles and branch delivery.
 - [Silicon lifecycle](docs/SILICON_LIFECYCLE.md): incremental, scoped signoff from feasibility through production validation.
