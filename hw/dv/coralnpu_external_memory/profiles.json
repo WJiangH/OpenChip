@@ -1,0 +1,149 @@
+{
+  "schema_version": 1,
+  "contract_version": "0.4",
+  "profiles": {
+    "ERR-FETCH-DECERR": {
+      "salt": 0,
+      "schedule": "P0",
+      "seed": 42,
+      "run_id": 2001,
+      "kind": "error",
+      "error_kind": "fetch",
+      "error_response": 3,
+      "fault_address": 537915392,
+      "expected_mcause": 1,
+      "expected_mtval": 0,
+      "software_variant": "fetch"
+    },
+    "ERR-FETCH-SLVERR": {
+      "salt": 0,
+      "schedule": "P0",
+      "seed": 42,
+      "run_id": 2000,
+      "kind": "error",
+      "error_kind": "fetch",
+      "error_response": 2,
+      "fault_address": 537915392,
+      "expected_mcause": 1,
+      "expected_mtval": 0,
+      "software_variant": "fetch"
+    },
+    "ERR-LOAD-DECERR": {
+      "salt": 0,
+      "schedule": "P0",
+      "seed": 42,
+      "run_id": 2003,
+      "kind": "error",
+      "error_kind": "load",
+      "error_response": 3,
+      "fault_address": 537915392,
+      "expected_mcause": 5,
+      "expected_mtval": 537915392,
+      "software_variant": "load"
+    },
+    "ERR-LOAD-SLVERR": {
+      "salt": 0,
+      "schedule": "P0",
+      "seed": 42,
+      "run_id": 2002,
+      "kind": "error",
+      "error_kind": "load",
+      "error_response": 2,
+      "fault_address": 537915392,
+      "expected_mcause": 5,
+      "expected_mtval": 537915392,
+      "software_variant": "load"
+    },
+    "ERR-STORE-DECERR": {
+      "salt": 0,
+      "schedule": "P0",
+      "seed": 42,
+      "run_id": 2005,
+      "kind": "error",
+      "error_kind": "store",
+      "error_response": 3,
+      "fault_address": 537915392,
+      "expected_mcause": 7,
+      "expected_mtval": 537915392,
+      "software_variant": "store"
+    },
+    "ERR-STORE-SLVERR": {
+      "salt": 0,
+      "schedule": "P0",
+      "seed": 42,
+      "run_id": 2004,
+      "kind": "error",
+      "error_kind": "store",
+      "error_response": 2,
+      "fault_address": 537915392,
+      "expected_mcause": 7,
+      "expected_mtval": 537915392,
+      "software_variant": "store"
+    },
+    "ERR-UNMAPPED-LOAD": {
+      "salt": 0,
+      "schedule": "P0",
+      "seed": 42,
+      "run_id": 2006,
+      "kind": "error",
+      "error_kind": "unmapped",
+      "error_response": 3,
+      "fault_address": 553648128,
+      "expected_mcause": 5,
+      "expected_mtval": 553648128,
+      "software_variant": "unmapped"
+    },
+    "POS-S0-P0": {
+      "salt": 0,
+      "schedule": "P0",
+      "seed": 42,
+      "run_id": 1000,
+      "kind": "positive",
+      "software_variant": "positive"
+    },
+    "POS-S0-P1": {
+      "salt": 0,
+      "schedule": "P1",
+      "seed": 42,
+      "run_id": 1001,
+      "kind": "positive",
+      "software_variant": "positive"
+    },
+    "POS-S17-P0": {
+      "salt": 17,
+      "schedule": "P0",
+      "seed": 42,
+      "run_id": 1170,
+      "kind": "positive",
+      "software_variant": "positive"
+    },
+    "POS-S17-P1": {
+      "salt": 17,
+      "schedule": "P1",
+      "seed": 42,
+      "run_id": 1171,
+      "kind": "positive",
+      "software_variant": "positive"
+    },
+    "RESET-AR": {
+      "salt": 17,
+      "schedule": "P0",
+      "seed": 42,
+      "run_id": 2101,
+      "kind": "reset",
+      "reset_kind": "ar",
+      "abort_run_id": 2100,
+      "software_variant": "positive"
+    },
+    "RESET-WRITE-HALF": {
+      "salt": 17,
+      "schedule": "P0",
+      "seed": 42,
+      "run_id": 2103,
+      "kind": "reset",
+      "reset_kind": "aw_only",
+      "abort_run_id": 2102,
+      "software_variant": "positive"
+    }
+  }
+}
