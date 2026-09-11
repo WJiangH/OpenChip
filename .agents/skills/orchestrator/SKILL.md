@@ -65,6 +65,9 @@ moving meanwhile. State is a record of authority, never a new authority source.
    or model fit. Do not weaken gates or manufacture bugs to score workers.
    Genuine defects and observed friction can motivate a separately owned,
    independently reviewed skill change; integrator curates accepted additions.
+   After such a change, assign prospective application on the next matching
+   task without supplying expected findings. Retain its outcome and cost in
+   existing state; use the integrator curation method before claiming maturity.
 6. Update durable state after dispatch, receipts, decisions, blockers and
    handoffs. Keep historical signoff decisions immutable and reopen affected
    claims after changes. Default status updates to at most four short bullets:
