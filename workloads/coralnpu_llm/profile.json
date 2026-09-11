@@ -1,0 +1,107 @@
+{
+  "schema_version": 1,
+  "status": "DRAFT_NOT_EXECUTION_READY",
+  "model": {
+    "repository": "karpathy/tinyllamas",
+    "revision": "0bd21da7698eaf29a0d7de3992de8a46ef624add",
+    "variant": "stories260K",
+    "publisher_license_label": "mit",
+    "artifacts": [
+      {
+        "path": "stories260K/stories260K.bin",
+        "bytes": 1056540,
+        "sha256": "b0a507e7ad0f626624f17112325e66691f9076d622e1d3274d103d00299f2696",
+        "url": "https://huggingface.co/karpathy/tinyllamas/resolve/0bd21da7698eaf29a0d7de3992de8a46ef624add/stories260K/stories260K.bin"
+      },
+      {
+        "path": "stories260K/tok512.bin",
+        "bytes": 6227,
+        "sha256": "037cb335abb25d1fa9e8ecae30ed2a3a8ace9302862ebcdc05d51a6bbb10c312",
+        "url": "https://huggingface.co/karpathy/tinyllamas/resolve/0bd21da7698eaf29a0d7de3992de8a46ef624add/stories260K/tok512.bin"
+      },
+      {
+        "path": "stories260K/tok512.model",
+        "bytes": 7645,
+        "sha256": "dfff07d929db979913f166ec94a6f5ecad4c70cfed8eb5c9cbe7e464455e46f5",
+        "url": "https://huggingface.co/karpathy/tinyllamas/resolve/0bd21da7698eaf29a0d7de3992de8a46ef624add/stories260K/tok512.model"
+      }
+    ],
+    "actual_artifact_execution_status": "No execution claim in this profile",
+    "api_url": "https://huggingface.co/api/models/karpathy/tinyllamas/revision/0bd21da7698eaf29a0d7de3992de8a46ef624add?blobs=true"
+  },
+  "architecture_source": {
+    "repository": "karpathy/llama2.c",
+    "revision": "350e04fe35433e6d2941dce5a1f53308f87058eb"
+  },
+  "dimensions": {
+    "hidden_size": 64,
+    "intermediate_size": 172,
+    "layers": 5,
+    "query_heads": 8,
+    "kv_heads": 4,
+    "head_size": 8,
+    "vocabulary": 512,
+    "trained_context": 512,
+    "tied_embedding_head": true
+  },
+  "workload": {
+    "batch": 1,
+    "prompt_count": 2,
+    "max_input_tokens": 32,
+    "max_new_tokens": 8,
+    "minimum_decode_evaluations_after_prefill": 4,
+    "minimum_generated_tokens": 5,
+    "allocated_context": 40,
+    "max_evaluated_positions_per_run": 39,
+    "sampling": "greedy_lowest_id_tie",
+    "prompt_ids": "OPEN",
+    "BOS_EOS_policy": "OPEN",
+    "numeric_limits": "OPEN",
+    "target_ISA_ABI_and_memory_record_ABI": "OPEN"
+  },
+  "comparison_sources": [
+    {
+      "repository": "google/gemma-3-270m-it",
+      "revision": "ac82b4e820549b854eebf28ce6dedaf9fdfa17b3",
+      "api_url": "https://huggingface.co/api/models/google/gemma-3-270m-it/revision/ac82b4e820549b854eebf28ce6dedaf9fdfa17b3?blobs=true",
+      "publisher_BF16_parameters": 268098176,
+      "access": "manual gate; unauthenticated config retrieval returned HTTP401"
+    },
+    {
+      "repository": "roneneldan/TinyStories-1M",
+      "revision": "77f1b168e219585646439073245fe87e56b3023e",
+      "config_url": "https://huggingface.co/roneneldan/TinyStories-1M/blob/77f1b168e219585646439073245fe87e56b3023e/config.json",
+      "publisher_license_label": "NOT_SPECIFIED_IN_OBSERVED_METADATA"
+    }
+  ],
+  "source_files": [
+    {
+      "url": "https://huggingface.co/karpathy/tinyllamas/raw/0bd21da7698eaf29a0d7de3992de8a46ef624add/README.md",
+      "sha256": "f5d36081d79fc18b2b8ee80fbf05f307c30ea8d6f3ce605c3f393be29f7d8863"
+    },
+    {
+      "url": "https://huggingface.co/karpathy/tinyllamas/raw/0bd21da7698eaf29a0d7de3992de8a46ef624add/stories260K/readme.md",
+      "sha256": "b743d79e10d9fdd57686aaef8fbb8ac337672dc0e098f9aebe672e4faea06ba4"
+    },
+    {
+      "url": "https://raw.githubusercontent.com/karpathy/llama2.c/350e04fe35433e6d2941dce5a1f53308f87058eb/model.py",
+      "sha256": "54f35dbd347100c0066da93dfdf9f19c2ec1e8758bfffcedbdfdb09d5c343e1f"
+    },
+    {
+      "url": "https://raw.githubusercontent.com/karpathy/llama2.c/350e04fe35433e6d2941dce5a1f53308f87058eb/export.py",
+      "sha256": "aba8d36ee881478bf59e13f63224e37a00b51a18cacbc38d0def52cc3c0cb475"
+    },
+    {
+      "url": "https://raw.githubusercontent.com/karpathy/llama2.c/350e04fe35433e6d2941dce5a1f53308f87058eb/tokenizer.py",
+      "sha256": "585d1c34be6f387d3143297c7fbbce49ad362dc9cecd9f68037bbed8126bcf33"
+    },
+    {
+      "url": "https://raw.githubusercontent.com/karpathy/llama2.c/350e04fe35433e6d2941dce5a1f53308f87058eb/LICENSE",
+      "sha256": "e87b912002f04cdfa837eaf7f70548ab79b9cb62a285495edf575f3da875aec4"
+    },
+    {
+      "url": "https://huggingface.co/roneneldan/TinyStories-1M/raw/77f1b168e219585646439073245fe87e56b3023e/config.json",
+      "sha256": "ff74c30d5ebb5ab1da0f2ea479adf7197c504b42b5522a858c334ab91ed4958c"
+    }
+  ]
+}
