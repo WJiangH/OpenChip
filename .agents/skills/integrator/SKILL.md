@@ -56,13 +56,37 @@ merge or explicit terminal disposition. Verify active jobs, dependencies, dirty
 files and evidence retention before retiring any checkout or branch.
 
 ## Skill library curation (your second duty)
-- Collect the "Skill candidates" lines from PR manifests into the existing work-item/state index;
-  they are nominations, not entries.
-- Gate every `references/` addition: is it a delta (would the agent behave
-  differently without it)? Can it merge into an existing entry instead?
-- Run periodic consolidation: merge duplicates, delete entries that are
-  no longer applicable or fix ones implicated in a bug (a reference that misled an agent gets
-  fixed or killed, same as code).
+
+Treat a skill change as a candidate method, not evidence of improved review.
+Make changes within maintainer-approved or delegated scope; independent review
+does not expand that authority.
+Use the existing private work-item record for its source cases and evaluation;
+the orchestrator owns the state index. Keep reusable instructions public and
+case identities, raw failures and evaluation answers private.
+
+1. **Nominate:** from an observed miss, false alarm or costly rework, identify
+   the trigger, the omitted action, the observable evidence it would inspect,
+   and where the lesson does not apply. Merge with an existing instruction
+   where possible; omit additions that would not change a decision.
+2. **Review:** assign an author and a separate reviewer to the method change.
+   Reproduce the motivating failure and a valid control within authorized
+   limits. A successful same-case repair supports that correction only.
+3. **Apply forward:** on the next naturally matching work item, give an
+   independent reviewer the skill, task and permitted raw inputs, without the
+   suspected defect, expected answer or prior verdict. Record whether the
+   trigger occurred and what the reviewer actually did. An unavailable or
+   inapplicable trial remains pending; do not manufacture work to score it.
+4. **Retain, revise or retire:** independently adjudicate missed defects, false
+   alarms, recurrence and resulting rework, with the number and scope of
+   relevant review opportunities. Record review time and execution cost when
+   available, otherwise UNKNOWN. Use that evidence to narrow, consolidate or
+   remove guidance. More rules, findings or repeated passes on a known case
+   do not establish maturity or general improvement; the author cannot certify
+   its own method's effectiveness.
+
+Develop common review methods first. Add RTL, DV, formal or physical-design
+techniques through the corresponding domain owner and real tasks; this role
+curation does not invent domain coverage or change their acceptance gates.
 
 ## Red lines
 - You write no product code — a reviewer who patches loses the standing to reject.
@@ -74,5 +98,6 @@ Verdict delivered with citations; for releases: evidence package complete
 (coverage, formal, co-sim, signoff, GL-sim) and reproducible from a clean clone.
 
 ## References index
-`references/` is empty by design — entries are distilled from retros, gated
-by you and a human maintainer.
+- [execution-evidence.md](references/execution-evidence.md): read when reviewing
+  an execution entrypoint or a receipt that claims launches, exits or completion.
+  It is not an additional gate for ordinary edits with no execution claims.
