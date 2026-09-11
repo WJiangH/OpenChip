@@ -1,0 +1,34 @@
+{
+  "schema_version": 1,
+  "name": "CoralNPU",
+  "repository": "https://github.com/google-coral/coralnpu.git",
+  "commit": "561c59d33fea8a02e7f1062956ec77740e0eb955",
+  "tree": "9dbf21aa935571f43e79a2fe15df28275f7d6636",
+  "tracked_blobs": 1160,
+  "archive_sha256": "a8f6c7b0c542ce79a5e0c6f5354acb7b93487234536561dda9df00036bb557e6",
+  "bazel_version": "8.6.0",
+  "model_target": "//tests/cocotb:rvv_core_mini_highmem_axi_model",
+  "rtl_target": "//hdl/chisel/src/coralnpu:RvvCoreMiniHighmemAxi.sv",
+  "upstream_license": "Apache-2.0",
+  "upstream_modifications": [],
+  "hdl_toplevel": "RvvCoreMiniHighmemAxi",
+  "runtime_targets": [
+    "@rules_hdl//cocotb:cocotb_wrapper",
+    "@toolchain_coralnpu_v2//:all_files",
+    "@coralnpu_pip_deps_cocotb//:pkg"
+  ],
+  "toolchain_archive": {
+    "url": "https://storage.googleapis.com/shodan-public-artifacts/toolchain_coralnpu_v2-2026-06-29.tar.xz",
+    "sha256": "de06690c2da5cd783d76b2998208bd4db4dcdc22dec146c7b0a5ee1af40d3db7"
+  },
+  "python_packages": [
+    "cocotb",
+    "find_libpython",
+    "pytest",
+    "pluggy",
+    "iniconfig",
+    "packaging",
+    "exceptiongroup",
+    "typing_extensions"
+  ]
+}

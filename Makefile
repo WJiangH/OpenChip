@@ -40,6 +40,7 @@ help:
 # --- Framework checks and delivery -----------------------------------------
 framework-test:
 	@python3 -m unittest discover -s scripts/tests -v
+	@PYTHONDONTWRITEBYTECODE=1 python3 -m unittest discover -s hw/ip/coralnpu -p 'test_*.py' -v
 	@bash flow/tests/test_check_boundaries.sh
 	@python3 scripts/check_docs.py
 
