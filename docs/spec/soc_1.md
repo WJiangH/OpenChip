@@ -1,6 +1,8 @@
 # SoC-1 Specification
 
 Status: draft
+Version: v1.1 (change order CO-NPU-01, §8 — extends SOC1-12's destination
+field with a third value for the NPU's activation-load port, `npu.md` §2.3a)
 Owner: spec-architect · Implements: milestone M3 (integration), gates milestone M4 (PD)
 
 ## §1 Overview
@@ -117,7 +119,7 @@ cited already in ADR-0003 for its PicoRV32-at-sky130-50MHz precedent).
 | Block | Tag | Precedent / source | Notes |
 |---|---|---|---|
 | CPU core, `picorv32_wb` (RV32IMC) | **integrate** | [YosysHQ/picorv32](https://github.com/YosysHQ/picorv32), ADR-0003 D1 | Sole WB master; classic (non-pipelined) handshake (§2.2) |
-| NPU — 1×8 weight-streaming GEMV | **build** | ADR-0002 (project-original) | WB slave (CSR/descriptor, §3.2) + dedicated weight-stream input port (§4.2) |
+| NPU — 1×8 weight-streaming GEMV | **build** | ADR-0002 (project-original) | WB slave (CSR/descriptor, §3.2) + dedicated weight-stream input port (§4.2) + dedicated activation-load input port (`npu.md` §2.3a, `CO-NPU-01`) |
 | Boot ROM | **build** | — | WB slave; holds first-stage loader; reset vector target (§4.1) |
 | Firmware SRAM | **build** | — | WB slave; RWX; size **Q-SOC1-03** |
 | Flash/PSRAM controller | **adapt** | PicoSoC `spimemio`/CSR arrangement, architecture level only ([YosysHQ/picorv32 `picosoc/`](https://github.com/YosysHQ/picorv32)) | WB slave (CSR) + dedicated weight-stream output port (§4.2); **not** used for CPU code fetch (§4.1) — this is a deliberate deviation from the PicoSoC XIP precedent it is otherwise modelled on |
@@ -235,8 +237,18 @@ Wishbone transactions.
 12. **SOC1-12:** A weight-stream transfer is descriptor-based: source
     offset (in external flash/PSRAM address space) and length (bytes),
     programmed into the flash controller's CSR block (§3.2) by firmware
-    (or the boot ROM, SOC1-08); the destination (NPU weight FIFO vs.
-    firmware SRAM) is a mode bit in the same descriptor.
+    (or the boot ROM, SOC1-08); the destination is a field in the same
+    descriptor, one of three values (`CO-NPU-01`, §8 — extended from the
+    original two-way weight-FIFO/firmware-SRAM mode bit; 2 bits, one value
+    reserved, is sufficient and the smallest encoding that is not itself a
+    single bit, so no width is specified beyond "not one bit"): the NPU's
+    weight FIFO (§4.2), firmware SRAM (SOC1-08), or — new — the NPU's
+    activation SRAM via its dedicated activation-load port (`npu.md` §2.3a,
+    NPU-24–27). All three destinations share the same source-offset/length
+    descriptor fields and the same ready/valid, stall-don't-drop contract
+    (SOC1-11); only the output wiring differs, selected combinationally by
+    the destination field — no new descriptor fields, no new interrupt
+    (SOC1-13/14 apply unchanged to all three).
 13. **SOC1-13:** On normal completion (length reached), the controller
     shall set a "stream done" status bit and raise the corresponding
     interrupt (§4.4).
@@ -457,3 +469,15 @@ integration") predates ADR-0002/0003 and does not mention the NPU or the
 flash/PSRAM weight-stream path this spec is built around. Docs-hygiene
 item, not a blocker — flagged so the roadmap and this spec don't visibly
 disagree.
+
+## §8 Change log
+
+**v1.0 → v1.1 (CO-NPU-01).** Companion edit to `npu.md`'s own v1.1 (see that
+file's §8 for the full rationale, numbers, and rejected-alternatives
+analysis): SOC1-12's weight-stream destination field gains a third value
+(NPU activation SRAM, `npu.md` §2.3a) alongside the existing weight-FIFO and
+firmware-SRAM values. §3.1's NPU block-list row and this note are the only
+changes to this file; SOC1-08/09/10/11/13/14/17/18/19 and the flash
+controller's own (not-yet-written) CSR field layout are unaffected — the
+new destination reuses the existing descriptor shape and interrupt wiring
+verbatim. No open question in §7 is closed or newly opened by this edit.
