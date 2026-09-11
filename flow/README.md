@@ -142,7 +142,10 @@ A worker handle is exactly `kind: "worker"`, `host`, and the actual returned
 `start_time`, `command_sha256`, absolute `cwd`, and run `nonce`. Strings must be
 nonempty. Recover the actual handle after an ambiguous external call before
 attaching it; do not invent one. A crash between the intent and handle recording
-cannot provide exactly-once external execution. Missing live information stays
+cannot provide exactly-once external execution. This first slice has no abandon
+operation for an intent proven never dispatched: without an actual returned
+handle it remains held, pending a separately reviewed reconciliation extension.
+Do not invent a handle or erase the ledger to release it. Missing live information stays
 UNKNOWN and blocks a replacement. Expired handles, lease times, PID reuse and
 clock jumps do not establish completion.
 
