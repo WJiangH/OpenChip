@@ -13,8 +13,9 @@ handoff file for each assignment:
 | Contract | Work-item/requirement IDs, exact spec/profile revisions, acceptance criteria, prerequisites and unresolved questions |
 | Ownership | One author role, separate independent reviewer, approver and state writer; explicit transfer if replacing a worker |
 | Inputs and scope | Pinned source/dependency identities, allowed reads/writes, forbidden artifacts, tool/access limitations and public/private boundary |
+| Model decision | Task ambiguity/complexity, failure impact, verification ease/cost and context needs; selected configured model/effort and rationale; intended independent reviewer; bounded continuation or escalation trigger |
 | Execution | Branch from current main (or approved dependency), worktree, requested model/effort, observed identity or UNKNOWN, commands, resource bounds and durable worker/job handles |
-| Return | Changed artifacts, exact candidate, planned/selected/executed/skipped/checked scope, raw receipts and verdicts, open bugs/risks, applicable reruns, manifest PR and next action |
+| Return | Changed artifacts, exact candidate, planned/selected/executed/skipped/checked scope, raw receipts and verdicts, acceptance/quality, confirmed misses or false alarms, repair cycles, root versus human intervention, measured time/token/cost and unknowns, manifest PR and next action |
 
 Freeze the independent DV context from the approved spec and golden-model
 sources; do not copy implementation-derived answers. Sparse worktrees or another
@@ -47,6 +48,17 @@ approval. Read raw checker results and the review verdict. Missing evidence is
 unverified; preserve explicit executed failures according to receipt semantics.
 Evaluate actual friction and genuine defects, not planted bugs for agent ranking.
 A skill improvement is its own bounded, independently reviewed framework change.
+Compare outcomes only across comparable difficulty, context, skill version and
+evidence scope; they do not establish a model ranking or maturity claim.
+
+## Change a runtime configuration
+
+Use an in-place switch only when the runtime supports it. Before switching,
+reconcile the live worker, all owned jobs and the candidate; retain the original
+author's ownership, provide the replacement sufficient context, and preserve
+independent review. If the capability is unavailable, record the limitation and
+use an explicit handoff when authorized. Do not blindly restart a worker or
+present a requested configuration as observed runtime identity.
 
 ## Close the work item and retire its workspace
 

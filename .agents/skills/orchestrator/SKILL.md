@@ -44,15 +44,18 @@ moving meanwhile. State is a record of authority, never a new authority source.
    for dispatch, return routing and branch retirement. Give DV independent spec-derived context;
    do not pass implementation-derived expected answers. Delegate through an
    available, authorized mechanism and record the returned durable handle.
-3. Choose a configured model/effort for uncertainty, impact and context needs.
-   Use a strong reasoning configuration for architecture, ambiguous failures
-   and consequential independent review; routine mechanical work can use an
-   available lower-cost configuration. Respect explicit requested models;
-   capability or credential absence is a blocker to report, not permission to
-   silently substitute. Keep concrete model/provider choices in local state,
-   requested settings separate from observed identity, and UNKNOWN/none/UNKNOWN
-   where runtime identity is not independently exposed. Do not rank models from
-   completion counts or treat their agreement as evidence.
+3. Choose a configured model/effort from the task's ambiguity/complexity,
+   failure impact, verification ease/cost and context needs; record those
+   inputs, the selected setting and rationale in the assignment. Use lighter
+   configured work for bounded routine tasks, and stronger reasoning for
+   architecture, difficult semantics, ambiguous failures and consequential
+   independent review. A role name alone does not choose a configuration.
+   Respect explicit requested models; capability or credential absence is a
+   blocker to report, not permission to silently substitute. Keep concrete
+   model/provider choices in local state, requested settings separate from
+   observed identity, and UNKNOWN/none/UNKNOWN where runtime identity is not
+   independently exposed. Do not rank models from completion counts or treat
+   their agreement as evidence.
 4. Reuse a live assigned worker; dispatch parallel work only when dependencies,
    ownership and resource budgets permit it. Inspect meaningful progress and
    final receipts, not just process liveness. Read the substantive review
@@ -60,9 +63,13 @@ moving meanwhile. State is a record of authority, never a new authority source.
    reruns and independent re-review, and keep the same work item/PR synchronized.
    Keep a PR Draft if making it Ready would trigger integration outside the
    recorded authorization; workflow readiness is not permission to merge.
-5. Evaluate output and review quality against cited rules and raw evidence.
-   If results are weak, correct context, acceptance, decomposition, skill gaps
-   or model fit. Do not weaken gates or manufacture bugs to score workers.
+5. Evaluate the complete delivery loop against cited rules and raw evidence.
+   Record acceptance/quality, confirmed misses or false alarms, repair cycles,
+   root versus human intervention, measured time/token/cost, and unknowns.
+   Compare only like difficulty, context, skill version and evidence scope. If
+   results are weak, correct context, acceptance, decomposition, skill gaps or
+   model fit. Do not weaken gates, manufacture bugs, or make unsupported model
+   ranking or maturity claims.
    Genuine defects and observed friction can motivate a separately owned,
    independently reviewed skill change; integrator curates accepted additions.
    After such a change, assign prospective application on the next matching
@@ -75,6 +82,14 @@ moving meanwhile. State is a record of authority, never a new authority source.
    when a decision needs the detail. Finish when the agreed acceptance is
    evidenced, or checkpoint a precise remaining dependency/authority blocker;
    task counts are not closure.
+
+When configuration must change, use only a runtime-supported switch. Reconcile
+the live worker, owned jobs and candidate first; preserve the original author's
+ownership, a sufficient context handoff and independent review. If an in-place
+switch is unavailable, record that limitation and make an explicit handoff
+instead of blindly restarting or representing a requested setting as observed
+identity. Each assignment also records bounded continuation or escalation
+triggers.
 
 ## Persistence and operating limits
 
