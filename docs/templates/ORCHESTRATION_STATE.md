@@ -45,6 +45,17 @@ Task status: OPEN (not started), RUNNING, WAITING (known condition), BLOCKED
 These are workflow states, separate from signoff acceptance. Record assignment
 transfer explicitly; the state index has one designated writer at a time.
 
+For every assignment, retain task ambiguity/complexity, failure impact,
+verification ease/cost and context needs; the selected configured model/effort
+and rationale; intended independent reviewer; and bounded continuation or
+escalation triggers. On return, retain acceptance/quality, confirmed misses or
+false alarms, repair cycles, root versus human intervention, measured
+time/token/cost and unknowns. Compare observations only when difficulty,
+context, skill version and evidence scope are comparable; they do not establish
+a model ranking or maturity claim. If changing configuration, record supported
+switching capability or its limitation, reconcile the live worker/jobs/candidate,
+and preserve author ownership, context handoff and independent review.
+
 Record PR lifecycle separately: Draft / in review / changes requested / approved /
 merged / terminal closed, with exact head and reason. After a terminal decision,
 record cleanup owner, active/dependency/dirty/evidence checks, retained artifacts,
